@@ -1,0 +1,3 @@
+# alias di nome sito -> cartella in sitemaps/
+# serve quando opencli risolve un host su un nome diverso (fallback SLD)
+europa	law-tracker

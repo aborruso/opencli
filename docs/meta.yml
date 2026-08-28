@@ -1,0 +1,37 @@
+# Generato a mano (mirror verbatim dal repo upstream) — non editare i file .md a mano.
+slug: opencli
+nome: OpenCLI
+categoria: tooling
+licenza: Apache-2.0
+repo: https://github.com/jackwener/OpenCLI
+cli_version_al_fetch: 1.8.6
+ultimo_fetch: 2026-07-04T07:51:37Z
+files:
+  - filename: README.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/README.md
+    sha256: 3edfaef41de546ddc7ac9f2b1b4d43ebe40016dd03a0d0f6715da4e043fcd3ef
+    bytes: 18930
+  - filename: SKILL-opencli-browser.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/skills/opencli-browser/SKILL.md
+    sha256: ca08a2371a2ef0a89b5c366acfb64822c048dd06c81cb84134d735e93e75e69c
+    bytes: 29861
+  - filename: SKILL-opencli-usage.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/skills/opencli-usage/SKILL.md
+    sha256: c15f0840b208f89b703ae9d9084137ccbd45d42740781bb45ff884ab71f75430
+    bytes: 10599
+  - filename: SKILL-opencli-adapter-author.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/skills/opencli-adapter-author/SKILL.md
+    sha256: 0a0997e6da28e6a88000e84ad16efee16570c0dfea869658039fffc11a213631
+    bytes: 18002
+  - filename: guide-extending-opencli.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/docs/guide/extending-opencli.md
+    sha256: 8265261eca0bd01d0461c4f73215303fc8823ce3a0142093a4f43019cfa1f792
+    bytes: 5383
+  - filename: guide-exit-codes.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/docs/guide/exit-codes.md
+    sha256: 271004fba3f6218545fb9b8f2693b745a7f5216db6f58a24705db774164cd49f
+    bytes: 968
+  - filename: guide-plugins.md
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/main/docs/guide/plugins.md
+    sha256: cd70692b6259e1023956505142a11be1a5fed0cbfb096deced1e72a083b1a710
+    bytes: 6909

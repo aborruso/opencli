@@ -1,0 +1,1649 @@
+# opencli list — snapshot 2026-07-04 — opencli 1.8.6
+
+
+  opencli — available commands
+
+  App adapters
+
+  antigravity
+    add-context [ui] — Click the Add context button in the composer (opens file/URL picker for context attachment).
+    cookies [ui] — List cookies on the Antigravity renderer (JS-visible via document.cookie).
+    copy-code [ui] — Return the text of a code block in the current conversation. Default: last code block; pass --index N (1-based from top) to pick a specific one.
+    copy-message [ui] — Return the text of the last assistant message (best-effort: walks up from the last visible Copy button).
+    delete [ui] — Delete an Antigravity conversation by ID. Antigravity asks for confirmation; we click through it. Require --yes to actually delete.
+    display-options [ui] — Open the Display Options menu and list its items.
+    dump [ui] — Dump the DOM to help AI understand the UI
+    extract-code [ui] — Extract multi-line code blocks from the current Antigravity conversation
+    history [ui] — List visible Antigravity conversations from the sidebar
+    idb-list [ui] — List IndexedDB databases on the Antigravity renderer.
+    mark-read [ui] — Mark an unread Antigravity conversation as read. Fails if the row is already read or the postcondition cannot be verified.
+    model [ui] — Read or switch the active model in Antigravity. Without arguments, reports the current model. With <name> (substring, case-insensitive), switches.
+    nav [ui] — Click Go Back or Go Forward (Antigravity in-app history).
+    new [ui] — Start a new conversation / clear context in Antigravity
+    react [ui] — Click "Good response" or "Bad response" on the LAST assistant message.
+    read [ui] — Read the latest chat messages from Antigravity AI
+    recent-paths [local] — Show Antigravity's recently-opened folders/files (history.recentlyOpenedPathsList).
+    rename [ui] — Rename an Antigravity conversation by ID (NOT YET IMPLEMENTED — see source comment).
+    revert [ui] — Click the revert button (per-message revert for agent changes). Requires --yes (this modifies your workspace).
+    send [ui] — Send a message to Antigravity AI via the internal Lexical editor
+    settings [ui] — Click the Antigravity settings button (matched by data-testid="settings-button").
+    settings-read [local] — Read Antigravity's user settings.json (theme, proxy, agCockpit, tfa.system.autoAccept, etc.).
+    sidebar-toggle [ui] — Click Toggle Sidebar (collapses/expands the Antigravity sidebar).
+    state-get [local] — Read one value from Antigravity's state.vscdb. Pass --workspace <id> for per-workspace.
+    state-keys [local] — List keys in Antigravity's globalStorage state.vscdb (VSCode-style). Pass --workspace <id> to query a per-workspace DB. Works while Antigravity is closed.
+    status [ui] — Check Antigravity CDP connection and get current page state
+    storage-get [ui] — Read a single localStorage / sessionStorage value on the Antigravity renderer.
+    storage-keys [ui] — List localStorage / sessionStorage keys on the Antigravity renderer (CDP).
+    toggle-aux [ui] — Toggle the Auxiliary Pane (Antigravity's secondary panel for code/preview).
+    watch [ui] — Stream new chat messages from Antigravity in real-time
+    workspaces-list [local] — List Antigravity workspaceStorage entries (each represents a previously-opened folder).
+
+  chatgpt-app
+    ask [public] — Send a prompt and wait for the AI response (send + wait + read)
+    model [public] — Switch ChatGPT Desktop model/mode (auto, instant, thinking, 5.2-instant, 5.2-thinking)
+    new [public] — Open a new chat in ChatGPT Desktop App
+    read [public] — Read the last visible message from the focused ChatGPT Desktop window
+    send [public] — Send a message to the active ChatGPT Desktop App window
+    status [public] — Check if ChatGPT Desktop App is running natively on macOS
+
+  chatwise
+    ask [ui] — Send a prompt and wait for the AI response (send + wait + read)
+    export [ui] — Export the current ChatWise conversation to a Markdown file
+    history [ui] — List conversation history in ChatWise sidebar
+    model [ui] — Get or switch the active AI model in ChatWise
+    new [ui] — Start a new ChatWise conversation session
+    read [ui] — Read the current ChatWise conversation history
+    screenshot [ui] — Capture a snapshot of the current ChatWise window (DOM + Accessibility tree)
+    send [ui] — Send a message to the active ChatWise conversation
+    status [ui] — Check active CDP connection to ChatWise Desktop
+
+  codex
+    archive [ui] — Archive (Codex's term for delete) the selected conversation via the Chat actions header menu. No confirmation in UI — pass --yes to actually archive.
+    ask [ui] — Send a prompt to the current or selected Codex conversation and wait for the AI response
+    dump [ui] — Dump the DOM and Accessibility tree of codex for reverse-engineering
+    export [ui] — Export the current Codex conversation to a Markdown file
+    extract-diff [ui] — Extract visual code review diff patches from Codex
+    history [ui] — List visible Codex conversation threads grouped by project
+    model [ui] — Read, list, or switch the active model / reasoning level in Codex Desktop. The composer toolbar button toggles a menu that mixes model variants (GPT-5.5, Speed) with reasoning levels (Low/Medium/High/Extra High).
+    new [ui] — Start a new Codex conversation session
+    pin [ui] — Pin the selected Codex conversation via the Chat actions header menu.
+    projects [ui] — List Codex projects and visible conversations from the sidebar
+    read [ui] — Read the contents of the current or selected Codex conversation thread
+    rename [ui] — Rename the selected Codex conversation. Opens the Chat actions menu → "Rename chat", then types the new title.
+    screenshot [ui] — Capture a snapshot of the current Codex window (DOM + Accessibility tree)
+    send [ui] — Send text/commands to the current or selected Codex AI composer
+    status [ui] — Check active CDP connection to OpenAI Codex App
+    unpin [ui] — Unpin the selected Codex conversation via the Chat actions header menu.
+
+  cursor
+    ask [ui] — Send a prompt and wait for the AI response (send + wait + read)
+    composer [ui] — Send a prompt directly into Cursor Composer (Cmd+I shortcut)
+    dump [ui] — Dump the DOM and Accessibility tree of cursor for reverse-engineering
+    export [ui] — Export the current cursor conversation to a Markdown file
+    extract-code [ui] — Extract multi-line code blocks from the current Cursor conversation
+    history [ui] — List recent chat sessions from the Cursor sidebar
+    model [ui] — Get or switch the currently active AI model in Cursor
+    new [ui] — Start a new Cursor chat or Composer session
+    read [ui] — Read the current Cursor chat/composer conversation history
+    screenshot [ui] — Capture a snapshot of the current cursor window (DOM + Accessibility tree)
+    send [ui] — Send a prompt directly into Cursor Composer/Chat
+    status [ui] — Check active CDP connection to Cursor AI Editor
+
+  discord-app
+    channels [ui] — List channels in the current Discord server
+    delete [ui] — Delete a message by its ID in the active Discord channel
+    goto [ui] — Open a Discord channel by id/name/url without sending messages
+    members [ui] — List online members in the current Discord channel
+    read [ui] — Read recent messages from the active or targeted Discord channel
+    search [ui] — Search messages in the current Discord server/channel (Cmd+F)
+    send [ui] — Send a message in the active Discord channel
+    servers [ui] — List all Discord servers (guilds) in the sidebar
+    status [ui] — Check active CDP connection to Discord Desktop
+    thread-read [ui] — Read recent messages from a Discord thread/post by id or URL
+    threads [ui] — List visible Discord forum/thread posts in the active or targeted channel
+
+  doubao-app
+    ask [ui] — Send a message to Doubao desktop app and wait for the AI response
+    dump [ui] — Dump Doubao desktop app DOM and snapshot to /tmp for debugging
+    new [ui] — Start a new chat in Doubao desktop app
+    read [ui] — Read chat history from Doubao desktop app
+    screenshot [ui] — Capture a screenshot of the Doubao desktop app window
+    send [ui] — Send a message to Doubao desktop app
+    status [ui] — Check CDP connection to Doubao desktop app
+
+  qoder
+    account [ui] — Click the account button (username) in the Qoder sidebar and return the visible account dropdown items.
+    add-workspace [ui] — Click "Add Workspace" — opens the folder picker. Note: this opens a system file-picker dialog that Qoder controls; the actual folder selection must be done in the UI by the user.
+    ask [ui] — Send a prompt to Qoder and wait up to --timeout seconds for the reply (best-effort: polls for the chat turn count to grow + stabilize).
+    credits [ui] — Click "Credits Usage" and return the credits-usage display text.
+    history [ui] — List Quests visible in the Qoder sidebar. Returns title + visible metadata.
+    knowledge [ui] — Open the Knowledge view (Qoder's personal/team knowledge base).
+    marketplace [ui] — Open the Qoder Marketplace.
+    more-actions [ui] — Click the "More Actions" button and list its menu items.
+    new [ui] — Start a new Qoder Quest (conversation). Clicks the "New Quest" button in the sidebar (or its ⌘N variant).
+    open-editor [ui] — Click "Open Editor" — opens the current draft in a full editor pane.
+    open-panel [ui] — Open / close the Qoder bottom panel (Output / Terminal / Debug Console). ⌥⌘B equivalent.
+    prompt-enhance [ui] — Click "Prompt Enhance" — Qoder rewrites the current composer draft for better LLM consumption.
+    read [ui] — Read messages in the current Qoder Quest. Returns role + text for each visible turn.
+    search [ui] — Open Qoder Search palette (⌘P), type a query, return matched options.
+    send [ui] — Type text into the Qoder composer and click "Send message" (fire-and-forget).
+    settings [ui] — Click the Settings button in the Qoder sidebar.
+    sidebar-toggle [ui] — Collapse / Expand the Qoder Quest List sidebar (⌘B).
+    status [ui] — Check Qoder CDP connection and report the current renderer URL + title.
+    view-all [ui] — Click "View all" to show all Quests.
+
+  trae-cn
+    activity [ui] — Read the current Trae CN task/activity state, including in-progress steps when visible
+    approve [ui] — Approve visible Trae CN permission prompts such as terminal-run, high-risk command, or delete confirmations
+    ask [ui] — Send a prompt to Trae CN, wait for the assistant result without treating approval cards as final, and return it
+    dump [ui] — Dump the DOM and Accessibility tree of trae-cn for reverse-engineering
+    export [ui] — Export the current Trae CN conversation to Markdown
+    model [ui] — Read the model label currently shown in the Trae CN chat input
+    new [ui] — Start a new Trae CN task in the current workspace, optionally sending the first prompt
+    read [ui] — Read the current Trae CN chat conversation
+    screenshot [ui] — Capture a snapshot of the current Trae CN window (DOM + Accessibility tree)
+    select-model [ui] — Select a model in the current Trae CN chat input
+    send [ui] — Send a prompt into the current Trae CN chat input
+    status [ui] — Check active CDP connection to Trae CN and summarize the current workspace/model
+    watch [ui] — Sample Trae CN activity over time to monitor long-running tasks; optionally approve visible terminal/delete prompts
+
+  trae-solo
+    automation-list [ui] — List Trae SOLO Automation tab content. Default tab is "Configured"; pass --tab to switch.
+    cookies [ui] — List cookies on the Trae SOLO renderer (JS-visible via document.cookie; httpOnly cookies not shown).
+    extensions-list [local] — List VSCode extensions installed in Trae SOLO (~/.trae/extensions/extensions.json). Works while Trae is closed.
+    history [ui] — List Trae SOLO projects and the tasks within each (from the project-list view sidebar).
+    idb-list [ui] — List IndexedDB databases on the Trae SOLO renderer. Trae ships an @byted/ve-rtc DB used by the Volcengine RTC voice/video infrastructure.
+    mode [ui] — Read or switch TRAE SOLO between Code mode and Work mode.
+    model [ui] — Read or switch the current AI model in TRAE SOLO. Without arguments, reports the current model. With <name> argument (substring, case-insensitive), switches to a matching model. Pass --list to enumerate available models.
+    recent-workspaces [local] — Show Trae SOLO's recently-opened workspaces (the File → Open Recent menu, stored under key "history.recentlyOpenedPathsList" in state.vscdb).
+    settings-read [local] — Parse and pretty-print Trae SOLO user settings.json (~/Library/Application Support/TRAE SOLO/User/settings.json). Handles VSCode JSONC syntax (line comments + trailing commas).
+    skill-category [ui] — Filter Skills Marketplace by category. Pass --list to see categories.
+    skill-fs-installed [local] — List INSTALLED Trae SOLO skills (managedSkills entry in ~/.trae/skill-config.json).
+    skill-fs-list [local] — List all Trae SOLO skills present on disk under ~/.trae/skills/. Reads SKILL.md front-matter for descriptions. Works while Trae is closed.
+    skill-fs-show [local] — Print a skill's SKILL.md content + on-disk path.
+    skill-list [ui] — List Trae SOLO Skills — by default the Marketplace; pass --installed to list installed ones.
+    skill-search [ui] — Filter Skills Marketplace by keyword.
+    state-get [local] — Read a single key from Trae SOLO's globalStorage state.vscdb. Pass --workspace <ws-id> to query a per-workspace DB instead. Returns parsed JSON if the value is JSON.
+    state-keys [local] — List all keys present in Trae SOLO's globalStorage state.vscdb (VSCode-style UI/agent state). Pass --workspace <ws-id> to query a per-workspace DB instead. Use state-get to read a specific value. (See renderer storage-keys for browser-side LS/SS.)
+    status [ui] — Check active CDP connection to Trae SOLO Desktop
+    storage-get [ui] — Read a single localStorage / sessionStorage value on the Trae SOLO renderer.
+    storage-keys [ui] — List localStorage / sessionStorage keys on the Trae SOLO renderer (CDP). For the on-disk VSCode state.vscdb, see state-keys.
+    task-fs-list [local] — List Trae SOLO task ids from disk (snapshot/<uuid> + agentconfig/<uuid>.json). Works while Trae is closed.
+    task-fs-show [local] — Show the workspace tree at a given chat-turn ref (via git ls-tree). Pass --turn <turn-id> to pick a turn; otherwise the latest after-chat-turn ref.
+    task-fs-turns [local] — Show the chat-turn timeline for a Trae SOLO task as git tags (before-chat-turn-* / after-chat-turn-*).
+    user-rules [local] — Print Trae SOLO user rules (~/.trae/user_rules.md).
+    workspaces-list [local] — List Trae SOLO workspaceStorage entries (~/Library/.../TRAE SOLO/User/workspaceStorage/<uuid>/), resolving each workspace.json to its single-folder path or multi-folder workspace target. Works while Trae is closed.
+
+  Site adapters
+
+  12306
+    login [cookie] — Open 12306 login and wait until the browser session is authenticated
+    me [cookie] — Show the logged-in 12306 account summary. Sensitive fields (real name, email, mobile, birth date) are masked by default; pass --include-sensitive to opt in.
+    orders [cookie] — List in-progress 12306 orders (not yet ridden, refunded, or completed) for the logged-in user
+    passengers [cookie] — List the logged-in user's saved 12306 passengers. Sensitive fields are masked by default; pass --include-sensitive to opt in.
+    price [public] — Look up 12306 ticket prices by seat class for one train on a given date and segment (anonymous, no login required)
+    stations [public] — Search 12306 (China Railway) stations by Chinese name, telecode, or pinyin keyword
+    train [public] — List every station a 12306 train calls at, with arrival / departure / stopover time (anonymous, no login required)
+    trains [public] — List trains between two 12306 stations on a given date (anonymous, no login required)
+    whoami [cookie] — Show the current logged-in 12306 account
+
+  1688
+    assets [cookie] — 列出 1688 商品页可提取的图片/视频素材
+    download [cookie] — 批量下载 1688 商品页可提取的图片和视频素材
+    item [cookie] — 1688 商品详情（公开商品字段、价格阶梯、卖家基础信息）
+    login [cookie] — Open 1688 login and wait until the browser session is authenticated
+    search [cookie] — 1688 商品搜索（结果候选、卖家链接、价格/MOQ/销量文本）
+    store [cookie] — 1688 店铺/供应商公开信息（联系方式、主营、入驻年限、公开服务信号）
+    whoami [cookie] — Show the current logged-in 1688 account
+
+  1point3acres
+    digest [public] — 一亩三分地 精华帖（编辑推荐 / 加精）
+    forum [public] — 浏览一亩三分地某个版块的帖子列表（按 fid）
+    forums [public] — 一亩三分地 所有版块（fid + 版块名）
+    hot [public] — 一亩三分地 今日热门帖子（按热度排序，约 50 条）
+    latest [public] — 一亩三分地 最新发帖（按发帖时间倒序）
+    login [cookie] — Open 1point3acres login and wait until the browser session is authenticated
+    notifications [cookie] — 一亩三分地 站内通知（互动 / 点评 / @ 我；需要登录）
+    search [cookie] — 一亩三分地 站内关键字搜索（需要登录）
+    thread [public] — 一亩三分地 帖子详情 + 楼层（主楼 + 回复）
+    user [public] — 一亩三分地 用户空间（用户组 / 积分 / 大米 / 帖子数 等）
+    whoami [cookie] — Show the current logged-in 1point3acres account
+
+  36kr
+    article [intercept] — 获取36氪文章正文内容
+    hot [public] — 36氪热榜 — trending articles (renqi/zonghe/shoucang/catalog)
+    news [public] — Latest tech/startup news from 36kr (36氪)
+    search [public] — 搜索36氪文章
+
+  51job
+    company [cookie] — 51job 公司简介 + 在招职位（按 encCoId）
+    detail [cookie] — 51job 职位详情（按 jobId）
+    hot [cookie] — 51job 推荐职位（按城市/行业/排序浏览）
+    search [cookie] — 51job 前程无忧关键词职位搜索
+
+  aibase
+    news [public] — AIbase 日报 - 每天三分钟关注AI行业趋势
+
+  amazon
+    bestsellers [cookie] — Amazon Best Sellers pages for category candidate discovery
+    discussion [cookie] — Amazon review summary and sample customer discussion from product review pages
+    login [cookie] — Open amazon login and wait until the browser session is authenticated
+    movers-shakers [cookie] — Amazon Movers & Shakers pages for short-term growth signals
+    new-releases [cookie] — Amazon New Releases pages for early momentum discovery
+    offer [cookie] — Amazon seller, buy box, and fulfillment facts from the product page
+    product [cookie] — Amazon product page facts for candidate validation
+    search [cookie] — Amazon search results for product discovery and coarse filtering
+    whoami [cookie] — Show the current logged-in amazon account
+
+  apple-podcasts
+    episodes [public] — List recent episodes of an Apple Podcast (use ID from search)
+    search [public] — Search Apple Podcasts
+    top [public] — Top podcasts chart on Apple Podcasts
+
+  archive
+    item [public] — Fetch metadata for a single Internet Archive item by identifier.
+    search [public] — Search Internet Archive items across books, movies, audio, software, and web.
+    snapshots [public] — List Wayback Machine snapshots over time for a URL via the CDX API.
+    wayback [public] — Look up the closest Wayback Machine snapshot for a URL.
+
+  arxiv
+    author [public] — List arXiv papers by a given author (newest first)
+    paper [public] — Get arXiv paper details by ID
+    recent [public] — List recent arXiv submissions in a category
+    search [public] — Search arXiv papers
+
+  autohome
+    brand [public] (aliases: series) — 汽车之家按品牌列出全部车系 + 厂商指导价（免登录）
+    score [public] (aliases: koubei, rating) — 汽车之家车系口碑评分（总分 + 各维度 + 故障率PPH + 竞品对比，免登录）
+
+  baidu-scholar
+    search [public] — 百度学术搜索
+
+  band
+    bands [cookie] — List all Bands you belong to
+    login [cookie] — Open band login and wait until the browser session is authenticated
+    mentions [intercept] — Show Band notifications where you are @mentioned
+    post [cookie] — Export full content of a post including comments
+    posts [cookie] — List posts from a Band
+    whoami [cookie] — Show the current logged-in band account
+
+  barchart
+    flow [cookie] — Barchart unusual options activity / options flow
+    greeks [cookie] — Barchart options greeks overview (IV, delta, gamma, theta, vega)
+    options [cookie] — Barchart options chain with greeks, IV, volume, and open interest
+    quote [cookie] — Barchart stock quote with price, volume, and key metrics
+
+  bbc
+    news [public] — BBC News headlines (RSS)
+    topic [public] — BBC News headlines for a specific section (RSS feed)
+
+  bilibili
+    comment [cookie] — 在 B站视频下发表评论或回复（官方 API，需登录；消息里的 @用户 会被解析为真实提及）
+    comments [cookie] — 获取 B站视频评论（官方 API；用 --parent <rpid> 读取某条评论下的「楼中楼」回复）
+    download [cookie] — 下载B站视频（需要 yt-dlp）
+    dynamic [cookie] — Get Bilibili user dynamic feed
+    favorite [cookie] — 我的收藏夹
+    feed [cookie] — 动态时间线（不传 uid 查关注时间线，传 uid 查指定用户动态）
+    feed-detail [cookie] — 查看 Bilibili 动态详情（支持充电专属内容）
+    follow [cookie] — 关注 B站用户（官方 API，需登录）
+    following [cookie] — 获取 Bilibili 用户的关注列表
+    history [cookie] — 我的观看历史
+    hot [cookie] — B站热门视频
+    login [cookie] — Open bilibili login and wait until the browser session is authenticated
+    me [cookie] — My Bilibili profile info
+    ranking [cookie] — Get Bilibili video ranking board
+    search [cookie] — Search Bilibili videos or users
+    subtitle [cookie] — 获取 Bilibili 视频的字幕
+    summary [cookie] — 获取 B站视频的官方 AI 总结（视频页「AI总结」同款，含分段大纲与时间戳）
+    unfollow [cookie] — 取消关注 B站用户（官方 API，需登录）
+    user-videos [cookie] — 查看指定用户的投稿视频
+    video [cookie] — Get Bilibili video metadata (title, author, duration, stats, etc.)
+    whoami [cookie] — Show the current logged-in bilibili account
+
+  binance
+    asks [public] — Order book ask prices for a trading pair
+    depth [public] — Order book bid and ask prices for a trading pair
+    gainers [public] — Top gaining trading pairs by 24h price change
+    klines [public] — Candlestick/kline data for a trading pair
+    losers [public] — Top losing trading pairs by 24h price change
+    pairs [public] — List active trading pairs on Binance
+    price [public] — Quick price check for a trading pair
+    prices [public] — Latest prices for all trading pairs
+    ticker [public] — 24h ticker statistics for top trading pairs by volume
+    top [public] — Top trading pairs by 24h volume on Binance
+    trades [public] — Recent trades for a trading pair
+
+  bloomberg
+    businessweek [public] — Bloomberg Businessweek top stories
+    crypto [public] — Bloomberg Crypto top stories (RSS)
+    economics [public] — Bloomberg Economics top stories (RSS)
+    feeds [public] — List the Bloomberg RSS feed aliases used by the adapter
+    green [public] — Bloomberg Green (climate & energy) top stories (RSS)
+    industries [public] — Bloomberg Industries top stories (RSS)
+    main [public] — Bloomberg homepage top stories (RSS)
+    markets [public] — Bloomberg Markets top stories (RSS)
+    news [cookie] — Read a Bloomberg story/article page and return title, full content, and media links
+    opinions [public] — Bloomberg Opinion top stories (RSS)
+    politics [public] — Bloomberg Politics top stories (RSS)
+    pursuits [public] — Bloomberg Pursuits (lifestyle) top stories (RSS)
+    tech [public] — Bloomberg Tech top stories (RSS)
+
+  bluesky
+    feeds [public] — Popular Bluesky feed generators
+    followers [public] — List followers of a Bluesky user
+    following [public] — List accounts a Bluesky user is following
+    profile [public] — Get Bluesky user profile info
+    search [public] — Search Bluesky users
+    starter-packs [public] — Get starter packs created by a Bluesky user
+    thread [public] — Get a Bluesky post thread with replies
+    trending [public] — Trending topics on Bluesky
+    user [public] — Get recent posts from a Bluesky user
+
+  booking
+    search [public] — Search Booking.com hotels by destination and dates (server-rendered card scrape).
+
+  boss
+    batchgreet [cookie] — BOSS直聘批量向推荐候选人发送招呼
+    chatlist [cookie] — BOSS直聘查看聊天列表（招聘端/求职端）
+    chatmsg [cookie] — BOSS直聘查看聊天消息历史（招聘端/求职端）
+    detail [cookie] — BOSS直聘查看职位详情
+    exchange [cookie] — BOSS直聘交换联系方式（请求手机/微信）
+    greet [cookie] — BOSS直聘向新候选人发送招呼（开始聊天）
+    invite [cookie] — BOSS直聘发送面试邀请
+    joblist [cookie] — BOSS直聘查看我发布的职位列表
+    login [cookie] — Open boss login and wait until the browser session is authenticated
+    mark [cookie] — BOSS直聘给候选人添加标签
+    recommend [cookie] — BOSS直聘查看推荐候选人（新招呼列表）
+    resume [cookie] — BOSS直聘查看候选人简历（招聘端）
+    search [cookie] — BOSS直聘搜索职位（不带关键词时返回为你推荐职位）
+    send [cookie] — BOSS直聘发送聊天消息
+    stats [cookie] — BOSS直聘职位数据统计
+    whoami [cookie] — Show the current logged-in boss account
+
+  brave
+    search [public] — Search Brave Search
+
+  chaoxing
+    assignments [cookie] — 学习通作业列表
+    exams [cookie] — 学习通考试列表
+    login [cookie] — Open chaoxing login and wait until the browser session is authenticated
+    whoami [cookie] — Show the current logged-in chaoxing account
+
+  chatgpt
+    ask [cookie] — Send a prompt to ChatGPT web and wait for the response
+    deep-research-result [cookie] — Read a completed ChatGPT Deep Research report from the conversation payload
+    detail [cookie] — Open a ChatGPT web conversation by ID and read its messages
+    history [cookie] — List visible ChatGPT web conversation history from the sidebar
+    image [cookie] — Generate images with ChatGPT web and save them locally
+    login [cookie] — Open chatgpt login and wait until the browser session is authenticated
+    model [cookie] — Switch ChatGPT web intelligence level (fast, balanced, advanced, very-high, pro)
+    new [cookie] — Start a new ChatGPT web conversation
+    project-file-add [cookie] — Upload files to a ChatGPT project as project knowledge (not just conversation attachments)
+    project-list [cookie] — List visible ChatGPT projects from the sidebar
+    read [cookie] — Read messages in the current ChatGPT web conversation
+    send [cookie] — Send a prompt to ChatGPT web without waiting for the response
+    status [cookie] — Check ChatGPT web page availability and login state
+    whoami [cookie] — Show the current logged-in chatgpt account
+
+  chess
+    analyze [ui] — Open a Chess.com game in the browser analysis board
+    game [public] — Chess.com single-game detail (white, black, result, ECO, time control) by full game URL
+    games [public] — Chess.com recent games for a player, newest first
+    stats [public] — Chess.com player ratings + win/loss record across game kinds
+
+  claude
+    ask [cookie] — Send a prompt to Claude and get the response
+    detail [cookie] — Open a Claude conversation by ID and read its messages
+    history [cookie] — List conversation history from Claude /recents
+    login [cookie] — Open claude login and wait until the browser session is authenticated
+    new [cookie] — Start a new conversation in Claude
+    read [cookie] — Read the current Claude conversation
+    send [cookie] — Send a prompt to Claude without waiting for the response
+    status [cookie] — Check Claude page availability and login state
+    whoami [cookie] — Show the current logged-in claude account
+
+  cnki
+    search [cookie] — 中国知网论文搜索（海外版）
+
+  coingecko
+    categories [public] — Crypto categories ranked by aggregated market cap
+    coin [public] — Fetch a single cryptocurrency's market data by CoinGecko id (e.g. bitcoin, ethereum).
+    derivatives [public] — Top crypto derivative (perpetual / futures) markets by 24h volume
+    exchanges [public] — Top crypto exchanges by 24h BTC trading volume
+    global [public] — Aggregate crypto market stats: total market cap, volume, dominance
+    top [public] — 按市值排序的加密货币行情（默认 USD）
+    trending [public] — Top trending cryptocurrencies on CoinGecko in the last 24h (search-volume based).
+
+  confluence
+    create [public] — Create a Confluence page from Markdown or storage XHTML
+    page [public] — Confluence page by id with storage and Markdown body
+    search [public] — Search Confluence content with CQL
+    update [public] — Update a Confluence page body from Markdown or storage XHTML
+
+  coupang
+    add-to-cart [cookie] — Add a Coupang product to cart using logged-in browser session
+    login [cookie] — Open coupang login and wait until the browser session is authenticated
+    product [cookie] — Read full product detail (price, rating, seller, delivery) for a Coupang product
+    search [cookie] — Search Coupang products with logged-in browser session
+    whoami [cookie] — Show the current logged-in coupang account
+
+  crates
+    crate [public] — Single crates.io crate metadata (latest version, downloads, license, repo)
+    search [public] — Search the public crates.io registry by keyword
+
+  ctrip
+    flight [cookie] — 搜索携程一程机票（按出发/到达 IATA 三字码 + 日期）
+    hotel-search [cookie] — 搜索携程酒店列表（按城市 + 入住/离店日期）
+    hotel-suggest [public] — 搜索携程酒店上下文联想：城市、商圈、单酒店匹配
+    login [cookie] — Open ctrip login and wait until the browser session is authenticated
+    search [public] — 搜索携程目的地、景区、火车站和地标联想结果
+    whoami [cookie] — Show the current logged-in ctrip account
+
+  dblp
+    author [public] — List dblp publications by a given author (newest first; resolves to top PID match)
+    paper [public] (aliases: detail, view) — Fetch a dblp record by canonical key (e.g. conf/nips/VaswaniSPUJGKP17)
+    search [public] — Search dblp computer-science bibliography by free-text query
+    venue [public] — Search dblp venue registry (conferences / journals) by name or acronym
+
+  deepseek
+    ask [cookie] — Send a prompt to DeepSeek and get the response
+    detail [cookie] — Read a specific DeepSeek conversation by ID
+    history [cookie] — List conversation history from DeepSeek sidebar
+    login [cookie] — Open deepseek login and wait until the browser session is authenticated
+    new [cookie] — Start a new conversation in DeepSeek
+    read [cookie] — Read the current DeepSeek conversation
+    send [cookie] — Send a prompt to a specific DeepSeek conversation by ID, without waiting for a response
+    status [cookie] — Check DeepSeek page availability and login state
+    whoami [cookie] — Show the current logged-in deepseek account
+
+  defillama
+    protocol [public] — Single DefiLlama protocol details (current TVL, mcap, chains, twitter, github, description)
+    protocols [public] — Top DeFi protocols on DefiLlama by current TVL (slug, name, category, TVL, mcap, change_1d/7d, chains)
+
+  devto
+    latest [public] — Newest dev.to articles (firehose, all tags)
+    read [public] — Read a DEV.to article body by id
+    tag [public] — Latest DEV.to articles for a specific tag
+    top [public] — Top DEV.to articles of the day
+    user [public] — Recent DEV.to articles from a specific user
+
+  dianping
+    login [cookie] — Open dianping login and wait until the browser session is authenticated
+    search [cookie] — 大众点评店铺搜索（按关键词 + 城市）
+    shop [cookie] (aliases: detail) — 大众点评店铺详情（按 shop_id）
+    whoami [cookie] — Show the current logged-in dianping account
+
+  dictionary
+    examples [public] — Read real-world example sentences utilizing the word
+    search [public] — Search the Free Dictionary API for definitions, parts of speech, and pronunciations.
+    synonyms [public] — Find synonyms for a specific word
+
+  dockerhub
+    image [public] — Fetch a Docker Hub repository's public metadata (stars, pulls, last updated, status)
+    search [public] — Search Docker Hub repositories by keyword
+
+  dongchedi
+    koubei [public] (aliases: reviews) — 懂车帝车系口碑/车主评价（评分 / 购车款型 / 点赞 / 评论 / 正文摘要）
+    models [public] (aliases: trims) — 懂车帝车系款型列表（car_id / 名称 / 年款 / 指导价 / 经销商价 / 车主成交价）
+    score [public] (aliases: rating) — 懂车帝车系评分（懂车分 8 维度 + 同级车均值对比）
+    search [public] — 懂车帝车系搜索（按关键词，返回车系 + 指导价/经销商价）
+    series [public] (aliases: detail) — 懂车帝车系概览（品牌 / 指导价 / 二手价 / 懂车分 / 销量排名 / 在售款型数）
+    specs [public] (aliases: config) — 懂车帝车系配置概览（尺寸 / 动力 / 发动机 / 变速箱 / 四驱 / 悬挂 / 气囊）
+
+  douban
+    book-hot [cookie] — 豆瓣图书热门榜单
+    download [cookie] — 下载电影海报/剧照图片
+    login [cookie] — Open douban login and wait until the browser session is authenticated
+    marks [cookie] — 导出个人观影标记
+    movie-hot [cookie] — 豆瓣电影热门榜单
+    photos [cookie] — 获取电影海报/剧照图片列表
+    reviews [cookie] — 导出个人影评
+    search [cookie] — 搜索豆瓣电影、图书或音乐
+    subject [cookie] — 获取豆瓣条目详情
+    top250 [cookie] — 豆瓣电影 Top250
+    whoami [cookie] — Show the current logged-in douban account
+
+  doubao
+    ask [cookie] — Send a prompt and wait for the Doubao response
+    detail [cookie] — Read a specific Doubao conversation by ID
+    history [cookie] — List conversation history from Doubao sidebar
+    login [cookie] — Open doubao login and wait until the browser session is authenticated
+    meeting-summary [cookie] — Get meeting summary and chapters from a Doubao conversation
+    meeting-transcript [cookie] — Get or download the meeting transcript from a Doubao conversation
+    new [cookie] — Start a new conversation in Doubao web chat
+    read [cookie] — Read the current Doubao conversation history
+    send [cookie] — Send a message to Doubao web chat
+    status [cookie] — Check Doubao chat page availability and login state
+    whoami [cookie] — Show the current logged-in doubao account
+
+  douyin
+    activities [cookie] — 官方活动列表
+    collections [cookie] — 合集列表
+    delete [cookie] — 删除作品（优先使用创作者后台作品管理；找不到时回退到旧删除接口）
+    draft [cookie] — 上传视频并保存为草稿
+    drafts [cookie] — 获取草稿列表
+    hashtag [cookie] — 话题搜索 / AI推荐 / 热点词
+    location [cookie] — 地理位置 POI 搜索
+    login [cookie] — Open douyin login and wait until the browser session is authenticated
+    profile [cookie] — 获取账号信息
+    publish [cookie] — 定时发布视频到抖音（必须设置 2h ~ 14天后的发布时间）
+    search [cookie] — 关键词搜索抖音视频
+    stats [cookie] — 作品数据分析
+    update [cookie] — 更新视频信息
+    user-videos [cookie] — 获取指定用户的视频列表（含下载地址和热门评论）
+    videos [cookie] — 获取作品列表
+    whoami [cookie] — Show the current logged-in douyin account
+
+  duckduckgo
+    search [public] — Search DuckDuckGo
+    suggest [public] — DuckDuckGo search suggestions
+
+  eastmoney
+    announcement [public] — 上市公司公告（按交易所筛选）
+    convertible [public] — 可转债行情列表（默认按成交额排序）
+    etf [public] — ETF 列表按成交额/涨跌幅排行
+    holders [public] — 十大流通股东（A股 F10 数据）
+    hot-rank [cookie] — 东方财富热股榜
+    index-board [public] — 主要市场指数行情（A股 / 港股 / 美股）
+    kline [public] — K线历史数据（分/日/周/月/前复权/后复权）
+    kuaixun [public] — 东方财富 7x24 财经快讯
+    longhu [public] — 龙虎榜明细（A股交易所公开披露榜单）
+    money-flow [public] — 主力资金净流入排行（今日/5日/10日）
+    northbound [public] — 沪深港通北向/南向资金当日分时净流入（万元）
+    quote [public] — 个股实时行情（A股 / 港股 / 美股）— 来自 push2.eastmoney.com
+    rank [public] — 东财市场涨跌/成交排行（沪深/北证/创/科/港/美）
+    sectors [public] — 板块排行（行业/概念/地域）按涨跌幅、主力资金或成交额排序
+
+  endoflife
+    product [public] — Release cycles + EOL / LTS / support dates for one product on endoflife.date
+
+  facebook
+    add-friend [cookie] — Send a friend request on Facebook
+    events [cookie] — Browse Facebook event categories
+    feed [cookie] — Get your Facebook news feed
+    friends [cookie] — Get Facebook friend suggestions
+    groups [cookie] — List your Facebook groups
+    join-group [cookie] — Join a Facebook group
+    login [cookie] — Open facebook login and wait until the browser session is authenticated
+    marketplace-inbox [cookie] — List recent Facebook Marketplace buyer/seller conversations
+    marketplace-listings [cookie] — List your Facebook Marketplace seller listings
+    memories [cookie] — Get your Facebook memories (On This Day)
+    notifications [cookie] — Get recent Facebook notifications (含 unread / time / url / notif_id / notif_type 列)
+    profile [cookie] — Get Facebook user/page profile info
+    search [cookie] — Search Facebook for people, pages, or posts
+    whoami [cookie] — Show the current logged-in facebook account
+
+  flathub
+    app [public] — Full Flathub appstream metadata for an app id (license, categories, latest release)
+    search [public] — Search Flathub apps by keyword
+
+  flomo
+    login [cookie] — Open flomo login and wait until the browser session is authenticated
+    memos [cookie] — List your Flomo memos
+    whoami [cookie] — Show the current logged-in flomo account
+
+  gemini
+    ask [cookie] — Send a prompt to Gemini and return only the assistant response
+    deep-research [cookie] — Start a Gemini Deep Research run and confirm it
+    deep-research-result [cookie] — Export Deep Research report URL from a Gemini conversation
+    detail [cookie] — Open a Gemini web conversation by id, URL, or sidebar title and read its turns
+    history [cookie] — List visible Gemini web conversation history from the sidebar
+    image [cookie] — Generate images with Gemini web and save them locally
+    login [cookie] — Open gemini login and wait until the browser session is authenticated
+    models [cookie] — List available Gemini models from the web UI
+    new [cookie] — Start a new conversation in Gemini web chat
+    read [cookie] — Read the turns visible in the current Gemini web conversation
+    status [cookie] — Check Gemini web page availability and login state
+    whoami [cookie] — Show the current logged-in gemini account
+
+  geogebra
+    add-circle [public] — Create a circle by center+radius or center+point
+    add-line [public] — Create a line through two points or a segment between two points
+    add-point [public] — Create a point with given label and coordinates
+    add-polygon [public] — Create a polygon from a list of point labels
+    eval [public] — Execute one or more GeoGebra command strings (semicolon-separated)
+    hexagon [public] — Draw a regular hexagon centered at the origin
+    info [public] — Get detailed properties of a GeoGebra object
+    list [public] — List all geometric objects on the GeoGebra canvas
+    triangle [public] — Draw an equilateral triangle from a horizontal base segment
+
+  gitee
+    login [cookie] — Open gitee login and wait until the browser session is authenticated
+    search [public] — Search repositories on Gitee
+    trending [public] — Recommended open-source projects on Gitee Explore
+    user [public] — Show a Gitee user profile panel
+    whoami [cookie] — Show the current logged-in gitee account
+
+  github-trending
+    repos [public] — GitHub Trending repositories (public, no login). Filter by --language and --since.
+
+  github
+    login [cookie] — Open github login and wait until the browser session is authenticated
+    whoami [cookie] — Show the current logged-in github account
+
+  google-scholar
+    cite [public] — Get citation for a Google Scholar paper
+    profile [public] — View a Google Scholar author profile
+    search [public] — Google Scholar 学术搜索
+
+  google
+    news [public] — Get Google News headlines
+    search [public] — Search Google
+    suggest [public] — Get Google search suggestions
+    trends [public] — Get Google Trends daily trending searches
+
+  goproxy
+    module [public] — Latest version + VCS origin metadata for a Go module on proxy.golang.org
+    versions [public] — Published version tags for a Go module (newest first), optionally with publish times
+
+  gov-law
+    recent [public] — 最新法律法规
+    search [public] — 国家法律法规数据库搜索
+
+  gov-policy
+    recent [public] — 国务院最新政策文件
+    search [public] — 中国政府网政策文件搜索
+
+  grok
+    ask [cookie] — Send a message to Grok and get response
+    delete [cookie] — Delete a Grok conversation by ID. Grok takes effect immediately with no confirmation dialog — require --yes to actually delete.
+    detail [cookie] — Open a Grok conversation by ID and read its messages
+    export [cookie] — Export all visible Grok conversation history metadata
+    export-all [cookie] — Export Grok conversation history and each conversation transcript
+    history [cookie] — List recent Grok conversations from the sidebar (requires login)
+    image [cookie] — Generate images on grok.com and return image URLs
+    login [cookie] — Open grok login and wait until the browser session is authenticated
+    new [cookie] — Start a new conversation in Grok
+    pin [cookie] — Pin a Grok conversation by ID
+    read [cookie] — Read messages in the current Grok conversation
+    send [cookie] — Fire-and-forget: send a prompt to Grok without waiting for the reply
+    status [cookie] — Check Grok page availability, login state, current session and model
+    unpin [cookie] — Unpin a Grok conversation by ID
+    whoami [cookie] — Show the current logged-in grok account
+
+  guazi
+    browse [public] (aliases: list) — 瓜子二手车在售车源列表（按城市，含售价/首付/里程/年份）
+    car [public] (aliases: detail) — 瓜子二手车车源详情（售价 / 上牌 / 里程 / 过户 / 配置 / 车况）
+
+  hackernews
+    ask [public] — Hacker News Ask HN posts
+    best [public] — Hacker News best stories
+    jobs [public] — Hacker News job postings
+    new [public] — Hacker News newest stories
+    read [public] — Read a Hacker News story and its comment tree
+    search [public] — Search Hacker News stories
+    show [public] — Hacker News Show HN posts
+    top [public] — Hacker News top stories
+    user [public] — Hacker News user profile
+
+  hf
+    datasets [public] — Top Hugging Face datasets (downloads / likes / trending / freshness).
+    login [cookie] — Open hf login and wait until the browser session is authenticated
+    models [public] — Top Hugging Face models (downloads / likes / trending / freshness).
+    paper [public] — Hugging Face paper detail by arXiv id (full title / summary / authors / AI keywords)
+    spaces [public] — Top Hugging Face Spaces (likes / created_at / last_modified).
+    top [public] — Top upvoted Hugging Face papers
+    whoami [cookie] — Show the current logged-in hf account
+
+  hltv
+    event-matches [ui] — Read visible HLTV stats match rows for a specific event
+    match-map [ui] — Read a single HLTV mapstats page and return all player rows for that map
+    match-series [ui] — Expand an HLTV match or stats series into summary, map, and player rows
+    player-duel [ui] — Compare two HLTV players on shared maps, including direct kill matrix when available
+    player-form [ui] — Aggregate recent HLTV player maps into form summaries grouped by summary, map, and opponent
+    player-map-pool [ui] — Aggregate a player matches page into per-map performance buckets
+    player-matches [ui] — Read HLTV player match history from the stats Matches tab
+    player-summary [ui] — Read an HLTV player summary page
+    player-teammate-impact [ui] — Compare playerA maps with and without playerB present in the scanned sample
+    player-vs-team [ui] — Filter a player matches page to maps played against a specific HLTV team
+    search [ui] — Search HLTV players, teams, events, and articles
+    team-map-pool [ui] — Read the visible HLTV team map-pool page with win rate, pick rate, and ban rate
+    team-matches [ui] — Read recent HLTV team map results from the stats team matches page
+
+  homebrew
+    cask [public] — Fetch a Homebrew cask's metadata (version, homepage, deprecation, download URL)
+    formula [public] — Fetch a Homebrew formula's metadata (version, license, deps, deprecation, source)
+    popular [public] — List most-installed Homebrew formulae or casks (Homebrew's analytics ranking)
+
+  huodongxing
+    events [public] — 活动行活动搜索（按标签、城市、日期、线上/线下、名称过滤）
+
+  hupu
+    detail [public] — 获取虎扑帖子详情 (使用Next.js JSON数据)
+    hot [public] — 虎扑首页热门帖子（含 lights / replies / forum / is_hot 列）
+    like [cookie] — 点赞虎扑回复 (需要登录)
+    login [cookie] — Open hupu login and wait until the browser session is authenticated
+    mentions [cookie] (aliases: mention) — 查看虎扑提到我的回复 (需要登录)
+    reply [cookie] — 回复虎扑帖子 (需要登录)
+    search [public] — 搜索虎扑帖子 (使用官方API)
+    unlike [cookie] — 取消点赞虎扑回复 (需要登录)
+    whoami [cookie] — Show the current logged-in hupu account
+
+  imdb
+    person [public] — Get actor or director info
+    reviews [public] — Get user reviews for a movie or TV show
+    search [public] — Search IMDb for movies, TV shows, and people
+    title [public] — Get movie or TV show details
+    top [public] — IMDb Top 250 Movies
+    trending [public] — IMDb Most Popular Movies
+
+  indeed
+    job [cookie] (aliases: detail, view) — Read the full Indeed job posting by jk (job key)
+    search [cookie] — Indeed keyword job search (rendered DOM via browser session, US site)
+
+  instagram
+    collection-create [cookie] — Create a new Instagram saved-posts collection (folder)
+    collection-delete [cookie] — Delete an Instagram saved-posts collection (folder) by name or id
+    comment [cookie] — Comment on an Instagram post
+    download [cookie] — Download images and videos from Instagram posts and reels
+    explore [cookie] — Instagram explore/discover trending posts
+    follow [cookie] — Follow an Instagram user
+    followers [cookie] — List followers of an Instagram user
+    following [cookie] — List accounts an Instagram user is following
+    like [cookie] — Like an Instagram post
+    login [cookie] — Open instagram login and wait until the browser session is authenticated
+    note [ui] — Publish a text Instagram note
+    post [ui] — Post an Instagram feed image or mixed-media carousel
+    profile [cookie] — Get Instagram user profile info
+    reel [ui] — Post an Instagram reel video
+    save [cookie] — Save (bookmark) an Instagram post
+    saved [cookie] — Get your saved Instagram posts (optionally from a specific collection)
+    search [cookie] — Search Instagram users
+    story [ui] — Post a single Instagram story image or video
+    unfollow [cookie] — Unfollow an Instagram user
+    unlike [cookie] — Unlike an Instagram post
+    unsave [cookie] — Unsave (remove bookmark) an Instagram post
+    user [cookie] — Get recent posts from an Instagram user
+    whoami [cookie] — Show the current logged-in instagram account
+
+  jd
+    add-cart [cookie] — 京东加入购物车
+    cart [cookie] — 查看京东购物车
+    detail [cookie] — 京东商品详情
+    item [cookie] — 京东商品详情（价格、店铺、规格参数、主图、详情图）
+    login [cookie] — Open jd login and wait until the browser session is authenticated
+    reviews [cookie] — 京东商品评价
+    search [cookie] — 京东商品搜索
+    whoami [cookie] — Show the current logged-in jd account
+
+  jianyu
+    detail [cookie] — 读取剑鱼标讯详情页并抽取证据字段
+    login [cookie] — Open jianyu login and wait until the browser session is authenticated
+    search [cookie] — 搜索剑鱼标讯公告
+    whoami [cookie] — Show the current logged-in jianyu account
+
+  jike
+    comment [ui] — 评论即刻帖子
+    create [ui] — 发布即刻动态
+    feed [cookie] — 即刻首页动态流
+    like [ui] — 点赞即刻帖子
+    login [cookie] — Open jike login and wait until the browser session is authenticated
+    notifications [cookie] — 即刻通知
+    post [cookie] — 即刻帖子详情及评论
+    repost [ui] — 转发即刻帖子
+    search [cookie] — 搜索即刻帖子
+    topic [cookie] — 即刻话题/圈子帖子
+    user [cookie] — 即刻用户动态
+    whoami [cookie] — Show the current logged-in jike account
+
+  jimeng
+    generate [cookie] — 即梦AI 文生图 — 输入 prompt 生成图片
+    history [cookie] — 即梦AI 查看最近生成的作品
+    login [cookie] — Open jimeng login and wait until the browser session is authenticated
+    new [cookie] — 即梦AI 新建会话（workspace）
+    whoami [cookie] — Show the current logged-in jimeng account
+    workspaces [cookie] — 即梦AI 查看所有工作区（会话窗口）
+
+  jira
+    attachments [public] — Jira issue attachment metadata
+    comments [public] — Jira issue comments as Markdown
+    issue [public] — Jira issue detail normalized for agents (description, comments, attachments, links)
+    links [public] — Jira issue links
+    search [public] — Search Jira issues with JQL
+
+  juejin
+    hot [public] — Juejin (掘金) hot article ranking, optionally scoped to a category
+    recommend [public] — Juejin (掘金) homepage recommended article feed
+
+  ke
+    chengjiao [cookie] — 贝壳找房成交记录
+    ershoufang [cookie] — 贝壳找房二手房列表
+    login [cookie] — Open ke login and wait until the browser session is authenticated
+    whoami [cookie] — Show the current logged-in ke account
+    xiaoqu [cookie] — 贝壳找房小区列表
+    zufang [cookie] — 贝壳找房租房列表
+
+  kimi
+    account [cookie] — Read account info from the Kimi sidebar (display name + plan label, e.g. "Allegretto").
+    ask [cookie] — Send a message and wait up to --timeout seconds for the assistant reply (best-effort: polls for turn count to grow + stabilize).
+    cookies [cookie] — List kimi.com cookies visible to JavaScript (httpOnly cookies are deliberately not shown).
+    copy-message [cookie] — Return the text of the last assistant message. Pass --conv <id> to navigate to a specific chat first.
+    detail [cookie] — Open a Kimi chat by ID and return its visible messages.
+    dismiss-banner [cookie] — Close any visible sidebar banner (e.g., "Make a Review & Earn Credit", "获取应用程序") by clicking its Close svg.
+    history [cookie] — List recent Kimi chats from the sidebar (with chat IDs extracted from href).
+    history-rename [cookie] — Rename a chat from the /chat/history page (clicks the inline Edit svg next to a chat row, types the new title, and saves). Requires --yes.
+    idb-list [cookie] — List IndexedDB databases on kimi.com.
+    login [cookie] — Open kimi login and wait until the browser session is authenticated
+    mode [cookie] — Switch to a Kimi work mode: ppt | docs | deep-research | websites | sheets | agent-swarm | code. With no argument, lists modes.
+    model [cookie] — Read the current Kimi model (e.g. "K2.6 思考") or switch by clicking the model dropdown. With no argument, returns current; with --list, opens dropdown + lists; with --set <name>, switches.
+    new [cookie] — Start a new Kimi chat (navigates to / with chat_enter_method=new_chat).
+    react [cookie] — Like or dislike the last assistant message. Pass --conv <id> to target a specific chat.
+    read [cookie] — Read messages in the current Kimi chat. Pass --conv <id> to navigate to a specific chat first.
+    regenerate [cookie] — Click Refresh (Kimi's regenerate button) on the last assistant message. Pass --conv <id> to target a specific chat.
+    send [cookie] — Send a message in the current Kimi chat (fire-and-forget; does not wait for reply).
+    settings [cookie] — Open the Kimi settings page (/settings).
+    share [cookie] — Click Share on the last assistant message (opens Kimi's share dialog). Pass --conv <id> to target a specific chat.
+    sidebar-toggle [cookie] — Click the LeftBar svg to toggle the Kimi sidebar.
+    sign-out [cookie] — Click SignOut on the Kimi /settings page. Navigates to /settings first if not already there. Requires --yes.
+    status [cookie] — Check Kimi page connection, login state, and current URL.
+    storage-get [cookie] — Read a single localStorage / sessionStorage value on kimi.com. Auto-decodes JSON.
+    storage-keys [cookie] — List localStorage / sessionStorage keys on kimi.com (with byte sizes).
+    templates [cookie] — List template cards visible on a Kimi mode page (PPT/docs/deep-research/agent). Each mode shows curated example projects organized by category. Pass --mode to navigate first.
+    upgrade [cookie] — Click the "Upgrade" button (or 升级会员) in the Kimi sidebar — opens the membership/upgrade page or dialog.
+    usage [cookie] — Read Kimi Code console usage cards: weekly quota, rate limit, membership, and model permission.
+    view-all-history [cookie] — Navigate to /chat/history (full conversation list page).
+    whoami [cookie] — Show the current logged-in kimi account
+
+  lesswrong
+    comments [public] — Top comments on a post
+    curated [public] — Curated editor's picks
+    frontpage [public] — Algorithmic frontpage
+    new [public] — Latest posts
+    read [public] — Read full post by URL or ID
+    sequences [public] — List post collections
+    shortform [public] — Quick takes / shortform posts
+    tag [public] — Posts by tag
+    tags [public] — List popular tags
+    top [public] — Top all-time
+    top-month [public] — Top this month
+    top-week [public] — Top this week
+    top-year [public] — Top this year
+    user [public] — User profile
+    user-posts [public] — List a user's posts
+
+  lichess
+    top [public] — Top-N Lichess leaderboard for a perf type (bullet/blitz/rapid/classical/...)
+    user [public] — Fetch a Lichess player profile by username (rating, perfs, counts)
+
+  linkedin-learning
+    course [cookie] — Get LinkedIn Learning course detail by slug or course URL
+    login [cookie] — Open linkedin-learning login and wait until the browser session is authenticated
+    search [cookie] — Search LinkedIn Learning courses, videos, and learning paths by keyword
+    trending [cookie] — Browse LinkedIn Learning recommended courses across personalized carousels
+    whoami [cookie] — Show the current logged-in linkedin-learning account
+
+  linkedin
+    connect [ui] — Fail-closed LinkedIn connection request sender that verifies the exact profile before optionally sending a note
+    inbox [cookie] — List LinkedIn messaging inbox conversations and unread messages
+    job-detail [cookie] — Read one LinkedIn job page with description, apply URL, workplace type, applicants, and company metadata
+    jobs-preferences [cookie] — Read visible LinkedIn Jobs preferences and alert settings without changing them
+    login [cookie] — Open linkedin login and wait until the browser session is authenticated
+    people-search [cookie] — Search standard LinkedIn (not Sales Navigator) for people by keyword. Each invocation consumes against LinkedIn's monthly Commercial Use Limit on people search; throttle accordingly.
+    post-analytics [cookie] — Summarize raw visible LinkedIn post counters without custom scoring or classification
+    posts [cookie] — Export visible posts from a LinkedIn profile activity page with engagement metrics
+    profile-analytics [cookie] — Read visible LinkedIn profile dashboard metrics such as profile views, post impressions, and search appearances
+    profile-experience [cookie] — Read visible LinkedIn profile experience entries with titles, dates, locations, skills, media, and URLs
+    profile-projects [cookie] — Read visible LinkedIn profile projects with descriptions, dates, skills, media, and URLs
+    profile-read [cookie] — Read visible LinkedIn profile sections: headline, About, experience, education, services, and featured sections
+    safe-send [ui] — Fail-closed LinkedIn message sender that verifies exact thread, recipient, and latest message before filling/sending
+    salesnav-inbox [ui] — List LinkedIn Sales Navigator message conversations with API pagination
+    salesnav-message [ui] — Send or dry-run a LinkedIn Sales Navigator InMail to a lead using the Sales Navigator messaging API
+    salesnav-search [ui] — Search LinkedIn Sales Navigator for people leads by keyword
+    salesnav-thread [ui] — Return full Sales Navigator message history for a thread id, Sales Navigator inbox URL, lead URL, recipient urn, or exact recipient name
+    search [cookie] — Search LinkedIn jobs
+    sent-invitations [ui] — List pending LinkedIn sent invitations for CRM reconciliation
+    services-read [cookie] — Read LinkedIn Services page details including services, overview, availability, pricing, and media titles/descriptions
+    thread-snapshot [ui] — Load a LinkedIn messaging thread, scroll for available history, and return a full context snapshot
+    timeline [cookie] — Read LinkedIn home timeline posts
+    whoami [cookie] — Show the current logged-in linkedin account
+
+  linux-do
+    categories [cookie] — linux.do 分类列表
+    feed [cookie] — linux.do 话题列表（需登录；支持全站、标签、分类）
+    login [cookie] — Open linux-do login and wait until the browser session is authenticated
+    search [cookie] — 搜索 linux.do
+    tags [cookie] — linux.do 标签列表
+    topic [cookie] — linux.do 帖子首页摘要和回复（首屏）
+    topic-content [cookie] — Get the main topic body as Markdown
+    user-posts [cookie] — linux.do 用户的帖子
+    user-topics [cookie] — linux.do 用户创建的话题
+    whoami [cookie] — Show the current logged-in linux-do account
+
+  lobsters
+    active [public] — Lobste.rs most active discussions
+    domain [public] — Lobste.rs stories submitted from a specific domain
+    hot [public] — Lobste.rs hottest stories
+    newest [public] — Lobste.rs newest stories
+    read [public] — Read a Lobste.rs story and its comment tree
+    tag [public] — Lobste.rs stories by tag
+
+  maimai
+    login [cookie] — Open maimai login and wait until the browser session is authenticated
+    search-talents [cookie] — Search for candidates on Maimai with multi-dimensional filters
+    whoami [cookie] — Show the current logged-in maimai account
+
+  manus
+    connectors [cookie] — List available Manus connectors (integrations).
+    credits [cookie] — Show Manus credit balance and refresh details.
+    list [cookie] — List Manus sessions (tasks).
+    login [cookie] — Open manus login and wait until the browser session is authenticated
+    read [cookie] — Show details for a specific Manus session.
+    skills [cookie] — List Manus skills (user-added and system).
+    status [cookie] — Show current Manus user profile and credit summary.
+    whoami [cookie] — Show the current logged-in manus account
+
+  maven
+    artifact [public] — Fetch a Maven Central artifact's version history (groupId:artifactId[:version])
+    search [public] — Search Maven Central by keyword (artifact name, groupId, tag)
+
+  mdn
+    search [public] — Search MDN Web Docs by keyword
+
+  medium
+    feed [cookie] — Medium 热门文章 Feed
+    search [cookie] — 搜索 Medium 文章
+    tag [public] — Latest Medium articles tagged with a given keyword (RSS feed)
+    user [cookie] — 获取 Medium 用户的文章列表
+
+  mercury
+    check-login [ui] — Open Mercury reimbursements and report whether the active browser profile is logged in
+    reimbursement-draft [ui] — Create a Mercury reimbursement draft from a local receipt, correct OCR fields, and stop at Review
+    reimbursement-plan [local] — Validate Mercury reimbursement inputs and print the draft plan without opening a browser
+
+  mubu
+    doc [cookie] — 读取幕布文档内容（默认输出 Markdown，可用 --output text 输出纯文本）
+    docs [cookie] — 列出幕布文档（默认根目录，--starred 查看快速访问列表）
+    notes [cookie] — 读取幕布速记（默认今天）。支持 --date/--month/--year/--from/--to 指定时间范围，--list 为概览模式（日期+条数）。
+    recent [cookie] — 最近编辑的幕布文档
+    search [cookie] — 全局搜索幕布文档和文件夹（标题+内容，服务端全量匹配）。结果含 type/id/name/path/hits/snippet 字段。
+
+  notebooklm
+    add-source [cookie] — Add a URL, text, or local file source to an existing NotebookLM notebook
+    create [cookie] — Create a new NotebookLM notebook with the given title
+    current [cookie] — Show metadata for the currently opened NotebookLM notebook tab
+    generate-audio [cookie] — Trigger an Audio Overview (Deep Dive podcast) generation for a NotebookLM notebook, using all of its sources
+    generate-slides [cookie] — Trigger a Slide Deck (AI presentation) generation for a NotebookLM notebook, using all of its sources
+    get [cookie] (aliases: metadata) — Get rich metadata for the currently opened NotebookLM notebook
+    history [cookie] — List NotebookLM conversation history threads in the current notebook
+    list [cookie] — List NotebookLM notebooks via in-page batchexecute RPC in the current logged-in session
+    login [cookie] — Open notebooklm login and wait until the browser session is authenticated
+    note-list [cookie] (aliases: notes-list) — List saved notes from the Studio panel of the current NotebookLM notebook
+    notes-get [cookie] — Get one note from the current NotebookLM notebook by title from the visible note editor
+    open [cookie] (aliases: select) — Open one NotebookLM notebook in the adapter session by id or URL
+    source-fulltext [cookie] — Get the extracted fulltext for one source in the currently opened NotebookLM notebook
+    source-get [cookie] — Get one source from the currently opened NotebookLM notebook by id or title
+    source-guide [cookie] — Get the guide summary and keywords for one source in the currently opened NotebookLM notebook
+    source-list [cookie] — List sources for the currently opened NotebookLM notebook
+    status [cookie] — Check NotebookLM page availability and login state in the current Chrome session
+    summary [cookie] — Get the summary block from the currently opened NotebookLM notebook
+    whoami [cookie] — Show the current logged-in notebooklm account
+    write-note [cookie] — Create a Studio note in an existing NotebookLM notebook with the given title and Markdown content
+
+  nowcoder
+    companies [public] — Hot companies for interview prep
+    creators [public] — Top content creators leaderboard
+    detail [cookie] — Post detail view (supports ID / UUID / URL)
+    experience [cookie] — Interview experience posts
+    hot [public] — Hot search ranking
+    jobs [public] — Career category listing
+    login [cookie] — Open nowcoder login and wait until the browser session is authenticated
+    notifications [cookie] — Unread message summary
+    papers [cookie] — Interview question bank by company and job
+    practice [cookie] — Categorized practice questions with progress
+    recommend [public] — Recommended feed
+    referral [cookie] — Internal referral posts
+    salary [cookie] — Salary disclosure posts
+    search [cookie] — Full-text search
+    suggest [cookie] — Search suggestions
+    topics [public] — Hot discussion topics
+    trending [public] — Trending posts
+    whoami [cookie] — Show the current logged-in nowcoder account
+
+  npm
+    downloads [public] — Daily download counts for an npm package over a window
+    package [public] — Single npm package metadata (latest version, license, homepage, repository). Use `npm downloads` for stats.
+    search [public] — Search the public npm registry by keyword
+
+  nuget
+    package [public] — Full NuGet package version history (catalogEntry per release)
+    search [public] — Search NuGet packages by keyword
+
+  nvd
+    cve [public] — NIST NVD CVE detail (description, CVSS, CWE, KEV flag)
+
+  oeis
+    search [public] — Search OEIS sequences by keyword or numeric pattern
+    sequence [public] — Full OEIS sequence detail by A-number (terms, name, keywords, formula counts)
+
+  ones
+    login [cookie] — ONES Project API — login via Chrome Bridge (POST auth/login); stderr prints export hints for ONES_USER_ID / TOKEN
+    logout [cookie] — ONES Project API — invalidate current token (GET auth/logout) via Chrome Bridge
+    me [cookie] — ONES Project API — current user (GET users/me) via Chrome Bridge
+    my-tasks [cookie] — ONES — my work items (filters/peek + strict must query). Default: assignee=me. Use --mode if your site uses field004 for assignee.
+    task [cookie] — ONES — work item detail (GET team/:team/task/:id/info); id is URL segment after …/task/
+    tasks [cookie] — ONES Project API — list work items (POST team/:team/filters/peek); use token-info -f json for team uuid
+    token-info [cookie] — ONES Project API — session detail (GET auth/token_info) via Chrome Bridge: user, teams, org
+    worklog [cookie] — ONES — log work hours on a task (defaults to today; use --date to backfill; endpoint falls back by deployment).
+
+  openalex
+    search [public] — Search OpenAlex Works (papers, books, preprints) by keyword
+    work [public] — Fetch a single OpenAlex Work (paper / preprint / book) — metadata + abstract
+
+  openfda
+    drug-label [public] — Search FDA-approved drug labels (brand or generic name)
+    food-recall [public] — FDA food recall and enforcement actions (most recent first)
+
+  openreview
+    author [public] — List OpenReview submissions by an author profile id (newest first)
+    paper [public] — Show full metadata for a single OpenReview paper
+    reviews [public] — Show full review thread (paper + reviews + decisions) for an OpenReview forum
+    search [public] — Search OpenReview papers by free-text query
+    venue [public] — List papers at an OpenReview venue (e.g. "ICLR 2024 oral" or full invitation id)
+
+  osv
+    query [public] — OSV.dev vulnerabilities affecting a package (optionally pinned to a version)
+    vulnerability [public] — Single OSV.dev vulnerability detail (severity, affected packages, CVE/GHSA aliases)
+
+  packagist
+    package [public] — Fetch a Packagist package's metadata (version, downloads, license, repo, GitHub stars)
+    search [public] — Search Packagist (PHP / Composer) packages by keyword
+
+  paperreview
+    feedback [public] — Submit feedback for a paperreview.ai review token
+    review [public] — Fetch a paperreview.ai review by token
+    submit [public] — Submit a PDF to paperreview.ai for review
+
+  pixiv
+    detail [cookie] — View illustration details (tags, stats, URLs)
+    download [cookie] — Download illustration images from Pixiv
+    illusts [cookie] — List a Pixiv artist's illustrations
+    login [cookie] — Open pixiv login and wait until the browser session is authenticated
+    ranking [cookie] — Pixiv illustration rankings (daily/weekly/monthly)
+    search [cookie] — Search Pixiv illustrations by keyword
+    user [cookie] — View Pixiv artist profile
+    whoami [cookie] — Show the current logged-in pixiv account
+
+  powerchina
+    login [cookie] — Open powerchina login and wait until the browser session is authenticated
+    search [cookie] — 搜索中国电建阳光采购公告
+    whoami [cookie] — Show the current logged-in powerchina account
+
+  producthunt
+    browse [intercept] — Best products in a Product Hunt category
+    hot [intercept] — Today's top Product Hunt launches with vote counts
+    posts [public] — Latest Product Hunt launches (optional category filter)
+    today [public] — Today's Product Hunt launches (most recent day in feed)
+
+  pubmed
+    article [public] (aliases: paper, read) — Get detailed information for a PubMed article by PMID
+    author [public] — Search PubMed articles by author name and optional affiliation
+    citations [public] — Get PubMed citation relationships for an article
+    clinical-trial [public] — Search PubMed clinical trials with a trial-study preset
+    journal [public] — Search PubMed articles by journal name
+    mesh [public] — Search PubMed articles by MeSH term
+    related [public] — Find articles related to a PubMed article
+    review [public] — Search PubMed review articles with a review preset
+    search [public] — Search PubMed articles with advanced filters
+
+  pypi
+    downloads [public] — PyPI download stats for a package (recent totals or full daily history)
+    package [public] — Single PyPI package metadata (latest version, license, homepage, classifiers)
+
+  quark
+    login [cookie] — Open quark login and wait until the browser session is authenticated
+    ls [cookie] — List files in your Quark Drive
+    mkdir [cookie] — Create a folder in your Quark Drive
+    mv [cookie] — Move files to a folder in your Quark Drive
+    rename [cookie] — Rename a file in your Quark Drive
+    rm [cookie] — Delete files from your Quark Drive
+    save [cookie] — Save shared files to your Quark Drive
+    share-tree [cookie] — Get directory tree from Quark Drive share link as nested JSON
+    whoami [cookie] — Show the current logged-in quark account
+
+  qwen
+    ask [cookie] — Send a prompt to Qianwen and return the assistant reply
+    detail [cookie] — Open a Qianwen conversation by ID and read its messages
+    history [cookie] — List recent Qianwen conversations (requires login)
+    image [cookie] — Generate images with Qianwen (AI生图) and save them locally
+    login [cookie] — Open qwen login and wait until the browser session is authenticated
+    new [cookie] — Start a new conversation in Qianwen
+    read [cookie] — Read messages in the current Qianwen conversation
+    send [cookie] — Fire-and-forget: send a prompt to Qianwen without waiting for the reply
+    status [cookie] — Check Qianwen page availability, login state, current session and model
+    whoami [cookie] — Show the current logged-in qwen account
+
+  reddit
+    comment [cookie] — Post a comment on a Reddit post
+    frontpage [cookie] — Reddit Frontpage / r/all
+    home [cookie] — Reddit personalized home feed (Best, requires login)
+    hot [cookie] — Reddit 热门帖子
+    login [cookie] — Open reddit login and wait until the browser session is authenticated
+    popular [cookie] — Reddit Popular posts (/r/popular)
+    read [cookie] — Read a Reddit post and its comments
+    reply [cookie] — Reply to a Reddit comment
+    save [cookie] — Save or unsave a Reddit post
+    saved [cookie] — Browse your saved Reddit posts
+    search [cookie] — Search Reddit Posts
+    subreddit [cookie] — Get posts from a specific Subreddit
+    subreddit-info [cookie] — Show metadata for a Reddit subreddit (subscribers, description, created date, NSFW)
+    subscribe [cookie] — Subscribe or unsubscribe to a subreddit
+    subscribed [cookie] — List subreddits you are subscribed to
+    upvote [cookie] — Upvote or downvote a Reddit post
+    upvoted [cookie] — Browse your upvoted Reddit posts
+    user [cookie] — View a Reddit user profile
+    user-comments [cookie] — View a Reddit user's comment history
+    user-posts [cookie] — View a Reddit user's submitted posts
+    whoami [cookie] — Show the currently logged-in Reddit user
+
+  rednote
+    comments [cookie] — Read comments from a rednote note (supports nested replies)
+    download [cookie] — Download images and videos from a rednote note
+    feed [cookie] — Rednote home feed (reads hydrated Pinia store)
+    login [cookie] — Open rednote login and wait until the browser session is authenticated
+    note [cookie] — Read note body and engagement counts from a rednote note
+    notifications [cookie] — Rednote notifications (mentions/likes/connections)
+    search [cookie] — Search rednote notes
+    user [cookie] — Get public notes from a rednote user profile
+    whoami [cookie] — Show the current logged-in rednote account
+
+  rest-countries
+    country [public] — Look up countries by name (common / official, substring match)
+    region [public] — List countries in a region (africa / americas / asia / europe / oceania / antarctic)
+
+  reuters
+    article-detail [cookie] — Reuters 路透社文章详情：标题/作者/正文文本
+    login [cookie] — Open reuters login and wait until the browser session is authenticated
+    search [cookie] — Reuters 路透社新闻搜索
+    whoami [cookie] — Show the current logged-in reuters account
+
+  rfc
+    rfc [public] — Single IETF RFC metadata (title, abstract, working group, authors, std level)
+
+  rubygems
+    gem [public] — Fetch a RubyGems.org gem's metadata (version, downloads, license, links)
+    search [public] — Search RubyGems.org gems by keyword
+
+  semanticscholar
+    citations [public] — List papers that cite a Semantic Scholar paper (paginated)
+    paper [public] — Semantic Scholar paper detail (citation graph + AI tldr) by paperId, DOI, or arXiv id
+    recommendations [public] — Semantic Scholar AI-curated related papers for a paperId, DOI, or arXiv id
+    search [public] — Search Semantic Scholar papers by free text
+
+  sinablog
+    article [cookie] — 获取新浪博客单篇文章详情
+    hot [cookie] — 获取新浪博客热门文章/推荐
+    search [public] — 搜索新浪博客文章（通过新浪搜索）
+    user [cookie] — 获取新浪博客用户的文章列表
+
+  sinafinance
+    news [public] — 新浪财经 7x24 小时实时快讯
+    rolling-news [cookie] — 新浪财经滚动新闻
+    stock [public] — 新浪财经行情（A股/港股/美股）
+    stock-rank [cookie] — 新浪财经热搜榜
+
+  slock
+    attachment-download [cookie] — Download an attachment to a local file. Resolves a signed CDN URL in the page, then fetches bytes node-side (no CORS).
+    attachment-upload [cookie] — Upload a local file to Slock attachments. Prints the attachmentId for use with `message-send --attach`.
+    attachment-url [cookie] — Get a short-lived signed CDN URL for an attachment (does not download bytes).
+    bookmark-add [cookie] — Bookmark a message (POST /channels/saved). Requires full messageId UUID.
+    bookmark-list [cookie] — List bookmarks (saved messages) in the active server
+    bookmark-remove [cookie] — Remove a bookmark (DELETE /channels/saved/:messageId). 404 is treated as already-removed.
+    channel-archive [cookie] — Archive a channel — admin only (POST /channels/:id/archive)
+    channel-create [cookie] — Create a channel — admin only (POST /channels/). Public unless --private.
+    channel-files [cookie] — List files shared in a channel (GET /channels/:id/files)
+    channel-info [cookie] — Show one channel's details (GET /channels/:id)
+    channel-join [cookie] — Join a public channel (POST /channels/:id/join)
+    channel-leave [cookie] — Leave a channel (POST /channels/:id/leave)
+    channel-list [cookie] — List channels in the active slock server
+    channel-mark [cookie] — Mark a channel read (default), read up to --seq, or --unread.
+    channel-members [cookie] — List members of a channel
+    channel-unarchive [cookie] — Unarchive a channel — admin only (POST /channels/:id/unarchive). #name lookups exclude archived channels; pass the channelId UUID for archived ones.
+    dm-list [cookie] — List DM channels in the active server (GET /channels/dm)
+    inbox [cookie] — List unified inbox items (channels, DMs, followed threads) that need attention.
+    inbox-done [cookie] — Mark one chat as done / clear it from the inbox (POST /channels/inbox/done)
+    inbox-read-all [cookie] — Mark the entire inbox as read (POST /channels/inbox/read-all)
+    login [cookie] — Open slock login and wait until the browser session is authenticated
+    message-read [cookie] — Read messages in a channel or thread. Thread form: "#channel:msgIdOrShort". Use --after seq|UUID for cursor.
+    message-search [cookie] — Search messages
+    message-send [cookie] — Send a message to a channel, DM, or thread (content sent verbatim)
+    reaction-add [cookie] — Add an emoji reaction to a message (POST /messages/:id/reactions). Idempotent server-side.
+    reaction-remove [cookie] — Remove your emoji reaction from a message (DELETE /messages/:id/reactions).
+    server-list [cookie] — List slock servers you belong to; marks active per localStorage slug
+    server-use [cookie] — Set the active slock server (writes localStorage.slock_last_server_slug)
+    task-claim [cookie] — Claim a chat task (PATCH /tasks/:id/claim). Requires full task UUID (= message id).
+    task-convert [cookie] — Convert a message into a chat task (POST /tasks/convert-message). Accepts a message UUID or "#channel:shortId".
+    task-create [cookie] — Create a task in a channel (single title; batch 1-50 is server-supported but client surface is single — see backlog R4).
+    task-delete [cookie] — Delete a chat task (DELETE /tasks/:taskId). Requires --confirm — destructive, irreversible.
+    task-get [cookie] — Fetch a task by channel + taskNumber (GET /tasks/channel/:channelId/number/:taskNumber).
+    task-list [cookie] — List tasks (chat tasks = messages with task fields) attached to a channel. Optional --status filter.
+    task-list-server [cookie] — List tasks across all channels in the active server (GET /tasks/server). Optional --status filter.
+    task-status [cookie] — Set a task's status (PATCH /tasks/:taskId/status, body {status}). One of todo|in_progress|in_review|done|closed.
+    task-unclaim [cookie] — Release ownership of a chat task (PATCH /tasks/:id/unclaim).
+    thread-done [cookie] — Mark a thread as done / hide it from the active list (POST /channels/threads/done)
+    thread-follow [cookie] — Follow the thread on a parent message (POST /channels/threads/follow)
+    thread-list [cookie] — List followed threads in the active server (GET /channels/threads/followed)
+    thread-undone [cookie] — Restore a done thread to the active list (POST /channels/threads/undone)
+    thread-unfollow [cookie] — Stop following a thread (POST /channels/threads/unfollow)
+    unread-summary [cookie] — Global unread counts across every server you belong to.
+    whoami [cookie] — Show the current logged-in slock account
+
+  smzdm
+    search [cookie] — 什么值得买搜索好价
+
+  spotify
+    auth [public] — Authenticate with Spotify (OAuth — run once)
+    next [public] — Skip to next track
+    pause [public] — Pause playback
+    play [public] — Resume playback or search and play a track/artist
+    prev [public] — Skip to previous track
+    queue [public] — Add a track to the playback queue
+    repeat [public] — Set repeat mode (off / track / context)
+    search [public] — Search for tracks
+    shuffle [public] — Toggle shuffle on/off
+    status [public] — Show current playback status
+    volume [public] — Set playback volume (0-100)
+
+  stackoverflow
+    bounties [public] — Active bounties on Stack Overflow
+    hot [public] — Hot Stack Overflow questions
+    read [public] — Read a Stack Overflow question with answers and comments
+    related [public] — List Stack Overflow questions related to a given question id.
+    search [public] — Search Stack Overflow questions
+    tag [public] — List Stack Overflow questions tagged with a given tag (most active first).
+    unanswered [public] — Top voted unanswered questions on Stack Overflow
+    user [public] — Find Stack Overflow users by display name (highest reputation first).
+
+  steam
+    app [public] — Steam storefront detail for a single app id
+    search [public] — Search the Steam storefront by name keyword
+    top-sellers [public] — Steam top selling games
+
+  substack
+    feed [cookie] — Substack 热门文章 Feed
+    publication [cookie] — 获取特定 Substack Newsletter 的最新文章
+    search [public] — 搜索 Substack 文章和 Newsletter
+
+  suno
+    download [cookie] — Download an existing Suno clip (MP3 + optional WAV/M4A/video) by id
+    generate [cookie] — Generate music with Suno (V5.5 chirp-fenix by default) and download clips locally
+    list [cookie] — List recent Suno clips in your library (id, title, status, created_at, link)
+    login [cookie] — Open suno login and wait until the browser session is authenticated
+    status [cookie] — Check Suno login, plan, credit balance, and captcha readiness
+    whoami [cookie] — Show the current logged-in suno account
+
+  taobao
+    add-cart [cookie] — 淘宝加入购物车
+    cart [cookie] — 查看淘宝购物车
+    detail [cookie] — 淘宝商品详情
+    login [cookie] — Open taobao login and wait until the browser session is authenticated
+    reviews [cookie] — 淘宝商品评价
+    search [cookie] — 淘宝商品搜索
+    whoami [cookie] — Show the current logged-in taobao account
+
+  tdx
+    hot-rank [cookie] — 通达信热搜榜
+
+  ths
+    hot-rank [cookie] — 同花顺热股榜
+
+  tieba
+    hot [public] — Tieba hot topics
+    posts [cookie] — Browse posts in a tieba forum
+    read [cookie] — Read a tieba thread
+    search [cookie] — Search posts across tieba
+
+  tiktok
+    comment [cookie] — Post a comment on a TikTok video
+    creator-videos [cookie] — TikTok Studio creator content list (views/likes/comments/saves/shares)
+    explore [cookie] — Get trending TikTok videos from the recommend feed via page-context APIs
+    follow [cookie] — Follow a TikTok user by username
+    following [cookie] — List accounts the logged-in user follows on TikTok via page-context APIs
+    friends [cookie] — Get TikTok friend / who-to-follow suggestions via page-context APIs
+    like [cookie] — Like a TikTok video
+    live [cookie] — Browse TikTok live streams via page-context APIs
+    login [cookie] — Open tiktok login and wait until the browser session is authenticated
+    notifications [cookie] — Read TikTok inbox notifications (likes, comments, mentions, followers) via page-context APIs
+    profile [cookie] — Get TikTok user profile info
+    save [cookie] — Add a TikTok video to Favorites
+    search [cookie] — Search TikTok videos
+    unfollow [cookie] — Unfollow a TikTok user by username
+    unlike [cookie] — Unlike a TikTok video
+    unsave [cookie] — Remove a TikTok video from Favorites
+    user [cookie] — Get recent videos from a TikTok user via page-context APIs
+    whoami [cookie] — Show the current logged-in tiktok account
+
+  toutiao
+    articles [cookie] — 获取头条号创作者后台文章列表及数据
+    hot [public] — 今日头条首页热榜（公开 API，无需登录）
+    login [cookie] — Open toutiao login and wait until the browser session is authenticated
+    whoami [cookie] — Show the current logged-in toutiao account
+
+  trae-cn
+    setup [local] — Show local setup commands for controlling Trae CN with OpenCLI
+    targets [local] — List Trae CN CDP targets and show which workspace/window is waiting
+
+  tvmaze
+    search [public] — TVmaze TV show search by title (returns id, name, network, premiered/ended, rating)
+    show [public] — Single TVmaze TV show detail by id (network, schedule, rating, IMDB/TheTVDB cross-refs)
+
+  twitter
+    accept [ui] — Auto-accept DM requests containing specific keywords
+    article [cookie] — Fetch a Twitter Article (long-form content) and export as Markdown
+    block [ui] — Block a Twitter user
+    bookmark [ui] — Bookmark a tweet
+    bookmark-folder [cookie] — Read the tweets inside a single Twitter/X bookmark folder. Get the folder id from `opencli twitter bookmark-folders`.
+    bookmark-folders [cookie] — List your Twitter/X bookmark folders (the user-created collections under Bookmarks). Returns folder id, name, item count, and created_at.
+    bookmarks [cookie] — Fetch your Twitter/X bookmarks (the logged-in user's saved tweets, newest first)
+    delete [ui] — Delete a specific tweet by URL
+    device-follow [cookie] — Read the /i/timeline device-follow notification stream (tweets aggregated under a bell-icon "new posts from @userA and N others" notification)
+    download [cookie] — Download Twitter/X media (images and videos). Provide either <username> to fetch every media item from their profile via the GraphQL UserMedia endpoint with cursor pagination, or --tweet-url to download a single tweet.
+    follow [ui] — Follow a Twitter user
+    follow-batch [ui] — Follow multiple Twitter/X users from a comma-separated username list
+    followers [ui] — Get accounts following a Twitter/X user (defaults to the logged-in user when no user is given)
+    following [cookie] — Get accounts a Twitter/X user is following (defaults to the logged-in user when no user is given)
+    hide-reply [ui] — Hide a reply on your tweet (useful for hiding bot/spam replies)
+    like [ui] — Like a specific tweet
+    likes [cookie] — Fetch liked tweets of a Twitter user (defaults to the logged-in user when no username is given)
+    list-add [ui] — Add a user to a Twitter/X list you own (no-op if already a member)
+    list-add-batch [ui] — Add multiple users to a Twitter/X list you own from a comma-separated username list
+    list-create [cookie] — Create a new Twitter/X list (returns the new list id)
+    list-delete [ui] — Delete a Twitter/X list you own after explicit confirmation
+    list-remove [ui] — Remove a user from a Twitter/X list you own (toggles via UI; no-op if not currently a member)
+    list-remove-batch [ui] — Remove multiple users from a Twitter/X list you own from a comma-separated username list
+    list-tweets [cookie] — Fetch tweets from a Twitter/X list timeline
+    lists [cookie] — Get Twitter/X lists for the logged-in user (owned + subscribed)
+    login [cookie] — Open twitter login and wait until the browser session is authenticated
+    notifications [intercept] — Get your Twitter/X notifications (the logged-in user's likes/replies/follows feed, newest first)
+    post [ui] — Post a new tweet/thread
+    profile [cookie] — Fetch a Twitter user profile — bio, stats, etc. (defaults to the logged-in user when no username is given)
+    quote [ui] — Quote-tweet a specific tweet with your own text, optionally with a local or remote image
+    reply [ui] — Reply to a specific tweet, optionally with a local or remote image
+    reply-dm [ui] — Send a message to recent DM conversations
+    retweet [ui] — Retweet a specific tweet
+    search [cookie] — Search Twitter/X for tweets, with optional --from / --has / --exclude / --product filters mapped to X's search operators
+    thread [cookie] — Get a tweet thread (original + all replies)
+    timeline [cookie] — Fetch the logged-in user's home timeline (for-you algorithmic feed by default; pass --type following for the chronological feed of accounts you follow)
+    trending [cookie] — Twitter/X trending topics
+    tweets [cookie] — Fetch a Twitter user's most recent tweets (chronological, excludes pinned; defaults to the logged-in user when no username is given)
+    unblock [ui] — Unblock a Twitter user
+    unbookmark [ui] — Remove a tweet from bookmarks
+    unfollow [ui] — Unfollow a Twitter user
+    unlike [ui] — Remove a like from a specific tweet
+    unretweet [ui] — Undo a retweet on a specific tweet
+    whoami [cookie] — Show the current logged-in twitter account
+
+  uisdc
+    news [public] — 优设读报 - 最新 AI/设计行业新闻
+
+  uiverse
+    code [public] — Export Uiverse component code (HTML, CSS, React, or Vue)
+    preview [public] — Capture a screenshot of the Uiverse preview element
+
+  upwork
+    detail [cookie] (aliases: job, view) — Read the full Upwork job posting by ciphertext id (e.g. ~022054964136512093518)
+    feed [cookie] (aliases: best-matches) — Upwork personalized jobs feed (best-matches | most-recent) — requires login
+    login [cookie] — Open upwork login and wait until the browser session is authenticated
+    search [cookie] — Upwork keyword job search (logged-in browser session, US site)
+    whoami [cookie] — Show the current logged-in upwork account
+
+  v2ex
+    daily [cookie] — V2EX 每日签到并领取铜币
+    hot [public] — V2EX 热门话题
+    latest [public] — V2EX 最新话题
+    login [cookie] — Open v2ex login and wait until the browser session is authenticated
+    me [cookie] — V2EX 获取个人资料 (余额/未读提醒)
+    member [public] — V2EX 用户资料
+    node [public] — V2EX 节点话题列表
+    nodes [public] — V2EX 所有节点列表
+    notifications [cookie] — V2EX 获取提醒 (回复/由于)
+    replies [public] — V2EX 主题回复列表
+    topic [public] — V2EX 主题详情和回复
+    user [public] — V2EX 用户发帖列表
+    whoami [cookie] — Show the current logged-in v2ex account
+
+  wanfang
+    search [public] — 万方数据论文搜索
+
+  web
+    read [cookie] — Fetch any web page and export as Markdown
+
+  wechat-channels
+    login [cookie] — Open wechat-channels login and wait until the browser session is authenticated
+    publish [cookie] — 发布视频到视频号
+    whoami [cookie] — Show the current logged-in wechat-channels account
+
+  weibo
+    comments [cookie] — Get comments on a Weibo post
+    delete [cookie] — Delete one of my Weibo posts by id
+    favorites [cookie] — 我的微博收藏列表
+    feed [cookie] — Fetch Weibo timeline (for-you or following)
+    hot [cookie] — 微博热搜
+    login [cookie] — Open weibo login and wait until the browser session is authenticated
+    me [cookie] — My Weibo profile info
+    post [cookie] — Get a single Weibo post
+    publish [ui] — Publish a new Weibo post immediately
+    search [cookie] — 搜索微博
+    user [cookie] — Get Weibo user profile
+    user-posts [cookie] — List Weibo posts from a user, optionally filtered by date range
+    whoami [cookie] — Show the current logged-in weibo account
+
+  weixin
+    create-draft [cookie] — 创建微信公众号图文草稿
+    download [cookie] — 下载微信公众号文章为 Markdown 格式
+    drafts [cookie] — 列出微信公众号草稿箱
+    search [public] — 使用搜狗微信搜索公众号文章；如需导出正文 Markdown，请使用 weixin download 处理公众号文章链接
+
+  weread-official
+    book [public] — Show WeRead book metadata, chapters, and reading progress
+    discover [public] — Personalized or similar-book recommendations from WeRead
+    list-apis [public] — List every api_name supported by the WeRead agent gateway
+    notes [public] — List notebooks overview or merged highlights+thoughts for a book
+    readdata [public] — Reading statistics: time, streak, preferences, top books
+    review [public] — Browse public reviews of a WeRead book
+    search [public] — Search WeRead store via the official agent gateway
+    shelf [public] — Sync your WeRead shelf (books + albums + article bookmark entry) via the official gateway
+
+  weread
+    ai-outline [cookie] — Get AI-generated outline for a book
+    book [cookie] — View book details on WeRead
+    book-search [public] — Search within a WeRead book after resolving it by title
+    highlights [cookie] — List your highlights (underlines) in a book
+    login [cookie] — Open weread login and wait until the browser session is authenticated
+    notebooks [cookie] — List books that have highlights or notes
+    notes [cookie] — List your notes (thoughts) on a book
+    ranking [public] — WeRead book rankings by category
+    search [public] — Search books on WeRead
+    shelf [cookie] — List books on your WeRead bookshelf
+    whoami [cookie] — Show the current logged-in weread account
+
+  wikidata
+    entity [public] — Fetch a Wikidata entity by Q/P/L id (label, description, aliases, claim summary)
+    search [public] — Search Wikidata items by keyword (returns Q-IDs)
+
+  wikipedia
+    page [public] — Full plain-text extract of a Wikipedia article (optional paragraph cap).
+    random [public] — Get a random Wikipedia article
+    search [public] — Search Wikipedia articles
+    summary [public] — Get Wikipedia article summary
+    trending [public] — Most-read Wikipedia articles (yesterday)
+
+  wttr
+    current [public] — Current weather conditions for a location (city, lat,lon, or airport code)
+    forecast [public] — Multi-day weather forecast (up to 3 days, wttr.in free tier max)
+
+  xianyu
+    chat [cookie] — 打开闲鱼聊一聊会话，并可选发送消息
+    inbox [cookie] — 列出闲鱼最近私信会话
+    item [cookie] — 查看闲鱼商品详情
+    login [cookie] — Open xianyu login and wait until the browser session is authenticated
+    messages [cookie] — 读取指定闲鱼私信会话的最近聊天内容
+    publish [cookie] — 发布闲鱼宝贝（需先在浏览器中登录闲鱼）
+    reply [cookie] — 回复指定闲鱼私信会话
+    search [cookie] — 搜索闲鱼商品（支持服务端价格区间 / 地区筛选）
+    whoami [cookie] — Show the current logged-in xianyu account
+
+  xiaoe
+    catalog [cookie] — 小鹅通课程目录（支持普通课程、专栏、大专栏）
+    content [cookie] — 提取小鹅通图文页面内容为文本
+    courses [cookie] — 列出已购小鹅通课程（含 URL 和店铺名）
+    detail [cookie] — 小鹅通课程详情（名称、价格、学员数、店铺）
+    login [cookie] — Open xiaoe login and wait until the browser session is authenticated
+    play-url [cookie] — 小鹅通视频/音频/直播回放 M3U8 播放地址
+    whoami [cookie] — Show the current logged-in xiaoe account
+
+  xiaohongshu
+    ask [cookie] — Ask 小红书点点 and return the answer with citation sources.
+    comments [cookie] — 获取小红书笔记评论（支持楼中楼子回复）
+    creator-note-detail [cookie] — 小红书单篇笔记详情页数据 (笔记信息 + 核心/互动数据 + 观看来源 + 观众画像 + 趋势数据)
+    creator-notes [cookie] — 小红书创作者笔记列表 + 每篇数据 (标题/日期/观看/点赞/收藏/评论)
+    creator-notes-summary [cookie] — 小红书最近笔记批量摘要 (列表 + 单篇关键数据汇总)
+    creator-profile [cookie] — 小红书创作者账号信息 (粉丝/关注/获赞/成长等级)
+    creator-stats [cookie] — 小红书创作者数据总览 (观看/点赞/收藏/评论/分享/涨粉，含每日趋势)
+    delete-note [cookie] — 删除小红书已发布笔记 (creator center UI automation)
+    download [cookie] — 下载小红书笔记中的图片和视频
+    draft-clear [cookie] — 清空小红书本地草稿
+    draft-delete [cookie] — 删除一条小红书本地草稿
+    draft-open [cookie] — 读取一条小红书本地草稿详情
+    drafts [cookie] — 小红书本地草稿箱列表
+    feed [cookie] — 小红书首页推荐 Feed (reads hydrated Pinia store)
+    follow [cookie] — 关注小红书用户 (profile UI automation)
+    liked [cookie] — 小红书赞过笔记列表
+    login [cookie] — Open xiaohongshu login and wait until the browser session is authenticated
+    note [cookie] — 获取小红书笔记正文和互动数据
+    notifications [intercept] — 小红书通知 (mentions/likes/connections)
+    publish [cookie] — 小红书发布图文笔记 (creator center UI automation)
+    saved [cookie] — 小红书收藏笔记列表
+    search [cookie] — 搜索小红书笔记
+    unfollow [cookie] — 取消关注小红书用户 (profile UI automation)
+    user [cookie] — Get public notes from a Xiaohongshu user profile
+    whoami [cookie] — Show the current logged-in xiaohongshu account
+
+  xiaoyuzhou
+    download [local] — Download Xiaoyuzhou episode audio
+    episode [local] — View details of a Xiaoyuzhou podcast episode
+    podcast [local] — View a Xiaoyuzhou podcast profile
+    podcast-episodes [local] — List episodes of a Xiaoyuzhou podcast
+    transcript [public] — Download Xiaoyuzhou transcript as JSON and text (requires local credentials)
+
+  xueqiu
+    comments [cookie] — 获取单只股票的讨论动态
+    earnings-date [cookie] — 获取股票预计财报发布日期（公司大事）
+    feed [cookie] — 获取雪球首页时间线（关注用户的动态）
+    fund-holdings [cookie] — 获取蛋卷基金持仓明细（可用 --account 按子账户过滤）
+    fund-snapshot [cookie] — 获取蛋卷基金快照（总资产、子账户、持仓，推荐 -f json 输出）
+    groups [cookie] — 获取雪球自选股分组列表（含模拟组合）
+    hot [cookie] — 获取雪球热门动态
+    hot-stock [cookie] — 获取雪球热门股票榜
+    kline [cookie] — 获取雪球股票K线（历史行情）数据
+    login [cookie] — Open xueqiu login and wait until the browser session is authenticated
+    search [cookie] — 搜索雪球股票（代码或名称）
+    stock [cookie] — 获取雪球股票实时行情
+    watchlist [cookie] — 获取雪球自选股/模拟组合股票列表
+    whoami [cookie] — Show the current logged-in xueqiu account
+
+  yahoo-finance
+    quote [cookie] — Yahoo Finance 股票行情
+
+  yahoo
+    search [public] — Search Yahoo (powered by Bing)
+
+  yollomi
+    background [cookie] — Generate AI background for a product/object image (5 credits)
+    edit [cookie] — Edit images with AI text prompts (Qwen image edit)
+    face-swap [cookie] — Swap faces between two photos (3 credits)
+    generate [cookie] — Generate images with AI (text-to-image or image-to-image)
+    models [public] — List available Yollomi AI models (image, video, tools)
+    object-remover [cookie] — Remove unwanted objects from images (3 credits)
+    remove-bg [cookie] — Remove image background with AI (free)
+    restore [cookie] — Restore old or damaged photos with AI (4 credits)
+    try-on [cookie] — Virtual try-on — see how clothes look on a person (3 credits)
+    upload [cookie] — Upload an image or video to Yollomi (returns URL for other commands)
+    upscale [cookie] — Upscale image resolution with AI (1 credit)
+    video [cookie] — Generate videos with AI (text-to-video or image-to-video)
+
+  youdao
+    note [public] — Read a public shared Youdao Note
+
+  youtube
+    channel [cookie] — Get YouTube channel info and recent videos
+    comments [cookie] — Get YouTube video comments
+    feed [cookie] — Get YouTube homepage recommended videos
+    history [cookie] — Get YouTube watch history
+    like [cookie] — Like a YouTube video
+    login [cookie] — Open youtube login and wait until the browser session is authenticated
+    playlist [cookie] — Get YouTube playlist info and video list
+    search [cookie] — Search YouTube videos
+    subscribe [cookie] — Subscribe to a YouTube channel
+    subscriptions [cookie] — List subscribed YouTube channels
+    transcript [cookie] — Get YouTube video transcript/subtitles
+    unlike [cookie] — Remove like from a YouTube video
+    unsubscribe [cookie] — Unsubscribe from a YouTube channel
+    video [cookie] — Get YouTube video metadata (title, views, description, etc.)
+    watch-later [cookie] — Get your YouTube Watch Later queue
+    whoami [cookie] — Show the current logged-in youtube account
+
+  yuanbao
+    ask [cookie] — Send a prompt to Yuanbao web chat and wait for the assistant response
+    detail [cookie] — Open a Yuanbao conversation by ID and read its messages
+    history [cookie] — List recent Yuanbao conversations from the sidebar (requires login)
+    login [cookie] — Open yuanbao login and wait until the browser session is authenticated
+    new [cookie] — Start a new conversation in Yuanbao web chat
+    read [cookie] — Read messages in the current Yuanbao conversation
+    send [cookie] — Fire-and-forget: send a prompt to Yuanbao without waiting for the reply
+    status [cookie] — Check Yuanbao page availability, login state, current session and model
+    whoami [cookie] — Show the current logged-in yuanbao account
+
+  zhihu
+    answer [cookie] — Answer a Zhihu question
+    answer-comments [cookie] — 知乎回答评论列表
+    answer-detail [cookie] — 知乎单个回答完整内容（按 answer ID 获取）
+    collection [cookie] — 知乎收藏夹内容列表（需要登录）
+    collections [cookie] — 知乎收藏夹列表（需要登录）
+    comment [cookie] — Create a top-level comment on a Zhihu answer or article
+    download [cookie] — 导出知乎文章为 Markdown 格式
+    favorite [cookie] — Favorite a Zhihu answer or article into a specific collection
+    follow [cookie] — Follow a Zhihu user or question
+    followers [cookie] — 知乎某用户的粉丝列表
+    following [cookie] — 知乎某用户关注的人列表
+    hot [cookie] — 知乎热榜
+    like [cookie] — Like a Zhihu answer or article
+    login [cookie] — Open zhihu login and wait until the browser session is authenticated
+    pins [cookie] — 知乎某用户的想法（短内容）列表
+    question [cookie] — 知乎问题详情和回答
+    recommend [cookie] — 知乎首页推荐
+    search [cookie] — 知乎搜索
+    user [cookie] — 知乎用户主页资料（粉丝/关注/回答/文章/获赞数）
+    user-answers [cookie] — 知乎某用户的回答列表
+    user-articles [cookie] — 知乎某用户的文章/专栏列表
+    whoami [cookie] — Show the current logged-in zhihu account
+
+  zlibrary
+    info [cookie] — Get book details and available download formats from a Z-Library book page
+    search [cookie] — Search Z-Library for books by title, author, ISBN, or keyword
+
+  zsxq
+    dynamics [cookie] — 获取所有星球的最新动态
+    groups [cookie] — 列出当前账号加入的星球
+    login [cookie] — Open zsxq login and wait until the browser session is authenticated
+    search [cookie] — 搜索星球内容
+    topic [cookie] — 获取单个话题详情和评论
+    topics [cookie] — 获取当前星球的话题列表
+    whoami [cookie] — Show the current logged-in zsxq account
+
+  external CLIs
+    discord(discord-cli) [auto-install] — Discord CLI — local-first sync, search, export via SQLite for AI agents
+    docker [installed] — Docker command-line interface
+    dws(DingTalk Workspace) [auto-install] — DingTalk Workspace CLI — messages, docs, calendar, contacts and more for humans and AI agents
+    gh [installed] — GitHub CLI — repos, PRs, issues, releases, gists
+    lark-cli [auto-install] — Lark/Feishu CLI — messages, documents, spreadsheets, calendar, tasks and 200+ commands for AI agents
+    longbridge [auto-install] — Longbridge CLI — AI-native market data, account management and trading commands for Longbridge OpenAPI
+    ntn(notion) [auto-install] — Notion CLI — official Notion API CLI for pages, databases, blocks, search, comments
+    obsidian [auto-install] — Obsidian vault management — notes, search, tags, tasks, sync
+    tg(tg-cli) [auto-install] — Telegram CLI — local-first sync, search, export via MTProto for AI agents
+    vercel [installed] — Vercel CLI — deploy projects, manage domains, env vars, logs and serverless functions
+    wecom-cli(企业微信) [auto-install] — WeCom/企业微信 CLI — contacts, todos, meetings, messages, calendar, docs and smart sheets for AI agents
+    wrangler [auto-install] — Cloudflare Wrangler — deploy Workers, manage R2/D1/KV, publish Pages
+    wx(wx-cli) [auto-install] — WeChat local data CLI — sessions, messages, search, contacts, export for AI agents
+
+  1275 built-in commands across 10 apps + 164 sites, 13 external CLIs
+
