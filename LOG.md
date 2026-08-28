@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-08-28 (evening 5)
+
+- **Decision: one repository, not one per sitemap.** Checked against the requirement first: single-site install works (`plugin install github:aborruso/opencli/<site>` registers only that adapter), `plugin update` iterates the lock and touches only installed sub-plugins, and `plugin list` shows a per-site version read from each sub-plugin's own manifest. Splitting would buy separate issue trackers and landing pages, nothing operational, and would cost the cross-links between the two sitemaps plus a duplicated `docs/` mirror, `bin/` and `AGENTS.md`. Rationale recorded in the README so a visitor does not have to ask.
+
 ## 2026-08-28 (evening 4)
 
 - **Two shipped `example` strings did not run.** Found by executing every declared example: `law-tracker search "artificial intelligence" --status ong --stage FR` was exactly the combination the guard refuses (the example predated the guard), and `timeline 2021/0106(COD)` fails in a shell because the parentheses are unquoted. Fixed to `search --status ong --stage FR --size 20` and `timeline 2021_106`; all eight examples now run. The constraint also moved into the `search` description and into the `--status`/`--stage` help, so it travels with the CLI rather than living only in the sitemap.
