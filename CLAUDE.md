@@ -19,7 +19,7 @@ Sono a mano - non mirrorati - anche `sitemaps/` (le sitemap OpenCLI di questo re
 
 ## Lingua
 
-**Il contenuto del repo si scrive in inglese**: README, sitemap (`SITE.md`, `pages/`, `workflows/`, `pitfalls.md`), codice degli adapter con commenti, help e messaggi d'errore. Restano in italiano solo `docs/notes.md` (note personali), `LOG.md`, `tasks/` e questo file.
+**Il contenuto del repo si scrive in inglese**: README, sitemap (`SITE.md`, `pages/`, `workflows/`, `pitfalls.md`), codice degli adapter con commenti, help e messaggi d'errore. Vale anche per `LOG.md` e `tasks/`. Restano in italiano solo `docs/notes.md` (note personali) e questo file.
 
 ## Aggiornare il mirror (refresh)
 

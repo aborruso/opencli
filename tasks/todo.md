@@ -1,64 +1,63 @@
-# Piano — collezione di sitemap OpenCLI in un unico repo
+# Plan — a collection of OpenCLI sitemaps in one repository
 
-Stato: bozza da approvare. Aggiornato 2026-08-28.
+Status: in progress. Updated 2026-08-28.
 
-## Cosa ho verificato (fatti, non ipotesi)
+## What was verified (facts, not guesses)
 
-Fonti: `docs/` mirrorati, DeepWiki su `jackwener/OpenCLI`, e soprattutto il codice della CLI installata (`dist/src/cli.js`, v1.8.6) + skill on-disk `~/.nvm/.../@jackwener/opencli/skills/opencli-sitemap-author/`.
+Sources: the mirrored `docs/`, DeepWiki on `jackwener/OpenCLI`, and above all the installed CLI's source (`dist/src/cli.js`, v1.8.6) plus the on-disk `opencli-sitemap-author` skill.
 
-1. **Sitemap ≠ sitemap SEO**: è un "task execution graph" per agenti - `SITE.md`, `pages/<page-id>.md`, `pages/_<partial>.md`, `workflows/<task-id>.md`, `pitfalls.md`, tutti Markdown con frontmatter (`schema_version`, `site`, `last_verified`, `source`, `login_required`, `auth_strategy`).
-2. **Solo due path di discovery** (`sitemapPathsForSite`, cli.js:192):
-   - locale: `~/.opencli/sites/<safeSite>/sitemap/` (oppure `sitemap.md`)
-   - globale: `<packageRoot>/sitemaps/<safeSite>/` - dentro il pacchetto npm, quindi non nostro
-   Nessun terzo path, nessuna env var (`OPENCLI_DIR` non entra qui: usa `os.homedir()`).
-3. **I plugin non trasportano sitemap.** `opencli-plugin.json` registra comandi, non sitemap. Quindi un repo unico di sitemap si aggancia solo con symlink/sync verso `~/.opencli/sites/<site>/sitemap`.
-4. **Il nome della cartella non è l'hostname** (`siteNameCandidatesFromUrl`, cli.js:156): prima i `site` degli adapter il cui `domain` combacia con l'host, poi come fallback **la sola etichetta SLD** dell'host. Verificato: con registry vuoto, `servizionline.asl.taranto.it` → `taranto`, `opendata.comune.palermo.it` → `palermo`. Con l'adapter `asl-taranto` caricato dovrebbe vincere `asl-taranto`, ma va confermato in esecuzione reale.
-   → Conseguenza: **sito senza adapter = nome forzato all'SLD**, grossolano e soggetto a collisioni (`sanita.puglia.it` → `puglia`).
-5. **Symlink**: la discovery usa `fs.existsSync`, che segue i symlink. Si linka **solo la sottocartella `sitemap`**, mai `sites/<site>` (lì vivono già `endpoints.json`, `notes.md`, `verify/` - per `asl-taranto` esistono).
-6. Precedente già in casa: `~/.opencli/plugins/asl-taranto -> ~/git/idee/albo-asl-taranto` + `plugins.lock.json`. Stesso pattern, applicato alle sitemap.
+1. **A sitemap is not an SEO sitemap**: it is a "task execution graph" for agents — `SITE.md`, `pages/<page-id>.md`, `pages/_<partial>.md`, `workflows/<task-id>.md`, `pitfalls.md`, all Markdown with front matter (`schema_version`, `site`, `last_verified`, `source`, `login_required`, `auth_strategy`).
+2. **Only two discovery paths** (`sitemapPathsForSite`, cli.js:192):
+   - local: `~/.opencli/sites/<safeSite>/sitemap/` (or `sitemap.md`)
+   - global: `<packageRoot>/sitemaps/<safeSite>/` — inside the npm package, so not ours
+   No third path, no env var (`OPENCLI_DIR` does not apply here: it uses `os.homedir()`).
+3. **Plugins do not carry sitemaps.** `opencli-plugin.json` registers commands, nothing else. So a single repo can only be hooked up by symlinking into the local overlay.
+4. **The folder name is not the hostname** (`siteNameCandidatesFromUrl`, cli.js:156): first the `site` of any adapter whose `domain` matches the host, then the **SLD label alone** as a fallback. Verified: with an empty registry, `servizionline.asl.taranto.it` → `taranto`, `opendata.comune.palermo.it` → `palermo`. With the adapter loaded, the adapter's name wins — confirmed at runtime for law-tracker.
+5. **Symlinks**: discovery uses `fs.existsSync`, which follows them. Link **only** the `sitemap` subfolder, never `sites/<site>` — that one already holds `endpoints.json`, `notes.md`, `verify/`.
+6. Precedent already in place: `~/.opencli/plugins/asl-taranto -> ~/git/idee/albo-asl-taranto` plus `plugins.lock.json`. Same pattern, applied to sitemaps.
 
-## Fasi
+## Phases
 
-### Fase 0 - decisioni
-- [x] Repo = questa cartella. `git init` fatto 2026-08-28.
-- [x] Sito pilota: **law-tracker.europa.eu** (EU Law Tracker).
+### Phase 0 — decisions
+- [x] Repo = this folder. `git init` done 2026-08-28.
+- [x] Pilot site: **law-tracker.europa.eu** (EU Law Tracker).
 
-### Fase 1 - impalcatura del repo
-- [x] `sitemaps/` e `bin/sync-sitemaps.sh` creati. Lo script salta un `sites/<site>/sitemap` che sia cartella vera anziché link, per non sovrascrivere conoscenza già presente.
-- [x] `CLAUDE.md` esteso: `sitemaps/`, `bin/`, `tasks/` sono a mano, non mirrorati.
-- [x] Layout istanziato con `law-tracker`. `bash bin/sync-sitemaps.sh` stampa il link e l'alias `europa`.
+### Phase 1 — repository scaffolding
+- [x] `sitemaps/` and `bin/sync-sitemaps.sh` created. The script skips a `sites/<site>/sitemap` that is a real folder rather than a link, so existing knowledge is never overwritten.
+- [x] `CLAUDE.md` extended: `sitemaps/`, `plugins/`, `bin/`, `tasks/` are hand-written, not mirrored. Repo language rule added.
+- [x] Layout instantiated with `law-tracker`. `bash bin/sync-sitemaps.sh` prints the link.
 
-### Fase 2 - test di accettazione — FATTA
-- [x] `opencli browser lt open .../homepage` → `sitemap.available: true`, `source: local`, `paths.local` = `~/.opencli/sites/law-tracker/sitemap` (symlink al repo).
-- [x] Nome risolto: **`law-tracker`**. Il `domain` dell'adapter batte il fallback SLD, come previsto.
-- [x] Ancore riverificate con `opencli browser`: `/results` ha `title: Search results`; su `/procedure/2021_106` la find sul reference trova 1 match, su `/procedure/9999_1` risponde `semantic_not_found`.
-- [x] Alias `europa` valutato e scartato: servirebbe questa sitemap a tutti i siti `*.europa.eu` (verificato su eur-lex e commission). Il meccanismo alias resta in `bin/sync-sitemaps.sh` per casi senza collisione.
+### Phase 2 — acceptance test — DONE
+- [x] `opencli browser lt open .../homepage` → `sitemap.available: true`, `source: local`, `paths.local` = `~/.opencli/sites/law-tracker/sitemap` (symlink into the repo).
+- [x] Resolved name: **`law-tracker`**. The adapter's `domain` beats the SLD fallback, as expected.
+- [x] Anchors re-verified with `opencli browser`: `/results` has `title: Search results`; on `/procedure/2021_106` a find on the reference returns 1 match, on `/procedure/9999_1` it answers `semantic_not_found`.
+- [x] The `europa` alias was evaluated and dropped: it would serve this sitemap to every `*.europa.eu` site (verified on eur-lex and commission). The alias mechanism stays in `bin/sync-sitemaps.sh` for collision-free cases.
 
-### Fase 3 - prima sitemap vera (pilota) — FATTA
-- [x] Recon con agent-browser: homepage, pagina risultati, pagina procedura, pannello Advanced Search, Browse by topic.
-- [x] Contratti API riverificati con curl uno a uno (5 endpoint + vocabolari).
-- [x] Plugin `plugins/law-tracker/` con 5 comandi; `opencli validate law-tracker` → PASS; tutti provati dal vivo.
-- [x] Sitemap: SITE.md, pages/{homepage,results,procedure}.md, workflows/{find-procedures,track-procedure,whats-new}.md, pitfalls.md (11 voci).
-- [x] Memoria di sito: `~/.opencli/sites/law-tracker/{endpoints.json,notes.md}`.
-- [ ] `verify/<cmd>.json`: `opencli browser verify` non funziona sugli adapter installati come plugin (cerca solo `~/.opencli/clis/`). Da capire se ejectare o lasciar perdere.
-- [ ] `SITE.md` + 2-3 `pages/` + 1 `workflows/` che punta come *best path* ai comandi del plugin e come *fallback* al browser; `pitfalls.md` recupera il già noto (WAF Radware sui POST, CSRF iniettato via JS, atti scaduti senza documenti).
-- [ ] Ogni action nello schema compatto `pre/do/post/fail/recover/evidence`, senza evidenze inventate → verifica: rilettura, ogni action ha un `evidence`.
+### Phase 3 — first real sitemap (pilot) — DONE
+- [x] Recon with agent-browser: homepage, results page, procedure page, Advanced Search panel, Browse by topic.
+- [x] API contracts re-verified with curl, one endpoint at a time (5 endpoints plus the vocabularies).
+- [x] Plugin `plugins/law-tracker/` with 5 commands; `opencli validate law-tracker` → PASS; all exercised live.
+- [x] Sitemap: SITE.md, pages/{homepage,results,procedure}.md, workflows/{find-procedures,track-procedure,whats-new}.md, pitfalls.md (12 entries).
+- [x] Site memory: `~/.opencli/sites/law-tracker/{endpoints.json,notes.md}`.
+- [x] READMEs: repository root and `sitemaps/law-tracker/README.md` with example commands and real output.
+- [ ] `verify/<cmd>.json`: `opencli browser verify` does not see adapters installed as plugins (it only looks in `~/.opencli/clis/`). Decide whether to eject them or let it go.
 
-### Fase 4 - generalizzare
-- [ ] Seconda sitemap con lo stesso stampo; solo allora si fissa il layout.
-- [ ] `README.md` del repo: cosa c'è, come si sincronizza.
-- [ ] `LOG.md` aggiornato a ogni passo.
+### Phase 4 — generalise
+- [ ] A second sitemap from the same template; only then freeze the layout.
+- [x] Repository README: what is here, how to sync.
+- [x] `LOG.md` kept up to date.
 
-### Fase 5 - allineare il mirror (coerenza col resto del repo)
-- [ ] Aggiungere a `docs/meta.yml` + scaricare: `SKILL-opencli-browser-sitemap.md`, `SKILL-opencli-sitemap-author.md`, `references/sitemap-schema.md`. Oggi mancano, e il repo diventa sitemap-centrico → verifica: sha256/bytes rigenerati.
+### Phase 5 — align the mirror
+- [ ] Add to `docs/meta.yml` and download: `SKILL-opencli-browser-sitemap.md`, `SKILL-opencli-sitemap-author.md`, `references/sitemap-schema.md`. They are missing today and the repo is now sitemap-centric → check: sha256/bytes regenerated.
 
-## Convenzioni da fissare
-- `source:` nel frontmatter: il contenuto vive nel repo ma è montato sul path dell'overlay locale → per il runtime è `source: local`. Scelgo `local` ovunque, salvo diverso parere.
-- ID stabili: `page_id`/`workflow_id`/`pitfall_id` unici per sito; `action:<id>` unico dentro la pagina.
-- Dimensione file: la spec dice 800 token, la skill on-disk ammette fino a ~1500 naturali, >3000 va spezzato. Uso la skill.
+## Conventions
+- `source:` in front matter: the content lives in the repo but is mounted at the local-overlay path → for the runtime it is `source: local`. Using `local` everywhere.
+- Stable ids: `page_id`/`workflow_id`/`pitfall_id` unique per site; `action:<id>` unique within its page.
+- File size: the spec says 800 tokens, the on-disk skill allows up to ~1500 naturally and requires splitting above 3000. Following the skill.
+- Language: English for repository content. See `CLAUDE.md`.
 
-## Domande aperte
-1. Quale sito pilota (URL + task che deve risolvere)?
-2. Serve il Browser Bridge acceso? Se il sito è pubblico e senza login, `opencli-bridge` (Xvfb) basta; se c'è login, `opencli-bridge-login` una volta.
-3. Il repo resta privato/locale o va su GitHub? cambia solo il README, non il layout.
-4. Sitemap solo per siti con adapter, o anche per siti senza? Nel secondo caso il nome cartella è l'SLD e le collisioni sono possibili - va accettato o gestito con alias.
+## Open questions
+1. `opencli browser verify` and plugin-installed adapters: eject, or drop the fixtures?
+2. Which site next?
+3. Does the repo stay local or go to GitHub? Only the README changes, not the layout.
+4. Sitemaps only for sites with an adapter, or for sites without one too? In the second case the folder name is the SLD label and collisions are possible — accept it, or handle it with an alias.
