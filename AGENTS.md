@@ -18,7 +18,14 @@ opencli list | grep -E 'law-tracker|eur-lex'            # check
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. The sitemaps travel with the clone but OpenCLI does not link them itself — that is what the sync script is for. It only ever creates `~/.opencli/sites/<site>/sitemap` symlinks and refuses to overwrite a real directory.
 
-To install a single adapter: `opencli plugin install github:aborruso/opencli/eur-lex`.
+To install a single site, name the sub-plugin and sync only its sitemap:
+
+```bash
+opencli plugin install github:aborruso/opencli/eur-lex
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
+```
+
+The clone carries every sitemap whichever adapter you install, so name the ones you want. A sitemap whose adapter is not installed will send you after commands that do not exist.
 
 ## Read this before using the commands
 

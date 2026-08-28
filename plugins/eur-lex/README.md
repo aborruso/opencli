@@ -5,7 +5,8 @@ Three commands over the Publications Office's public interfaces for EU law. No a
 The commands deliberately do **not** call `eur-lex.europa.eu`, which is behind an AWS WAF and answers HTTP 202 to non-browser clients. They call `publications.europa.eu` — Cellar REST and the SPARQL endpoint — which is the official machine-readable interface.
 
 ```bash
-opencli plugin install "file://$PWD"
+opencli plugin install github:aborruso/opencli/eur-lex   # from the published repo
+opencli plugin install "file://$PWD"                     # from a local clone
 opencli validate eur-lex          # expected: PASS, 3 commands
 ```
 

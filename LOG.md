@@ -1,5 +1,10 @@
 # LOG
 
+## 2026-08-28 (evening 4)
+
+- **Two shipped `example` strings did not run.** Found by executing every declared example: `law-tracker search "artificial intelligence" --status ong --stage FR` was exactly the combination the guard refuses (the example predated the guard), and `timeline 2021/0106(COD)` fails in a shell because the parentheses are unquoted. Fixed to `search --status ong --stage FR --size 20` and `timeline 2021_106`; all eight examples now run. The constraint also moved into the `search` description and into the `--status`/`--stage` help, so it travels with the CLI rather than living only in the sitemap.
+- **Single-site install verified**: `opencli plugin install github:aborruso/opencli/eur-lex` registers only that adapter. But the clone carries *every* sitemap, so a bare sync would link law-tracker's too and send an agent after commands that are not installed. `bin/sync-sitemaps.sh` now takes site names (`sync-sitemaps.sh eur-lex`) and fails loudly on an unknown one. Documented in the main README, `AGENTS.md`, and both per-site READMEs.
+
 ## 2026-08-28 (evening 3)
 
 - Repository published: <https://github.com/aborruso/opencli>, public, MIT. Upstream OpenCLI skill copies (`.agents/`, `.claude/`) excluded from git — they are jackwener's files and are reproducible with `npx skills add jackwener/opencli`; `skills-lock.json` records the versions this repo was written against.

@@ -16,9 +16,20 @@ bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into
 opencli list | grep -E 'law-tracker|eur-lex'            # check
 ```
 
-The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`. One adapter only: `opencli plugin install github:aborruso/opencli/eur-lex`.
+The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.
 
 The sitemaps come with the clone but OpenCLI does not link them itself — there is no install mechanism for sitemaps, which is what `bin/sync-sitemaps.sh` is for.
+
+### Installing one site only
+
+Append the sub-plugin name, then sync only that sitemap:
+
+```bash
+opencli plugin install github:aborruso/opencli/eur-lex
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
+```
+
+Sync the sitemap for a site whose adapter you did not install and an agent will follow it to commands that do not exist — the clone carries every sitemap regardless of which adapter you picked, so name the ones you want. With no arguments the script links them all.
 
 Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`.
 

@@ -9,10 +9,22 @@ The European Commission's portal for following EU legislative procedures: propos
 
 ## Setup
 
+From a published copy — this site only:
+
+```bash
+npm install -g @jackwener/opencli
+opencli plugin install github:aborruso/opencli/law-tracker
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh law-tracker
+opencli validate law-tracker
+```
+
+Both sites at once: drop the `/law-tracker` and run the sync script with no arguments.
+
+From a local clone of this repo:
+
 ```bash
 opencli plugin install "file://$(pwd)/../../plugins/law-tracker"
-opencli validate law-tracker      # PASS, 5 commands
-bash ../../bin/sync-sitemaps.sh   # link the sitemap into ~/.opencli/sites/
+bash ../../bin/sync-sitemaps.sh law-tracker
 ```
 
 Output formats on every command: `-f table` (default), `json`, `csv`, `yaml`, `md`.

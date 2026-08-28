@@ -26,10 +26,22 @@ No attempt is made to get around the WAF.
 
 ## Setup
 
+From a published copy — this site only:
+
+```bash
+npm install -g @jackwener/opencli
+opencli plugin install github:aborruso/opencli/eur-lex
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
+opencli validate eur-lex
+```
+
+Both sites at once: drop the `/eur-lex` and run the sync script with no arguments.
+
+From a local clone of this repo:
+
 ```bash
 opencli plugin install "file://$(pwd)/../../plugins/eur-lex"
-opencli validate eur-lex          # PASS, 3 commands
-bash ../../bin/sync-sitemaps.sh
+bash ../../bin/sync-sitemaps.sh eur-lex
 ```
 
 ## Metadata of an act

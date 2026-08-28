@@ -3,7 +3,8 @@
 Five commands over the public JSON API of [EU Law Tracker](https://law-tracker.europa.eu). No auth, no browser: all `browser:false`.
 
 ```bash
-opencli plugin install "file://$PWD"
+opencli plugin install github:aborruso/opencli/law-tracker   # from the published repo
+opencli plugin install "file://$PWD"                     # from a local clone
 opencli validate law-tracker      # expected: PASS, 5 commands
 ```
 
