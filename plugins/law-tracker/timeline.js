@@ -8,7 +8,7 @@ cli({
     name: 'timeline',
     access: 'read',
     description: 'Events of a legislative procedure, oldest first',
-    example: 'opencli law-tracker timeline 2021/0106(COD)',
+    example: 'opencli law-tracker timeline 2021_106',
     domain: 'law-tracker.europa.eu',
     strategy: Strategy.PUBLIC,
     browser: false,
