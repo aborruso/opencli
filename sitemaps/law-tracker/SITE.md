@@ -36,6 +36,10 @@ To **read data**, do not open the browser: the `opencli law-tracker *` adapters 
 
 `opencli law-tracker proposals | events | search | timeline | topics` — plugin at `~/git/idee/opencli/plugins/law-tracker`, all `browser:false`. Endpoints and contracts in `~/.opencli/sites/law-tracker/endpoints.json`.
 
+## Related sitemap
+
+This site follows the **process**; the text of the resulting acts lives on EUR-Lex, covered by `sitemaps/eur-lex/`. Search here matches procedure titles only, so a subject no title names (facial recognition, for instance) has to be searched over there. Neither source carries the other's identifier: bridging means matching on titles or act numbers.
+
 ## Site-wide pitfalls
 
 See `pitfalls.md`. The two that bite first: the cookie banner intercepts clicks on the homepage, and the page `<title>` is identical everywhere except on the results page — never use it as a state signature.

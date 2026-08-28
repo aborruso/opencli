@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-eur-lex",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "EUR-Lex / Cellar — EU law full text and metadata",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

@@ -1,5 +1,16 @@
 # LOG
 
+## 2026-08-28 (evening 2)
+
+- Second site covered: **eur-lex.europa.eu**. Sitemap in `sitemaps/eur-lex/` (SITE + 3 pages + 2 workflows + 7 pitfalls) and plugin in `plugins/eur-lex/` with 3 PUBLIC commands (`get`, `meta`, `sparql`). `opencli validate eur-lex` → PASS; `opencli browser ex open` resolves `sitemap.site: "eur-lex"`, so the adapter-`domain` pattern generalises — that was Phase 4's open question.
+- The finding that shapes the whole sitemap: **`eur-lex.europa.eu` is behind an AWS WAF**. Any non-browser client gets `HTTP 202` with a JS challenge and an empty body — not a 403, so careless code reads it as success. No bypass attempted, per the adapter-author red line.
+- Hence the split, which is exactly what a sitemap is for: **full-text search is browser-only** (deep-linkable `search.html?scope=EURLEX&text=…&lang=en&type=quick`, ten results per page, `page=N`), while **retrieving acts is adapter-only**, against `publications.europa.eu` — Cellar REST plus the SPARQL endpoint, neither of which is challenged. First workflow in this repo whose best path is the browser rather than an adapter.
+- Cellar contracts verified one by one: `Accept-Language` in ISO 639-3 is mandatory (400 without it), and the accept types are narrow — `application/xhtml+xml`, `application/pdf`, `application/xml;notice=object|branch` work; bare `application/xml`, `text/html`, `text/plain` are 404; `application/zip` is 400.
+- Dropped a `browser:true` `search` command that was on the table: its success would depend on a WAF challenge being passed, and `opencli validate` only checks shape, so it would degrade silently to "no results". Search belongs in `workflows/`, not in a command.
+- No predicate in Cellar links a work to its Law Tracker procedure reference (probed with `FILTER CONTAINS(?o, "2021/0106")` → empty). The two sitemaps cross-reference each other in prose instead, and say the bridge is inferred.
+- Motivating case, end to end: the Law Tracker returns nothing for "facial recognition" (it matches titles only); EUR-Lex full text finds Eurodac and ECRIS-TCN, and `opencli eur-lex get 32024R1689` pulls the 588 099 characters of the AI Act, where `biometric identification` appears 57 times.
+- `--format` is reserved by the CLI's own output flag: the fetch-representation argument had to be renamed `--as`.
+
 ## 2026-08-28 (evening)
 
 - First site covered: **law-tracker.europa.eu** (EU Law Tracker). Sitemap in `sitemaps/law-tracker/` (SITE + 3 pages + 3 workflows + pitfalls) and plugin in `plugins/law-tracker/` with 5 PUBLIC commands (`proposals`, `events`, `search`, `timeline`, `topics`). `opencli validate law-tracker` → PASS, all five exercised live.

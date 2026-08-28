@@ -1,0 +1,6 @@
+{
+  "name": "eur-lex",
+  "version": "0.1.0",
+  "description": "EUR-Lex / Cellar — EU law full text and metadata",
+  "opencli": ">=1.8.6"
+}

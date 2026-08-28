@@ -15,7 +15,7 @@ verified_at: 2026-08-28 (two probes: stage FR + "artificial intelligence" → ro
 ### pitfall:search_is_title_only
 trigger: expecting free text to search the content of the acts, e.g. looking for a subject that is regulated but never named in a procedure title
 symptom: zero results for a subject the EU has legislated on. `biometric`, `facial recognition`, `video surveillance` all return nothing, while `artificial intelligence` returns three procedures.
-workaround: search the words that appear in procedure titles and short titles, not the subject matter. To reach a topic that titles do not name, come from the other side: `--eurovoc`/`--policyArea`, or the instrument you already know regulates it. For full text of the acts, this site is the wrong tool - go to EUR-Lex.
+workaround: search the words that appear in procedure titles and short titles, not the subject matter. To reach a topic that titles do not name, come from the other side: `--eurovoc`/`--policyArea`, or the instrument you already know regulates it. For full text of the acts, this site is the wrong tool - go to EUR-Lex, covered by `sitemaps/eur-lex/`.
 verified_at: 2026-08-28 (also checked against the raw API with `countResults:true`: `quickSearch:"biometric"` → `totalResults: 0`, so it is the backend, not the adapter)
 
 ### pitfall:total_results_zero

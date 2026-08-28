@@ -42,8 +42,10 @@ Sources: the mirrored `docs/`, DeepWiki on `jackwener/OpenCLI`, and above all th
 - [x] READMEs: repository root and `sitemaps/law-tracker/README.md` with example commands and real output.
 - [ ] `verify/<cmd>.json`: `opencli browser verify` does not see adapters installed as plugins (it only looks in `~/.opencli/clis/`). Decide whether to eject them or let it go.
 
-### Phase 4 — generalise
-- [ ] A second sitemap from the same template; only then freeze the layout.
+### Phase 4 — generalise — DONE
+- [x] Second sitemap, `eur-lex`, from the same template. It generalises: same layout, same symlink mechanism, and the resolved site name is `eur-lex` thanks to the adapter's `domain`.
+- [x] The two sitemaps cross-reference each other (law-tracker = process, eur-lex = text). This is what a single repo buys over one repo per sitemap.
+- [x] New shape validated: a workflow whose best path is the browser rather than an adapter (EUR-Lex search behind a WAF).
 - [x] Repository README: what is here, how to sync.
 - [x] `LOG.md` kept up to date.
 
@@ -59,5 +61,6 @@ Sources: the mirrored `docs/`, DeepWiki on `jackwener/OpenCLI`, and above all th
 ## Open questions
 1. `opencli browser verify` and plugin-installed adapters: eject, or drop the fixtures?
 2. Which site next?
+   - `verify/<cmd>.json` for eur-lex too: same plugin-vs-`clis/` limitation.
 3. Does the repo stay local or go to GitHub? Only the README changes, not the layout.
 4. Sitemaps only for sites with an adapter, or for sites without one too? In the second case the folder name is the SLD label and collisions are possible — accept it, or handle it with an alias.
