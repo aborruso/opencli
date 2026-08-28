@@ -1,3 +1,5 @@
 # alias di nome sito -> cartella in sitemaps/
-# serve quando opencli risolve un host su un nome diverso (fallback SLD)
-europa	law-tracker
+# serve quando opencli risolve un host su un nome diverso da quello della cartella.
+# Formato: "<alias>\t<cartella>". Attenzione: il fallback di opencli e la sola
+# etichetta SLD, quindi un alias come "europa" servirebbe la stessa sitemap a
+# tutti i siti *.europa.eu. Verificare sempre la collisione prima di aggiungerne uno.

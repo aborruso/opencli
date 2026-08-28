@@ -9,7 +9,7 @@ source: local
 ### pitfall:filters_ignored_with_free_text
 trigger: `POST /search` con `quickSearch` o `title` valorizzati **insieme** a `status` o `stage`
 symptom: la risposta contiene righe che non rispettano il filtro - status `WIT` con filtro `ong`, stage corrente `EOP` con filtro `FR`. Nessun errore, nessun avviso.
-workaround: non combinarli. Usare `--keyword` (filtro strutturato, resta in AND) al posto del testo libero, oppure filtrare a valle sulle colonne `status` e `currentStage`. `opencli law-tracker search` rifiuta la combinazione con un errore ARGUMENT.
+workaround: non combinarli. Usare `--keyword` al posto del testo libero - a differenza di status e stage non viene ignorato: con `quickSearch` attivo la risposta si restringe a zero righe invece di restituire il risultato del solo testo - oppure filtrare a valle sulle colonne `status` e `currentStage`. `opencli law-tracker search` rifiuta la combinazione con un errore ARGUMENT.
 verified_at: 2026-08-28 (due prove: stage FR + "artificial intelligence" → righe EOP; title "artificial intelligence" + status ong → una procedura WIT. Da soli i filtri funzionano; `topics` e `procedure` restano invece in AND.)
 
 ### pitfall:total_results_zero
@@ -69,5 +69,5 @@ verified_at: 2026-08-28 (13 eventi di 2021/0106(COD): un solo `membersResponsibl
 ### pitfall:site_name_alias
 trigger: `opencli browser` deve risolvere il nome del sito per trovare questa sitemap
 symptom: senza adapter registrato il nome ripiega sull'etichetta SLD, cioè `europa`, che collide con qualunque altro sito europa.eu
-workaround: la stessa sitemap è agganciata sia a `~/.opencli/sites/law-tracker/sitemap` sia a `~/.opencli/sites/europa/sitemap`. Quale dei due venga effettivamente usato **non è ancora verificato**: serve il Browser Bridge collegato.
-verified_at: 2026-08-28 (parziale)
+workaround: aggancio al solo nome `law-tracker`, che dipende dal `domain` dichiarato dall'adapter. **L'alias `europa` è stato provato e poi respinto**: il fallback SLD fa risolvere su `europa` anche `eur-lex.europa.eu` e `commission.europa.eu`, che si sarebbero visti servire questa sitemap come contesto di navigazione. Meglio non trovare la sitemap che darne una sbagliata. Resta da verificare, col Browser Bridge collegato, che a runtime il nome risolto sia davvero `law-tracker`.
+verified_at: 2026-08-28 (collisione dell'alias verificata; risoluzione a runtime no)

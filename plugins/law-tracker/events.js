@@ -1,7 +1,7 @@
 // Ultimi eventi legislativi su tutti i fascicoli.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
-import { apiGet, parseIntArg, toApiRef, procedureUrl } from './shared.js';
+import { apiGet, parseIntArg, procedureUrlFor } from './shared.js';
 
 cli({
     site: 'law-tracker',
@@ -31,7 +31,7 @@ cli({
             initiationDate: r.initiationDate ?? null,
             event: r.event ?? null,
             title: r.title ?? null,
-            url: r.reference ? procedureUrl(toApiRef(r.reference), lang) : null,
+            url: procedureUrlFor(r.reference, lang),
         }));
     },
 });

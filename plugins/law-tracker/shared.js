@@ -66,6 +66,19 @@ export function procedureUrl(apiRef, lang = 'en') {
     return `${BASE}/procedure/${apiRef}?lang=${lang}`;
 }
 
+/**
+ * URL della procedura a partire da un reference che arriva dal backend.
+ * Non lancia: una riga con reference in forma inattesa perde l'url, non fa
+ * cadere l'intero elenco.
+ */
+export function procedureUrlFor(reference, lang = 'en') {
+    try {
+        return procedureUrl(toApiRef(reference), lang);
+    } catch {
+        return null;
+    }
+}
+
 export function parseIntArg(value, name, { min = 0, max = Infinity } = {}) {
     const n = Number(value);
     if (!Number.isInteger(n)) throw new ArgumentError(`${name} deve essere un intero`);

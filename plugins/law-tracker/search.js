@@ -1,7 +1,7 @@
 // Ricerca nel database legislativo (POST /search), con i filtri della Advanced Search.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
-import { apiPost, parseIntArg, splitList, stripHighlight, toApiRef, procedureUrl } from './shared.js';
+import { apiPost, parseIntArg, splitList, stripHighlight, toApiRef, procedureUrlFor } from './shared.js';
 
 const STATUS_CODES = ['ong', 'ado', 'nad', 'wit'];
 
@@ -115,7 +115,7 @@ cli({
                 currentStage: current?.code ?? null,
                 initiationDate: r.initiationDate ?? null,
                 title: stripHighlight(r.titleShort || r.title),
-                url: r.reference ? procedureUrl(toApiRef(r.reference), lang) : null,
+                url: procedureUrlFor(r.reference, lang),
             };
         });
     },

@@ -1,7 +1,7 @@
 // Ultime proposte legislative della Commissione (feed della homepage).
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
-import { apiGet, parseIntArg, toApiRef, procedureUrl } from './shared.js';
+import { apiGet, parseIntArg, procedureUrlFor } from './shared.js';
 
 cli({
     site: 'law-tracker',
@@ -31,7 +31,7 @@ cli({
             reference: r.reference ?? null,
             initiationDate: r.initiationDate ?? null,
             title: r.title ?? null,
-            url: r.reference ? procedureUrl(toApiRef(r.reference), lang) : null,
+            url: procedureUrlFor(r.reference, lang),
         }));
     },
 });
