@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-08-28 (evening 6)
+
+- **Corrected a wrong pitfall.** `pitfall:no_reliable_result_total` claimed the EUR-Lex results page has no usable total. It does: the page text reads `Results 1 - 10 of 356`. The earlier probe looked for an element with a class of its own and found none, and I turned "my selector missed it" into "the source does not provide it". Replaced with `pitfall:result_total_is_in_the_page_text` plus an `action:read_result_total`, both carrying the regex and two measurements (`"facial recognition"` → 356, `biometr*` → 3246).
+
 ## 2026-08-28 (evening 5)
 
 - **Decision: one repository, not one per sitemap.** Checked against the requirement first: single-site install works (`plugin install github:aborruso/opencli/<site>` registers only that adapter), `plugin update` iterates the lock and touches only installed sub-plugins, and `plugin list` shows a per-site version read from each sub-plugin's own manifest. Splitting would buy separate issue trackers and landing pages, nothing operational, and would cost the cross-links between the two sitemaps plus a duplicated `docs/` mirror, `bin/` and `AGENTS.md`. Rationale recorded in the README so a visitor does not have to ask.

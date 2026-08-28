@@ -58,7 +58,7 @@ on_browser_unavailable:
 ## Avoid
 
 - Filling in the advanced search form when a `search.html?...` URL expresses the query.
-- Reporting a total number of results: the page has no reliable one.
+- Reporting a total without reading it: it is in the page text (`Results 1 - 10 of 356`), so read it rather than counting rows or guessing.
 - Keeping `qid`/`rid` in a link you intend to save or cite.
 - Concluding "the EU has not legislated on this" from a search that found nothing without having tried a wildcard and a synonym. `facial recognition` appears twice in the AI Act, `biometric identification` 57 times.
 

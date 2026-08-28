@@ -132,6 +132,6 @@ Output is long — one row per binding — because the variables are not known a
 
 ## Traps
 
-Seven, all reproduced live, in [`pitfalls.md`](pitfalls.md). The first one to internalise: HTTP 202 with an empty body is not an outage, it is the WAF. Then: Cellar's accept types are narrow and `Accept-Language` is mandatory; `qid`/`rid` in result links are session ids; there is no reliable result total on the page.
+Seven, all reproduced live, in [`pitfalls.md`](pitfalls.md). The first one to internalise: HTTP 202 with an empty body is not an outage, it is the WAF. Then: Cellar's accept types are narrow and `Accept-Language` is mandatory; `qid`/`rid` in result links are session ids; the result total has no element of its own and must be read out of the page text.
 
 API contracts: `~/.opencli/sites/eur-lex/endpoints.json`. Field notes: `~/.opencli/sites/eur-lex/notes.md`.

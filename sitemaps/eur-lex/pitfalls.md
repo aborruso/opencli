@@ -36,11 +36,11 @@ symptom: fields shift or match nothing
 workaround: parse `dt`/`dd` pairs by label, and pin `lang=en` in the URL. The labels seen are `Latest consolidated version:`, `CELEX number:`, `Languages:`, `Form:`, `Author:`.
 verified_at: 2026-08-28
 
-### pitfall:no_reliable_result_total
-trigger: wanting the total number of hits for a search
-symptom: the page text yields `Results 1 …` and no clean total that survives parsing
-workaround: do not report a total. Count what you paged through, and say so. Ten results per page, `page=N` for the next.
-verified_at: 2026-08-28 (probed the results page for a count; nothing reliable found)
+### pitfall:result_total_is_in_the_page_text
+trigger: looking for the result total in an element with a class of its own
+symptom: no `.SearchResultsCount` or similar; a naive selector finds nothing and you conclude there is no total
+workaround: the total lives in the page text as `Results 1 - 10 of 356`. Read it with a regex over `document.body.innerText`: `/Results\s+(\d+)\s*-\s*(\d+)\s+of\s+([\d\s.,]+)/`. Ten results per page, `page=N` for the next.
+verified_at: 2026-08-28 (`"facial recognition"` → 356, `biometr*` → 3246)
 
 ### pitfall:celex_is_not_in_law_tracker
 trigger: trying to jump from a Law Tracker procedure to its CELEX number, or the reverse

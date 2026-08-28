@@ -51,6 +51,12 @@ fail: ARGUMENT on a malformed CELEX
 recover: check the CELEX read off the href; consolidated versions look like `02024R1358-20240522`
 evidence: opencli eur-lex meta 32024R1689 → title, date 2024-06-13, type REG, 7 EuroVoc concepts
 
-## Do not count
+### action:read_result_total
+pre: a results page is loaded
+do: regex over the page text — `document.body.innerText.match(/Results\s+(\d+)\s*-\s*(\d+)\s+of\s+([\d\s.,]+)/)`
+post: `{from, to, total}`, e.g. `{"from":"1","to":"10","total":"356"}`
+fail: no match — you are probably not on a results page, or the page is not in English
+recover: check the document title is `Search results - EUR-Lex` and that the URL carries `lang=en`
+evidence: opencli browser <sess> eval on that regex → 356 for `"facial recognition"`, 3246 for `biometr*`
 
-There is no reliable total on this page. Report what you paged through. See `pitfalls.md#no_reliable_result_total`.
+There is no element with a class of its own for the count: it lives in the page text. See `pitfalls.md#result_total_is_in_the_page_text`.
