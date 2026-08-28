@@ -1,0 +1,60 @@
+# AGENTS.md
+
+Instructions for an AI agent working with, or through, this repository.
+
+This repo ships two things for two different consumers:
+
+- **OpenCLI adapters** (`plugins/`) — commands you can run.
+- **Agent sitemaps** (`sitemaps/`) — navigation graphs telling you how to drive these websites with a real browser, which command to prefer, and how to recover when a page disagrees with memory.
+
+## Install
+
+```bash
+npm install -g @jackwener/opencli                       # the CLI itself, Node >= 20
+opencli plugin install github:aborruso/opencli          # both adapters, in one shot
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
+opencli list | grep -E 'law-tracker|eur-lex'            # check
+```
+
+The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. The sitemaps travel with the clone but OpenCLI does not link them itself — that is what the sync script is for. It only ever creates `~/.opencli/sites/<site>/sitemap` symlinks and refuses to overwrite a real directory.
+
+To install a single adapter: `opencli plugin install github:aborruso/opencli/eur-lex`.
+
+## Read this before using the commands
+
+Each site has a `README.md` with example commands and their real output, and a `SITE.md` that opens with the rule of engagement for that site. Read the `SITE.md` first — for EUR-Lex in particular it tells you which half of the work you are in, and getting that wrong wastes the whole session.
+
+| Site | Start here | Commands |
+|---|---|---|
+| law-tracker.europa.eu | [`sitemaps/law-tracker/SITE.md`](sitemaps/law-tracker/SITE.md) | `opencli law-tracker proposals\|events\|search\|timeline\|topics` |
+| eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex get\|meta\|sparql` |
+
+## How to use a sitemap
+
+When `opencli browser <session> open <url>` returns `"sitemap": {"available": true, ...}`, load the `opencli-browser-sitemap` skill (`opencli skills read opencli-browser-sitemap`) and follow it. Read the sitemap lazily: `SITE.md` first, then only the `pages/` or `workflows/` file the task needs. Every file stays small enough to load on demand.
+
+**The announcement fires once per browser session per site.** A second `open` in the same session returns `"sitemap": null` even when one exists. Do not conclude there is no sitemap from that: check `~/.opencli/sites/<site>/sitemap/` directly, or open with a fresh session name.
+
+A sitemap is a hint. **Live browser state is the truth.** When they disagree, trust the browser and mark the entry stale rather than forcing the old path.
+
+## What these two sites are, and how they relate
+
+- **law-tracker** follows the *legislative process*: which stage a file is at, what happened when. Its search matches **procedure titles only**, not the text of the acts.
+- **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names — but `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so search there is a browser workflow while retrieval is an adapter.
+
+Neither source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
+
+## Rules
+
+- Read the `pitfalls.md` of a site before concluding that something is not there. Both sites have failure modes that look like success: filters silently ignored, `totalResults` reading 0 with results present, a non-existent page returning HTTP 200, and a WAF challenge that is a 202 rather than a 403.
+- Never attempt to bypass the WAF, a CAPTCHA, or a rate limit. If the front door needs a browser, use the browser.
+- Do not report a result total that the source does not give you. Report what you actually paged through.
+- These commands are all `access: read`. Nothing here writes anything anywhere.
+
+## If you are changing this repo
+
+- Repository language is **English** — READMEs, sitemaps, adapter code, comments, help strings, error messages, `LOG.md`, `tasks/`.
+- Everything under `docs/` except `notes.md` is a verbatim upstream mirror: regenerate it from the URLs in `docs/meta.yml`, never hand-edit it.
+- Every `evidence:` line in a sitemap must name a command that was actually run. An invented evidence line is worse than a missing action.
+- After touching an adapter: `opencli validate <site>` and `opencli convention-audit <site>` must both pass. The audit catches the ways an adapter can lie to you — dropped columns, silent empty fallbacks, sentinel rows, clamped arguments.
+- Keep `LOG.md` current, newest entry on top, dates as `YYYY-MM-DD`.

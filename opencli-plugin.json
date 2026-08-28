@@ -1,0 +1,16 @@
+{
+  "name": "opencli-sitemaps",
+  "version": "0.1.0",
+  "description": "OpenCLI adapters and agent sitemaps for EU law sources",
+  "opencli": ">=1.8.6",
+  "plugins": {
+    "law-tracker": {
+      "path": "plugins/law-tracker",
+      "description": "EU Law Tracker — EU legislative procedures"
+    },
+    "eur-lex": {
+      "path": "plugins/eur-lex",
+      "description": "EUR-Lex / Cellar — EU law full text and metadata"
+    }
+  }
+}
