@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-08-28 (evening 3)
+
+- Repository published: <https://github.com/aborruso/opencli>, public, MIT. Upstream OpenCLI skill copies (`.agents/`, `.claude/`) excluded from git — they are jackwener's files and are reproducible with `npx skills add jackwener/opencli`; `skills-lock.json` records the versions this repo was written against.
+- Added a root `opencli-plugin.json` declaring the two sub-plugins, which makes the repo an OpenCLI plugin monorepo, and `AGENTS.md` as the agent-facing entry point.
+- **Install path verified end to end after publishing**: `opencli plugin install github:aborruso/opencli` → "Installed 2 plugin(s) from monorepo: eur-lex, law-tracker", clone under `~/.opencli/monorepos/opencli/`, then `bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh` links both sitemaps and `opencli browser open` reports `sitemap.available: true`. Commands answered live from that install.
+- Then restored the development setup: plugins reinstalled from `~/git/idee/opencli/plugins/*` so edits in the working copy are live rather than shadowed by the clone. Both routes documented in the README.
+
 ## 2026-08-28 (evening 2)
 
 - Second site covered: **eur-lex.europa.eu**. Sitemap in `sitemaps/eur-lex/` (SITE + 3 pages + 2 workflows + 7 pitfalls) and plugin in `plugins/eur-lex/` with 3 PUBLIC commands (`get`, `meta`, `sparql`). `opencli validate eur-lex` → PASS; `opencli browser ex open` resolves `sitemap.site: "eur-lex"`, so the adapter-`domain` pattern generalises — that was Phase 4's open question.

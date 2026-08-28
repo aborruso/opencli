@@ -20,7 +20,19 @@ The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symli
 
 The sitemaps come with the clone but OpenCLI does not link them itself — there is no install mechanism for sitemaps, which is what `bin/sync-sitemaps.sh` is for.
 
+Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`.
+
 Agents should start from [`AGENTS.md`](AGENTS.md).
+
+### Working on this repo instead of using it
+
+The install above points OpenCLI at the clone under `~/.opencli/monorepos/`. To edit the adapters and sitemaps in your own working copy and see the changes live, install from the working copy instead:
+
+```bash
+opencli plugin install "file://$PWD/plugins/law-tracker"
+opencli plugin install "file://$PWD/plugins/eur-lex"
+bash bin/sync-sitemaps.sh
+```
 
 ```bash
 opencli list                 # every command available
