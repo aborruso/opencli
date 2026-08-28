@@ -23,11 +23,11 @@ URL: `/procedure/<api-ref>?lang=en`, dove `<api-ref>` è la forma API del refere
 
 ### action:verify_procedure_exists
 pre: navigazione a `/procedure/<api-ref>` completata
-do: cercare in pagina un `link` con il reference in forma display
+do: `opencli browser <sess> find --role link --text "<anno>/<numero>"`
 post: il link esiste → la procedura esiste
-fail: nessun reference in pagina, solo header/menu/footer
+fail: `semantic_not_found` - "Semantic locator matched 0 elements"
 recover: il reference è sbagliato o inesistente; ricavare quello giusto da `opencli law-tracker search` o dalla pagina risultati. Vedi `pitfalls.md#silent_empty_procedure`
-evidence: agent-browser open /procedure/2021_106 → link "2021/0106(COD)"; agent-browser open /procedure/9999_1 → read mostra solo il chrome del sito
+evidence: opencli browser <sess> find --role link --text "2021/0106" → matches_n 1, testo "2021/0106(COD)"; su /procedure/9999_1 la stessa find risponde semantic_not_found
 
 ### action:read_timeline
 pre: pagina procedura valida

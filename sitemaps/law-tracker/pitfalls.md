@@ -39,8 +39,8 @@ verified_at: 2026-08-28
 ### pitfall:silent_empty_procedure
 trigger: navigare a `/procedure/<ref>` con un reference inesistente
 symptom: HTTP 200, nessun messaggio d'errore, pagina con solo header, menu e footer
-workaround: verificare la presenza in pagina del link col reference; via API il segnale è netto (HTTP 400)
-verified_at: 2026-08-28 (provato con `/procedure/9999_1`)
+workaround: verificare la presenza in pagina del link col reference (`find --role link --text "<anno>/<numero>"`); via API il segnale è netto (HTTP 400)
+verified_at: 2026-08-28 (`/procedure/9999_1`: find risponde `semantic_not_found`, mentre su `/procedure/2021_106` trova 1 match)
 
 ### pitfall:reference_two_spellings
 trigger: costruire un URL o chiamare l'API con il reference in forma display
@@ -69,5 +69,5 @@ verified_at: 2026-08-28 (13 eventi di 2021/0106(COD): un solo `membersResponsibl
 ### pitfall:site_name_alias
 trigger: `opencli browser` deve risolvere il nome del sito per trovare questa sitemap
 symptom: senza adapter registrato il nome ripiega sull'etichetta SLD, cioè `europa`, che collide con qualunque altro sito europa.eu
-workaround: aggancio al solo nome `law-tracker`, che dipende dal `domain` dichiarato dall'adapter. **L'alias `europa` è stato provato e poi respinto**: il fallback SLD fa risolvere su `europa` anche `eur-lex.europa.eu` e `commission.europa.eu`, che si sarebbero visti servire questa sitemap come contesto di navigazione. Meglio non trovare la sitemap che darne una sbagliata. Resta da verificare, col Browser Bridge collegato, che a runtime il nome risolto sia davvero `law-tracker`.
-verified_at: 2026-08-28 (collisione dell'alias verificata; risoluzione a runtime no)
+workaround: aggancio al solo nome `law-tracker`. Verificato a runtime: con l'adapter registrato `opencli browser open` risolve `site: "law-tracker"`, non il fallback. **L'alias `europa` è stato provato e poi respinto**: il fallback SLD fa risolvere su `europa` anche `eur-lex.europa.eu` e `commission.europa.eu`, che si sarebbero visti servire questa sitemap come contesto di navigazione. Meglio non trovare la sitemap che darne una sbagliata. Resta da verificare, col Browser Bridge collegato, che a runtime il nome risolto sia davvero `law-tracker`.
+verified_at: 2026-08-28

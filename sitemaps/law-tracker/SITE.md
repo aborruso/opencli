@@ -42,4 +42,4 @@ Vedi `pitfalls.md`. I due che mordono per primi: il banner cookie intercetta i c
 
 ## Nota di stato
 
-Il nome di sito risolto a runtime da `opencli browser` **non è ancora stato verificato**: serve il Browser Bridge collegato. Dovrebbe essere `law-tracker`, per via del `domain` dichiarato dall'adapter. L'alias sul fallback SLD (`europa`) è stato scartato di proposito: servirebbe questa sitemap a tutti i siti `*.europa.eu`. Vedi `pitfalls.md#site_name_alias`.
+Verificato con il Browser Bridge collegato: `opencli browser <sess> open https://law-tracker.europa.eu/homepage` restituisce `sitemap.site: "law-tracker"`, `available: true`, `source: local`. Il `domain` dichiarato dall'adapter batte il fallback SLD. L'alias su `europa` è stato scartato di proposito: servirebbe questa sitemap a tutti i siti `*.europa.eu`. Vedi `pitfalls.md#site_name_alias`.

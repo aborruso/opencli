@@ -24,7 +24,7 @@ source: local
 
 ## Visual anchors
 
-- text: titolo del documento = `Search results` - **è l'unica pagina del sito con un `<title>` proprio**, quindi è una firma di stato affidabile
+- text: titolo del documento = `Search results` - **è l'unica pagina del sito con un `<title>` proprio**, quindi è una firma di stato affidabile (`opencli browser <sess> state` → `title: Search results`)
 - a11y: `heading "Search results" level=2`
 - a11y: `combobox "Sort by:"` e `combobox "View"`
 - a11y: i risultati sono `link` il cui accessible name inizia con il reference (`2021/0106(COD) …`) e il cui `href` è `/procedure/<api-ref>`

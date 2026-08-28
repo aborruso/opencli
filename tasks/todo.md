@@ -28,9 +28,10 @@ Fonti: `docs/` mirrorati, DeepWiki su `jackwener/OpenCLI`, e soprattutto il codi
 - [x] `CLAUDE.md` esteso: `sitemaps/`, `bin/`, `tasks/` sono a mano, non mirrorati.
 - [x] Layout istanziato con `law-tracker`. `bash bin/sync-sitemaps.sh` stampa il link e l'alias `europa`.
 
-### Fase 2 - test di accettazione (APERTA: serve il Browser Bridge)
-- [ ] `opencli browser <sess> open https://law-tracker.europa.eu/homepage` → verifica: `sitemap.available: true` e `paths.local` che punta al repo. **Bloccata**: `opencli doctor` dice estensione non connessa. Serve avviare `opencli-bridge`.
-- [ ] Nello stesso giro: il nome risolto è `law-tracker` (adapter) o `europa` (fallback SLD)? → verifica: campo `site` nell'output.
+### Fase 2 - test di accettazione — FATTA
+- [x] `opencli browser lt open .../homepage` → `sitemap.available: true`, `source: local`, `paths.local` = `~/.opencli/sites/law-tracker/sitemap` (symlink al repo).
+- [x] Nome risolto: **`law-tracker`**. Il `domain` dell'adapter batte il fallback SLD, come previsto.
+- [x] Ancore riverificate con `opencli browser`: `/results` ha `title: Search results`; su `/procedure/2021_106` la find sul reference trova 1 match, su `/procedure/9999_1` risponde `semantic_not_found`.
 - [x] Alias `europa` valutato e scartato: servirebbe questa sitemap a tutti i siti `*.europa.eu` (verificato su eur-lex e commission). Il meccanismo alias resta in `bin/sync-sitemaps.sh` per casi senza collisione.
 
 ### Fase 3 - prima sitemap vera (pilota) — FATTA
