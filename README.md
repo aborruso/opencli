@@ -74,6 +74,20 @@ opencli validate <site>
 
 The two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
 
+## Licence and provenance
+
+MIT, see [`LICENSE`](LICENSE) — for what is written here: the sitemaps, the adapters, the scripts and the notes.
+
+Everything under `docs/` except `notes.md` is a verbatim mirror of the [OpenCLI](https://github.com/jackwener/OpenCLI) documentation, which is Apache-2.0 and belongs to its authors. `docs/meta.yml` records the source URL and the sha256 of every mirrored file.
+
+The agent skills this repo is written against (`opencli-usage`, `opencli-browser`, `opencli-browser-sitemap`, `opencli-sitemap-author`, `opencli-adapter-author`, `opencli-autofix`) are not redistributed here. Install them separately:
+
+```bash
+npx skills add jackwener/opencli
+```
+
+`skills-lock.json` records which ones, and at which version, this repo was written against.
+
 ## Editing rules
 
 Everything under `docs/` except `notes.md` is a verbatim upstream copy: never edit it by hand, regenerate it from the URLs in `docs/meta.yml`. Everything else — `sitemaps/`, `plugins/`, `bin/`, `tasks/`, `LOG.md` — is hand-written. See `CLAUDE.md`.
