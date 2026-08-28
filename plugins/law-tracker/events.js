@@ -1,4 +1,4 @@
-// Ultimi eventi legislativi su tutti i fascicoli.
+// Latest legislative events across all files.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
 import { apiGet, parseIntArg, procedureUrlFor } from './shared.js';
@@ -7,15 +7,15 @@ cli({
     site: 'law-tracker',
     name: 'events',
     access: 'read',
-    description: 'Ultimi eventi legislativi (tutti i fascicoli)',
+    description: 'Latest legislative events (all files)',
     example: 'opencli law-tracker events --limit 10',
     domain: 'law-tracker.europa.eu',
     strategy: Strategy.PUBLIC,
     browser: false,
     args: [
-        { name: 'limit', type: 'int', default: 20, help: 'Numero di eventi da restituire' },
-        { name: 'offset', type: 'int', default: 0, help: 'Scorrimento zero-based nel risultato' },
-        { name: 'lang', type: 'string', default: 'en', help: 'Lingua dell\'interfaccia' },
+        { name: 'limit', type: 'int', default: 20, help: 'How many events to return' },
+        { name: 'offset', type: 'int', default: 0, help: 'Zero-based offset into the result set' },
+        { name: 'lang', type: 'string', default: 'en', help: 'Interface language' },
     ],
     columns: ['reference', 'initiationDate', 'event', 'title', 'url'],
     func: async (args) => {
@@ -24,7 +24,7 @@ cli({
         const lang = args.lang ?? 'en';
         const rows = await apiGet('/events/recent', { startingPosition: offset, size: limit }, lang);
         if (!Array.isArray(rows) || rows.length === 0) {
-            throw new EmptyResultError('law-tracker events', 'Nessun evento restituito');
+            throw new EmptyResultError('law-tracker events', 'No events returned');
         }
         return rows.map((r) => ({
             reference: r.reference ?? null,

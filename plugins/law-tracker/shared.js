@@ -1,11 +1,11 @@
-// Helper condivisi per gli adapter law-tracker (API JSON pubblica, nessuna auth).
-// Contratto verificato dal vivo 2026-08-28; vedi ~/.opencli/sites/law-tracker/endpoints.json.
+// Shared helpers for the law-tracker adapters (public JSON API, no auth).
+// Contract verified live on 2026-08-28; see ~/.opencli/sites/law-tracker/endpoints.json.
 import { CommandExecutionError, ArgumentError } from '@jackwener/opencli/errors';
 
 export const BASE = 'https://law-tracker.europa.eu';
 const UA = 'opencli-law-tracker/0.1';
 
-/** `lang` è obbligatorio su ogni endpoint: si inietta qui, nessun chiamante può ometterlo. */
+/** `lang` is mandatory on every endpoint: injected here so no caller can omit it. */
 export async function apiGet(path, params = {}, lang = 'en') {
     const url = new URL(path, BASE);
     for (const [k, v] of Object.entries(params)) {
@@ -30,28 +30,28 @@ async function request(url, init) {
     try {
         res = await fetch(url, { ...init, headers: { accept: 'application/json', 'user-agent': UA, ...(init.headers ?? {}) } });
     } catch (e) {
-        throw new CommandExecutionError(`law-tracker non raggiungibile: ${e.message}`);
+        throw new CommandExecutionError(`law-tracker is unreachable: ${e.message}`);
     }
     if (res.status === 400) {
-        // Il backend risponde 400 anche quando il reference è inesistente o malformato.
-        throw new ArgumentError('parametro rifiutato dal backend (HTTP 400): controlla reference, codici o filtri');
+        // The backend answers 400 for an unknown or malformed reference too.
+        throw new ArgumentError('parameter rejected by the backend (HTTP 400): check the reference, codes or filters');
     }
-    if (!res.ok) throw new CommandExecutionError(`law-tracker ha risposto HTTP ${res.status}`);
+    if (!res.ok) throw new CommandExecutionError(`law-tracker answered HTTP ${res.status}`);
     try {
         return await res.json();
     } catch {
-        throw new CommandExecutionError('risposta non-JSON dal backend');
+        throw new CommandExecutionError('non-JSON response from the backend');
     }
 }
 
-/** I titoli in /search tornano con markup <em> di evidenziazione: va tolto. */
+/** Titles from /search come back with <em> highlight markup: strip it. */
 export function stripHighlight(s) {
     return typeof s === 'string' ? s.replace(/<\/?em>/g, '').replace(/\s+/g, ' ').trim() : s;
 }
 
 /**
- * Il reference ha due grafie: display `2021/0106(COD)` e API `2021_106`
- * (zeri iniziali del numero rimossi). Qui si accettano entrambe.
+ * A reference has two spellings: display `2021/0106(COD)` and API `2021_106`
+ * (leading zeros of the number dropped). Both are accepted here.
  */
 export function toApiRef(input) {
     const raw = String(input ?? '').trim();
@@ -59,7 +59,7 @@ export function toApiRef(input) {
     if (m) return `${m[1]}_${String(Number(m[2]))}`;
     m = raw.match(/^(\d{4})\/(\d+)(?:\([A-Z]+\))?$/);
     if (m) return `${m[1]}_${String(Number(m[2]))}`;
-    throw new ArgumentError(`reference non valido: "${raw}". Attesi 2021/0106(COD) oppure 2021_106`);
+    throw new ArgumentError(`invalid reference: "${raw}". Expected 2021/0106(COD) or 2021_106`);
 }
 
 export function procedureUrl(apiRef, lang = 'en') {
@@ -67,9 +67,9 @@ export function procedureUrl(apiRef, lang = 'en') {
 }
 
 /**
- * URL della procedura a partire da un reference che arriva dal backend.
- * Non lancia: una riga con reference in forma inattesa perde l'url, non fa
- * cadere l'intero elenco.
+ * Procedure URL from a reference returned by the backend.
+ * Does not throw: a row with an unexpected reference form loses its url
+ * instead of bringing the whole listing down.
  */
 export function procedureUrlFor(reference, lang = 'en') {
     try {
@@ -81,8 +81,8 @@ export function procedureUrlFor(reference, lang = 'en') {
 
 export function parseIntArg(value, name, { min = 0, max = Infinity } = {}) {
     const n = Number(value);
-    if (!Number.isInteger(n)) throw new ArgumentError(`${name} deve essere un intero`);
-    if (n < min || n > max) throw new ArgumentError(`${name} deve stare fra ${min} e ${max}`);
+    if (!Number.isInteger(n)) throw new ArgumentError(`${name} must be an integer`);
+    if (n < min || n > max) throw new ArgumentError(`${name} must be between ${min} and ${max}`);
     return n;
 }
 

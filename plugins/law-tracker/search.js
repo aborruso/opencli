@@ -1,4 +1,4 @@
-// Ricerca nel database legislativo (POST /search), con i filtri della Advanced Search.
+// Search the legislative database (POST /search), with the Advanced Search filters.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
 import { apiPost, parseIntArg, splitList, stripHighlight, toApiRef, procedureUrlFor } from './shared.js';
@@ -6,9 +6,9 @@ import { apiPost, parseIntArg, splitList, stripHighlight, toApiRef, procedureUrl
 const STATUS_CODES = ['ong', 'ado', 'nad', 'wit'];
 
 /**
- * Il backend filtra in modo diverso a seconda che riceva o meno l'envelope
- * SearchCriteria completo: un body sparso dà conteggi incoerenti rispetto a
- * quello che manda la UI. Si parte quindi sempre dall'envelope pieno.
+ * The backend filters differently depending on whether it receives the full
+ * SearchCriteria envelope: a sparse body yields counts inconsistent with the
+ * ones the UI gets. So always start from the complete envelope.
  */
 function baseBody(size) {
     return {
@@ -24,25 +24,25 @@ cli({
     site: 'law-tracker',
     name: 'search',
     access: 'read',
-    description: 'Cerca procedure legislative (testo libero + filtri della Advanced Search)',
+    description: 'Search legislative procedures (free text plus the Advanced Search filters)',
     example: 'opencli law-tracker search "artificial intelligence" --status ong --stage FR',
     domain: 'law-tracker.europa.eu',
     strategy: Strategy.PUBLIC,
     browser: false,
     args: [
-        { name: 'query', type: 'string', positional: true, required: false, help: 'Testo libero (quick search)' },
-        { name: 'title', type: 'string', help: 'Cerca solo nel titolo' },
-        { name: 'procedure', type: 'string', help: 'Reference di procedura, es. 2021/0106(COD)' },
-        { name: 'status', type: 'string', help: `Stato, anche multiplo separato da virgola: ${STATUS_CODES.join('/')}` },
-        { name: 'stage', type: 'string', help: 'Fase, separata da virgola: PR, FR, SR, CTR, EOP' },
-        { name: 'eurovoc', type: 'string', help: 'Topic EuroVoc come CODICE,TIPO (es. "52,DOM"); più topic separati da ";"' },
-        { name: 'policyArea', type: 'string', help: 'Codici policy area separati da virgola (es. 01,0107)' },
-        { name: 'keyword', type: 'string', help: 'Parole chiave separate da virgola' },
-        { name: 'sort', type: 'string', default: 'REL', help: 'Ordinamento: REL (rilevanza) o DATE (data del documento)' },
-        { name: 'direction', type: 'string', default: 'ASC', help: 'Direzione: ASC o DESC' },
-        { name: 'page', type: 'int', default: 0, help: 'Pagina zero-based' },
-        { name: 'size', type: 'int', default: 20, help: 'Risultati per pagina (il backend tetta intorno a 20)' },
-        { name: 'lang', type: 'string', default: 'en', help: 'Lingua dell\'interfaccia' },
+        { name: 'query', type: 'string', positional: true, required: false, help: 'Free text (quick search)' },
+        { name: 'title', type: 'string', help: 'Match the title only' },
+        { name: 'procedure', type: 'string', help: 'Procedure reference, e.g. 2021/0106(COD)' },
+        { name: 'status', type: 'string', help: `Status, comma-separated for several: ${STATUS_CODES.join('/')}` },
+        { name: 'stage', type: 'string', help: 'Stage, comma-separated: PR, FR, SR, CTR, EOP' },
+        { name: 'eurovoc', type: 'string', help: 'EuroVoc topic as CODE,TYPE (e.g. "52,DOM"); several topics separated by ";"' },
+        { name: 'policyArea', type: 'string', help: 'Comma-separated policy-area codes (e.g. 01,0107)' },
+        { name: 'keyword', type: 'string', help: 'Comma-separated keywords' },
+        { name: 'sort', type: 'string', default: 'REL', help: 'Ordering: REL (relevance) or DATE (document date)' },
+        { name: 'direction', type: 'string', default: 'ASC', help: 'Direction: ASC or DESC' },
+        { name: 'page', type: 'int', default: 0, help: 'Zero-based page' },
+        { name: 'size', type: 'int', default: 20, help: 'Results per page (the backend caps around 20)' },
+        { name: 'lang', type: 'string', default: 'en', help: 'Interface language' },
     ],
     columns: ['reference', 'status', 'currentStage', 'initiationDate', 'title', 'url'],
     func: async (args) => {
@@ -53,37 +53,37 @@ cli({
         body.page = String(page);
 
         const sort = String(args.sort ?? 'REL').toUpperCase();
-        if (!['REL', 'DATE'].includes(sort)) throw new ArgumentError('sort deve essere REL o DATE');
+        if (!['REL', 'DATE'].includes(sort)) throw new ArgumentError('sort must be REL or DATE');
         const direction = String(args.direction ?? 'ASC').toUpperCase();
-        if (!['ASC', 'DESC'].includes(direction)) throw new ArgumentError('direction deve essere ASC o DESC');
-        // Il backend non conosce "DATE": l'ordinamento per data si chiama DOCD.
-        // Mandare order:"DATE" fa rispondere HTTP 400. Nell'URL della pagina
-        // risultati, invece, lo stesso ordinamento si scrive sort=DATE.
+        if (!['ASC', 'DESC'].includes(direction)) throw new ArgumentError('direction must be ASC or DESC');
+        // The backend does not know "DATE": date ordering is called DOCD.
+        // Sending order:"DATE" answers HTTP 400. In the results-page URL, the
+        // same ordering is spelled sort=DATE.
         body.sort = { order: sort === 'DATE' ? 'DOCD' : 'REL', direction };
 
         const freeText = args.query || args.title;
         const hasStatus = splitList(args.status).length > 0;
         const hasStage = splitList(args.stage).length > 0;
         if (freeText && (hasStatus || hasStage)) {
-            // Verificato dal vivo: con quickSearch o title valorizzati il backend
-            // IGNORA status e stage e restituisce righe che non rispettano il filtro.
-            // Meglio rifiutare che consegnare righe sbagliate senza dirlo.
-            throw new ArgumentError('status e stage vengono ignorati dal backend quando c\'è testo libero: usa --keyword al posto della query, oppure togli --status/--stage');
+            // Verified live: with quickSearch or title set, the backend IGNORES
+            // status and stage and returns rows that violate the filter.
+            // Better to refuse than to hand over wrong rows silently.
+            throw new ArgumentError('free text makes the backend ignore status and stage: use --keyword instead of the query, or drop --status/--stage');
         }
         if (args.query) body.quickSearch = String(args.query);
         if (args.title) body.title = String(args.title);
 
         if (args.procedure) {
             const [year, number] = toApiRef(args.procedure).split('_');
-            // referenceType resta null: mandando il tipo (es. COD) il backend torna zero risultati.
+            // referenceType stays null: sending the type (e.g. COD) returns zero results.
             body.procedure = { referenceYear: [year], referenceNumber: number, referenceType: null };
         }
 
         const statuses = splitList(args.status).map((s) => s.toLowerCase());
         for (const s of statuses) {
-            if (!STATUS_CODES.includes(s)) throw new ArgumentError(`status "${s}" non valido: attesi ${STATUS_CODES.join(', ')}`);
+            if (!STATUS_CODES.includes(s)) throw new ArgumentError(`invalid status "${s}": expected one of ${STATUS_CODES.join(', ')}`);
         }
-        // Forma verificata: status è un OGGETTO {type:[codici]}; una stringa nuda dà 400.
+        // Verified shape: status is an OBJECT {type:[codes]}; a bare string gives 400.
         if (statuses.length) body.status = { type: statuses };
 
         const stages = splitList(args.stage).map((s) => s.toUpperCase());
@@ -98,7 +98,7 @@ cli({
             const eurovoc = eurovocRaw.map((e) => {
                 const parts = e.split(',');
                 if (parts.length !== 2 || !parts[1]) {
-                    throw new ArgumentError(`eurovoc "${e}" non valido: atteso CODICE,TIPO come lo stampa "opencli law-tracker topics eurovoc"`);
+                    throw new ArgumentError(`invalid eurovoc "${e}": expected CODE,TYPE as printed by "opencli law-tracker topics eurovoc"`);
                 }
                 return { code: parts[0].trim(), type: parts[1].trim() };
             });
@@ -108,7 +108,7 @@ cli({
         const res = await apiPost('/search', body, lang);
         const rows = Array.isArray(res?.searchResults) ? res.searchResults : [];
         if (rows.length === 0) {
-            throw new EmptyResultError('law-tracker search', 'Nessuna procedura corrisponde ai filtri');
+            throw new EmptyResultError('law-tracker search', 'No procedure matches these filters');
         }
         return rows.map((r) => {
             const current = Array.isArray(r.stages) ? r.stages.find((s) => s.current) : null;

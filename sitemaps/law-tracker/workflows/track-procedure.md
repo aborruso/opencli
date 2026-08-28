@@ -1,20 +1,20 @@
 ---
 schema_version: 1
 workflow_id: track-procedure
-intent: ricostruire l'iter di una procedura di cui si conosce il reference
+intent: reconstruct the history of a procedure whose reference is known
 last_verified: 2026-08-28
 source: local
 ---
 
-# Seguire una procedura
+# Track a procedure
 
 ## Goal
 
-Dato un reference (`2021/0106(COD)` oppure `2021_106`), ottenere la cronologia degli eventi, la fase corrente e i documenti collegati.
+Given a reference (`2021/0106(COD)` or `2021_106`), get the chronology of events, the current stage and the attached documents.
 
 ## State signature
 
-Il reference è tutto lo stato. Le due grafie sono equivalenti in ingresso agli adapter; l'URL pubblico usa sempre la forma API.
+The reference is the whole state. Both spellings are accepted as adapter input; the public URL always uses the API form.
 
 ## Best path
 
@@ -23,7 +23,7 @@ opencli law-tracker timeline 2021/0106\(COD\) -f csv
 opencli law-tracker timeline 2021_106 -f json
 ```
 
-Colonne: `date, stage, event, typeIdentifier, documents, reference, url`. `stage` segue l'ordine PR → FR → SR → CTR → EOP; `documents` è il numero di documenti allegati all'evento.
+Columns: `date, stage, event, typeIdentifier, documents, reference, url`. `stage` runs PR → FR → SR → CTR → EOP; `documents` is how many documents the event carries.
 
 ## Fallback path
 
@@ -32,20 +32,20 @@ on_adapter_fail:
   - adapter_health_update: opencli law-tracker timeline -> suspect
   - goto /procedure/<api-ref>?lang=en
   - action:verify_procedure_exists in pages/procedure.md
-  - action:read_timeline in pages/procedure.md (espandere le voci con i bottoni "expand")
-  - per il documento ufficiale completo: action:export_xml in pages/procedure.md
+  - action:read_timeline in pages/procedure.md (expand entries with the "expand" buttons)
+  - for the full official document: action:export_xml in pages/procedure.md
 ```
 
 ## Avoid
 
-- Costruire l'URL con la forma display: `/procedure/2021/0106(COD)` non esiste. Serve `2021_106`, senza zeri iniziali nel numero.
-- Fidarsi del caricamento della pagina come prova che la procedura esiste: un reference inesistente rende comunque HTTP 200 con solo il chrome del sito.
-- Cercare in timeline il nome del relatore o dell'istituzione responsabile: quei campi esistono nella notice ma sono null nella quasi totalità degli eventi.
+- Building the URL with the display form: `/procedure/2021/0106(COD)` does not exist. It needs `2021_106`, with no leading zeros in the number.
+- Trusting that the page loaded as proof the procedure exists: a non-existent reference still returns HTTP 200 with nothing but the site chrome.
+- Looking for the rapporteur or the responsible institution in the timeline: those fields exist in the notice but are null on almost every event.
 
 ## State validation
 
-L'adapter restituisce almeno una riga e `reference` in forma display coincide con quello atteso. Sulla pagina, la prova è il link con il reference visibile.
+The adapter returns at least one row and the display-form `reference` matches the one you asked for. On the page, the proof is the visible reference link.
 
 ## Stale markers
 
-Se `/notice/timeline` inizia a rispondere 404 (oggi risponde 400) su reference inesistenti, o se i campi di attore si popolano, aggiornare adapter e note.
+If `/notice/timeline` starts answering 404 (today it answers 400) on unknown references, or the actor fields start being populated, update the adapter and the notes.

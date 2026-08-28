@@ -1,6 +1,6 @@
 {
   "name": "law-tracker",
   "version": "0.1.0",
-  "description": "EU Law Tracker — procedure legislative dell'Unione europea",
+  "description": "EU Law Tracker — EU legislative procedures",
   "opencli": ">=1.8.6"
 }

@@ -11,35 +11,35 @@ auth_strategy: NONE
 
 ## Overview
 
-Portale della Commissione europea per seguire l'iter delle procedure legislative dell'Unione: proposte, eventi, fasi, documenti. SPA Angular su API JSON pubblica, senza login e senza anti-bot.
+European Commission portal for following EU legislative procedures: proposals, events, stages, documents. Angular SPA over a public JSON API, no login and no anti-bot.
 
-## Regola d'ingaggio
+## Rule of engagement
 
-Per **leggere dati** non aprire il browser: gli adapter `opencli law-tracker *` chiamano direttamente l'API e restituiscono righe strutturate. Il browser serve solo per ciò che gli adapter non coprono (facet della pagina risultati, esplorazione visiva, export XML) e per verificare che una pagina esista davvero.
+To **read data**, do not open the browser: the `opencli law-tracker *` adapters call the API directly and return structured rows. The browser is for what the adapters do not cover — the sidebar facet counts, visual exploration, the XML export — and for proving that a page actually exists.
 
 ## Top-level routes
 
 - `/homepage` → `pages/homepage.md`
-- `/results?...` → `pages/results.md` (ricerca rapida, per topic e avanzata: tutte finiscono qui, con URL deep-linkabile)
+- `/results?...` → `pages/results.md` (quick search, topic search and advanced search all land here, with a deep-linkable URL)
 - `/procedure/<api-ref>` → `pages/procedure.md`
-- `/legislative-priorities` → esiste, non coperta da questa sitemap: l'agente esplori da sé
-- `/content/about`, `/content/help`, `/content/privacy-statement`, `/content/cookies`, `/content/accessibility` → pagine editoriali statiche, fuori scope
-- `/advanced-search` → non è una route: il pannello avanzato è un accordion dentro `/homepage`, vedi `pages/homepage.md`
+- `/legislative-priorities` → exists, not covered by this sitemap: explore it yourself
+- `/content/about`, `/content/help`, `/content/privacy-statement`, `/content/cookies`, `/content/accessibility` → static editorial pages, out of scope
+- `/advanced-search` → not a route: the advanced panel is an accordion inside `/homepage`, see `pages/homepage.md`
 
 ## Common goals
 
-- Trovare le procedure su un tema → `workflows/find-procedures.md`
-- Ricostruire l'iter di una procedura nota → `workflows/track-procedure.md`
-- Sapere che novità ci sono → `workflows/whats-new.md`
+- Find the procedures on a topic → `workflows/find-procedures.md`
+- Reconstruct the history of a known procedure → `workflows/track-procedure.md`
+- See what moved recently → `workflows/whats-new.md`
 
-## Comandi disponibili
+## Available commands
 
-`opencli law-tracker proposals | events | search | timeline | topics` — plugin in `~/git/idee/opencli/plugins/law-tracker`, tutti `browser:false`. Endpoint e contratti in `~/.opencli/sites/law-tracker/endpoints.json`.
+`opencli law-tracker proposals | events | search | timeline | topics` — plugin at `~/git/idee/opencli/plugins/law-tracker`, all `browser:false`. Endpoints and contracts in `~/.opencli/sites/law-tracker/endpoints.json`.
 
 ## Site-wide pitfalls
 
-Vedi `pitfalls.md`. I due che mordono per primi: il banner cookie intercetta i click sulla homepage, e il `<title>` della pagina è identico ovunque tranne che sui risultati - non usarlo come firma di stato.
+See `pitfalls.md`. The two that bite first: the cookie banner intercepts clicks on the homepage, and the page `<title>` is identical everywhere except on the results page — never use it as a state signature.
 
-## Nota di stato
+## Site-name note
 
-Verificato con il Browser Bridge collegato: `opencli browser <sess> open https://law-tracker.europa.eu/homepage` restituisce `sitemap.site: "law-tracker"`, `available: true`, `source: local`. Il `domain` dichiarato dall'adapter batte il fallback SLD. L'alias su `europa` è stato scartato di proposito: servirebbe questa sitemap a tutti i siti `*.europa.eu`. Vedi `pitfalls.md#site_name_alias`.
+Verified with the Browser Bridge connected: `opencli browser <sess> open https://law-tracker.europa.eu/homepage` returns `sitemap.site: "law-tracker"`, `available: true`, `source: local`. The `domain` declared by the adapter beats the SLD fallback. An alias on `europa` was deliberately rejected: it would serve this sitemap to every `*.europa.eu` site. See `pitfalls.md#site_name_alias`.

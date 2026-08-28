@@ -1,30 +1,30 @@
 ---
 schema_version: 1
 workflow_id: whats-new
-intent: sapere cosa si è mosso di recente nel processo legislativo europeo
+intent: see what has moved recently in the EU legislative process
 last_verified: 2026-08-28
 source: local
 ---
 
-# Novità recenti
+# What's new
 
 ## Goal
 
-Elenco delle ultime proposte della Commissione e degli ultimi eventi su tutti i fascicoli, per un monitoraggio periodico.
+A list of the Commission's latest proposals and the latest events across all files, for periodic monitoring.
 
 ## State signature
 
-Nessuno. I due feed sono senza sessione e ordinati dal più recente.
+None. Both feeds are sessionless and ordered newest first.
 
 ## Best path
 
 ```bash
 opencli law-tracker proposals --limit 20 -f json
 opencli law-tracker events --limit 20 -f csv
-opencli law-tracker events --limit 20 --offset 20    # pagina successiva
+opencli law-tracker events --limit 20 --offset 20    # next page
 ```
 
-Entrambi restituiscono `reference`, `initiationDate`, `title` e un `url` citabile; `events` aggiunge la colonna `event` con il tipo di evento ("Vote in EP plenary", "Debate in EP plenary", …).
+Both return `reference`, `initiationDate`, `title` and a citable `url`; `events` adds an `event` column with the event type ("Vote in EP plenary", "Debate in EP plenary", …).
 
 ## Fallback path
 
@@ -33,17 +33,17 @@ on_adapter_fail:
   - adapter_health_update: opencli law-tracker proposals -> suspect
   - goto /homepage?lang=en
   - action:dismiss_cookie_banner in pages/homepage.md
-  - i due feed sono nei riquadri espandibili della homepage (bottoni "expand"); leggere di lì è più lento e meno strutturato
+  - both feeds sit in the expandable panels on the homepage ("expand" buttons); reading them there is slower and less structured
 ```
 
 ## Avoid
 
-- Chiedere `--limit` molto alto sperando in tutto lo storico: sono feed di novità, non un archivio. Per lo storico si passa da `workflows/find-procedures.md` con l'ordinamento per data.
+- Asking for a very large `--limit` hoping for the full archive: these are novelty feeds, not an archive. For history go through `workflows/find-procedures.md` with date ordering.
 
 ## State validation
 
-Le date in `initiationDate` sono decrescenti e la prima è recente. Se il feed torna vuoto, l'adapter solleva EMPTY invece di restituire una lista vuota.
+`initiationDate` values are descending and the first one is recent. If a feed comes back empty the adapter raises EMPTY rather than returning an empty list.
 
 ## Stale markers
 
-Se `startingPosition`/`size` smettono di essere obbligatori, o se compaiono campi nuovi nel feed, riverificare.
+If `startingPosition`/`size` stop being mandatory, or new fields appear in the feed, re-verify.

@@ -3,48 +3,48 @@ schema_version: 1
 page_id: procedure
 url_patterns:
   - https://law-tracker.europa.eu/procedure/
-purpose: scheda di una singola procedura legislativa, con la sua timeline
+purpose: a single legislative procedure and its timeline
 last_verified: 2026-08-28
 source: local
 ---
 
-# Pagina procedura
+# Procedure page
 
-URL: `/procedure/<api-ref>?lang=en`, dove `<api-ref>` è la forma API del reference: `2021_106`, **non** `2021/0106(COD)`. Il numero perde gli zeri iniziali.
+URL: `/procedure/<api-ref>?lang=en`, where `<api-ref>` is the API form of the reference: `2021_106`, **not** `2021/0106(COD)`. The number loses its leading zeros.
 
 ## Visual anchors
 
-- a11y: `link` il cui testo è il reference in forma display, es. `2021/0106(COD)` - **questo è l'ancora di stato**, non il titolo del documento
+- a11y: a `link` whose text is the reference in display form, e.g. `2021/0106(COD)` — **this is the state anchor**, not the document title
 - a11y: `link "Download XML file"`
-- a11y: `button "Latest events"` e `button "Full timeline"`
-- ⚠️ il `<title>` resta `EU Law Tracker - European Union`: identico a quello di una procedura inesistente, inutile come firma
+- a11y: `button "Latest events"` and `button "Full timeline"`
+- ⚠️ the `<title>` stays `EU Law Tracker - European Union`: identical to a non-existent procedure's, useless as a signature
 
 ## Actions on this page
 
 ### action:verify_procedure_exists
-pre: navigazione a `/procedure/<api-ref>` completata
-do: `opencli browser <sess> find --role link --text "<anno>/<numero>"`
-post: il link esiste → la procedura esiste
-fail: `semantic_not_found` - "Semantic locator matched 0 elements"
-recover: il reference è sbagliato o inesistente; ricavare quello giusto da `opencli law-tracker search` o dalla pagina risultati. Vedi `pitfalls.md#silent_empty_procedure`
-evidence: opencli browser <sess> find --role link --text "2021/0106" → matches_n 1, testo "2021/0106(COD)"; su /procedure/9999_1 la stessa find risponde semantic_not_found
+pre: navigation to `/procedure/<api-ref>` has completed
+do: `opencli browser <sess> find --role link --text "<year>/<number>"`
+post: the link exists → the procedure exists
+fail: `semantic_not_found` — "Semantic locator matched 0 elements"
+recover: the reference is wrong or non-existent; get the right one from `opencli law-tracker search` or from the results page. See `pitfalls.md#silent_empty_procedure`
+evidence: opencli browser <sess> find --role link --text "2021/0106" → matches_n 1, text "2021/0106(COD)"; on /procedure/9999_1 the same find answers semantic_not_found
 
 ### action:read_timeline
-pre: pagina procedura valida
-do: `opencli law-tracker timeline <reference>` (accetta sia `2021/0106(COD)` sia `2021_106`)
-post: una riga per evento con `date, stage, event, typeIdentifier, documents, reference, url`
-fail: errore ARGUMENT su reference malformato o inesistente | EMPTY se la notice non ha eventi
-recover: correggere il reference; se il comando fallisce ripetutamente, adapter_health_update: opencli law-tracker timeline -> suspect, e leggere la timeline dalla pagina espandendo le voci con i bottoni `expand`
-evidence: opencli law-tracker timeline 2021_106 -f csv → 13 righe, da 22/04/2021 PR a 12/07/2024 EOP
+pre: a valid procedure page
+do: `opencli law-tracker timeline <reference>` (accepts both `2021/0106(COD)` and `2021_106`)
+post: one row per event with `date, stage, event, typeIdentifier, documents, reference, url`
+fail: ARGUMENT error on a malformed or unknown reference | EMPTY if the notice has no events
+recover: fix the reference; if the command keeps failing, adapter_health_update: opencli law-tracker timeline -> suspect, and read the timeline off the page by expanding the entries with the `expand` buttons
+evidence: opencli law-tracker timeline 2021_106 -f csv → 13 rows, from 22/04/2021 PR to 12/07/2024 EOP
 
 ### action:export_xml
-pre: pagina procedura valida
-do: click su `link "Download XML file"`, oppure `GET /notice/export?reference=<api-ref>&lang=en`
-post: file XML della notice ufficiale
-fail: download non parte nel browser
-recover: usare l'endpoint HTTP, che non richiede il browser
-evidence: link "Download XML file" presente nello snapshot di /procedure/2021_106; endpoint documentato in eutrack (spec.yaml)
+pre: a valid procedure page
+do: click `link "Download XML file"`, or `GET /notice/export?reference=<api-ref>&lang=en`
+post: the official notice as XML
+fail: the download does not start in the browser
+recover: use the HTTP endpoint, which needs no browser
+evidence: link "Download XML file" present in the snapshot of /procedure/2021_106; endpoint documented in eutrack (spec.yaml)
 
 ## Linked APIs
 
-`notice_timeline` alimenta questa pagina. Vedi `endpoints.json`.
+`notice_timeline` feeds this page. See `endpoints.json`.

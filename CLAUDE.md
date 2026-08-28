@@ -15,7 +15,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `meta.yml` stesso non va editato a mano se non nella parte generata (sha256/bytes vengono rigenerati dal refresh).
 
-Sono a mano - non mirrorati - anche `sitemaps/` (le sitemap OpenCLI di questo repo), `bin/` (script di sync) e `tasks/`.
+Sono a mano - non mirrorati - anche `sitemaps/` (le sitemap OpenCLI di questo repo), `plugins/` (gli adapter), `bin/` (script di sync) e `tasks/`.
+
+## Lingua
+
+**Il contenuto del repo si scrive in inglese**: README, sitemap (`SITE.md`, `pages/`, `workflows/`, `pitfalls.md`), codice degli adapter con commenti, help e messaggi d'errore. Restano in italiano solo `docs/notes.md` (note personali), `LOG.md`, `tasks/` e questo file.
 
 ## Aggiornare il mirror (refresh)
 

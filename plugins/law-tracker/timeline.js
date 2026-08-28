@@ -1,4 +1,4 @@
-// Timeline completa di una procedura: fasi, eventi, base giuridica, istituzioni.
+// Full timeline of one procedure: stages, events, legal basis, institutions.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
 import { apiGet, toApiRef, procedureUrl } from './shared.js';
@@ -7,14 +7,14 @@ cli({
     site: 'law-tracker',
     name: 'timeline',
     access: 'read',
-    description: 'Eventi di una procedura legislativa, dal più vecchio al più recente',
+    description: 'Events of a legislative procedure, oldest first',
     example: 'opencli law-tracker timeline 2021/0106(COD)',
     domain: 'law-tracker.europa.eu',
     strategy: Strategy.PUBLIC,
     browser: false,
     args: [
-        { name: 'reference', type: 'string', positional: true, required: true, help: 'Reference, in forma 2021/0106(COD) o 2021_106' },
-        { name: 'lang', type: 'string', default: 'en', help: 'Lingua dell\'interfaccia' },
+        { name: 'reference', type: 'string', positional: true, required: true, help: 'Reference, as 2021/0106(COD) or 2021_106' },
+        { name: 'lang', type: 'string', default: 'en', help: 'Interface language' },
     ],
     columns: ['date', 'stage', 'event', 'typeIdentifier', 'documents', 'reference', 'url'],
     func: async (args) => {
@@ -23,7 +23,7 @@ cli({
         const notice = await apiGet('/notice/timeline', { reference: apiRef, version: 'null' }, lang);
         const events = Array.isArray(notice?.events) ? notice.events : [];
         if (events.length === 0) {
-            throw new EmptyResultError(`law-tracker timeline ${apiRef}`, 'Nessun evento nella notice');
+            throw new EmptyResultError(`law-tracker timeline ${apiRef}`, 'The notice carries no events');
         }
         const displayRef = notice?.noticeHeader?.reference ?? apiRef;
         const url = procedureUrl(apiRef, lang);

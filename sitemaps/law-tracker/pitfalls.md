@@ -4,76 +4,76 @@ last_verified: 2026-08-28
 source: local
 ---
 
-# Trappole di law-tracker.europa.eu
+# law-tracker.europa.eu pitfalls
 
 ### pitfall:filters_ignored_with_free_text
-trigger: `POST /search` con `quickSearch` o `title` valorizzati **insieme** a `status` o `stage`
-symptom: la risposta contiene righe che non rispettano il filtro - status `WIT` con filtro `ong`, stage corrente `EOP` con filtro `FR`. Nessun errore, nessun avviso.
-workaround: non combinarli. Usare `--keyword` al posto del testo libero - a differenza di status e stage non viene ignorato: con `quickSearch` attivo la risposta si restringe a zero righe invece di restituire il risultato del solo testo - oppure filtrare a valle sulle colonne `status` e `currentStage`. `opencli law-tracker search` rifiuta la combinazione con un errore ARGUMENT.
-verified_at: 2026-08-28 (due prove: stage FR + "artificial intelligence" → righe EOP; title "artificial intelligence" + status ong → una procedura WIT. Da soli i filtri funzionano; `topics` e `procedure` restano invece in AND.)
+trigger: `POST /search` with `quickSearch` or `title` set **together with** `status` or `stage`
+symptom: the response contains rows that violate the filter — status `WIT` under an `ong` filter, current stage `EOP` under an `FR` filter. No error, no warning.
+workaround: do not combine them. Use `--keyword` instead of free text — unlike status and stage it is not ignored: with `quickSearch` set the result narrows to zero rows rather than returning the text-only result — or filter downstream on the `status` and `currentStage` columns. `opencli law-tracker search` refuses the combination with an ARGUMENT error.
+verified_at: 2026-08-28 (two probes: stage FR + "artificial intelligence" → rows at stage EOP; title "artificial intelligence" + status ong → a WIT procedure. On their own the filters work; `topics` and `procedure` do stay in AND.)
 
 ### pitfall:total_results_zero
-trigger: leggere `totalResults` dalla risposta di `/search` con `countResults:false`
-symptom: vale `0` anche quando `searchResults` contiene righe
-workaround: non usarlo come conteggio; non è mappato in nessuna colonna dell'adapter
+trigger: reading `totalResults` from a `/search` response with `countResults:false`
+symptom: it reads `0` even when `searchResults` is populated
+workaround: never use it as a count; the adapter maps it to no column
 verified_at: 2026-08-28
 
 ### pitfall:sparse_search_body
-trigger: mandare a `/search` solo i campi che servono
-symptom: conteggi diversi da quelli della UI a parità di filtro
-workaround: mandare sempre l'envelope SearchCriteria completo e sovrascrivere i campi attivi
-verified_at: 2026-08-28 (origine: progetto eutrack, riconfermato qui)
+trigger: sending `/search` only the fields you need
+symptom: counts differ from the UI's for the same filter
+workaround: always send the complete SearchCriteria envelope and overlay the active fields
+verified_at: 2026-08-28 (origin: the eutrack project, reconfirmed here)
+
+### pitfall:sort_date_is_docd
+trigger: sorting `/search` by date with `sort:{order:"DATE"}`, as the results page's own `sort=DATE` URL parameter suggests
+symptom: HTTP 400
+workaround: in the body the value is `DOCD` (`{"order":"DOCD","direction":"DESC"}` → newest first). The only accepted values found are `REL` and `DOCD`; `DOCD_DESC` and `DATE_DESC` both 400. The adapter accepts `--sort DATE` and translates.
+verified_at: 2026-08-28 (DOCD/DESC → 2026-07-29 on top; DOCD/ASC → 2004-07-07)
 
 ### pitfall:cookie_banner_intercepts_clicks
-trigger: primo click sulla homepage con un profilo browser nuovo
-symptom: `Element is covered by <a … inside div#cookie-consent-banner>`; il click cade sul banner
-workaround: chiudere il banner (`Accept only essential cookies`) prima di tutto, oppure evitare del tutto la homepage navigando all'URL `/results?...`
+trigger: the first click on the homepage with a fresh browser profile
+symptom: `Element is covered by <a … inside div#cookie-consent-banner>`; the click lands on the banner
+workaround: dismiss the banner (`Accept only essential cookies`) before anything else, or skip the homepage entirely by navigating to a `/results?...` URL
 verified_at: 2026-08-28
 
 ### pitfall:generic_page_title
-trigger: usare il titolo del documento come firma di stato
-symptom: `EU Law Tracker - European Union` è identico su homepage e su una procedura inesistente. Solo `/results` ha un titolo proprio (`Search results`).
-workaround: ancorarsi al contenuto - il `textbox "Quick search"` per la homepage, il link col reference per la procedura
+trigger: using the document title as a state signature
+symptom: `EU Law Tracker - European Union` is identical on the homepage and on a non-existent procedure. Only `/results` has a title of its own (`Search results`).
+workaround: anchor on content instead — the `textbox "Quick search"` for the homepage, the reference link for a procedure
 verified_at: 2026-08-28
 
 ### pitfall:silent_empty_procedure
-trigger: navigare a `/procedure/<ref>` con un reference inesistente
-symptom: HTTP 200, nessun messaggio d'errore, pagina con solo header, menu e footer
-workaround: verificare la presenza in pagina del link col reference (`find --role link --text "<anno>/<numero>"`); via API il segnale è netto (HTTP 400)
-verified_at: 2026-08-28 (`/procedure/9999_1`: find risponde `semantic_not_found`, mentre su `/procedure/2021_106` trova 1 match)
+trigger: navigating to `/procedure/<ref>` with a non-existent reference
+symptom: HTTP 200, no error message, a page with header, menu and footer only
+workaround: check that the reference link is present (`find --role link --text "<year>/<number>"`); over the API the signal is unambiguous (HTTP 400)
+verified_at: 2026-08-28 (`/procedure/9999_1`: find answers `semantic_not_found`, while `/procedure/2021_106` returns 1 match)
 
 ### pitfall:reference_two_spellings
-trigger: costruire un URL o chiamare l'API con il reference in forma display
-symptom: `/procedure/2021/0106(COD)` non esiste; `/notice/timeline?reference=2021/0106(COD)` risponde 400
-workaround: convertire in forma API `2021_106` - anno, underscore, numero senza zeri iniziali. Gli adapter accettano entrambe.
+trigger: building a URL or calling the API with the display spelling of a reference
+symptom: `/procedure/2021/0106(COD)` does not exist; `/notice/timeline?reference=2021/0106(COD)` answers 400
+workaround: convert to the API form `2021_106` — year, underscore, number without leading zeros. The adapters accept both.
 verified_at: 2026-08-28
 
 ### pitfall:timeline_400_not_404
-trigger: `/notice/timeline` con reference sconosciuto o malformato
-symptom: HTTP 400 con `ParseError at [row,col]:[1,1] Message: Content is not allowed in prolog` - messaggio che parla di XML e non dice nulla del reference
-workaround: trattarlo come errore di argomento, non come risultato vuoto
+trigger: `/notice/timeline` with an unknown or malformed reference
+symptom: HTTP 400 with `ParseError at [row,col]:[1,1] Message: Content is not allowed in prolog` — a message about XML that says nothing about the reference
+workaround: treat it as an argument error, not as an empty result
 verified_at: 2026-08-28
 
-### pitfall:sort_date_is_docd
-trigger: ordinare `/search` per data mandando `sort:{order:"DATE"}`, come suggerisce il parametro `sort=DATE` dell'URL della pagina risultati
-symptom: HTTP 400
-workaround: nel body il valore è `DOCD` (`{"order":"DOCD","direction":"DESC"}` → dal più recente). Gli unici valori accettati provati sono `REL` e `DOCD`; `DOCD_DESC` e `DATE_DESC` danno 400. L'adapter accetta `--sort DATE` e traduce.
-verified_at: 2026-08-28 (DOCD/DESC → 2026-07-29 in testa; DOCD/ASC → 2004-07-07)
-
 ### pitfall:eurovoc_code_is_compound
-trigger: passare il codice EuroVoc così come lo stampa il vocabolario, es. `52,DOM`
-symptom: la risposta di `/search` non contiene affatto la chiave `searchResults`
-workaround: spezzarlo in `{"code":"52","type":"DOM"}`. L'adapter accetta la grafia `52,DOM` e la spezza da sé.
+trigger: passing a EuroVoc code exactly as the vocabulary prints it, e.g. `52,DOM`
+symptom: the `/search` response has no `searchResults` key at all
+workaround: split it into `{"code":"52","type":"DOM"}`. The adapter accepts the `52,DOM` spelling and splits it itself.
 verified_at: 2026-08-28
 
 ### pitfall:timeline_actor_fields_null
-trigger: cercare relatore, commissione o istituzione responsabile negli eventi della timeline
-symptom: `committeeResponsible`, `rapporteur`, `responsibleBody`, `membersResponsible` sono null in quasi tutti gli eventi
-workaround: non contarci; l'adapter non li espone per non avere una colonna sempre vuota
-verified_at: 2026-08-28 (13 eventi di 2021/0106(COD): un solo `membersResponsible`, un solo `responsibleBody`)
+trigger: looking for the rapporteur, committee or responsible institution in timeline events
+symptom: `committeeResponsible`, `rapporteur`, `responsibleBody`, `membersResponsible` are null on almost every event
+workaround: do not rely on them; the adapter does not expose them, to avoid a permanently empty column
+verified_at: 2026-08-28 (13 events of 2021/0106(COD): one `membersResponsible`, one `responsibleBody`)
 
 ### pitfall:site_name_alias
-trigger: `opencli browser` deve risolvere il nome del sito per trovare questa sitemap
-symptom: senza adapter registrato il nome ripiega sull'etichetta SLD, cioè `europa`, che collide con qualunque altro sito europa.eu
-workaround: aggancio al solo nome `law-tracker`. Verificato a runtime: con l'adapter registrato `opencli browser open` risolve `site: "law-tracker"`, non il fallback. **L'alias `europa` è stato provato e poi respinto**: il fallback SLD fa risolvere su `europa` anche `eur-lex.europa.eu` e `commission.europa.eu`, che si sarebbero visti servire questa sitemap come contesto di navigazione. Meglio non trovare la sitemap che darne una sbagliata. Resta da verificare, col Browser Bridge collegato, che a runtime il nome risolto sia davvero `law-tracker`.
+trigger: `opencli browser` resolving the site name in order to find this sitemap
+symptom: with no adapter registered the name falls back to the SLD label, `europa`, which collides with every other europa.eu site
+workaround: link the `law-tracker` name only. Verified at runtime: with the adapter registered, `opencli browser open` resolves `site: "law-tracker"`, not the fallback. An `europa` alias was tried and **rejected**: with it, `eur-lex.europa.eu` and `commission.europa.eu` were served this sitemap as navigation context. Better no sitemap than the wrong one.
 verified_at: 2026-08-28

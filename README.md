@@ -1,44 +1,65 @@
-# opencli — note e sitemap
+# opencli — notes and site sitemaps
 
-Due cose in un repo solo, entrambe attorno a [OpenCLI](https://github.com/jackwener/OpenCLI):
+Two things in one repository, both built around [OpenCLI](https://github.com/jackwener/OpenCLI), the tool that turns websites into terminal commands.
 
-- **`docs/`** — mirror verbatim della documentazione upstream (`meta.yml` è la provenienza) più `notes.md`, le note pratiche personali: setup del Browser Bridge su WSL2, modello a tre casi, trappole.
-- **`sitemaps/`** e **`plugins/`** — grafi di navigazione per agenti e adapter, uno per sito.
+- **`docs/`** — a verbatim mirror of the upstream documentation (`docs/meta.yml` records provenance and checksums) plus `docs/notes.md`, hand-written notes on the parts that are not obvious: Browser Bridge setup on WSL2, the three-case model, field traps.
+- **`sitemaps/`** and **`plugins/`** — one navigation graph and one adapter per site.
 
-## Sitemap
+## Install the CLI
 
-Una sitemap OpenCLI non è una sitemap SEO: è un grafo di esecuzione per agenti, cartella di Markdown che dice a chi guida `opencli browser` dove si trova, che azioni esistono, quale adapter preferire e come recuperare quando la pagina smentisce la memoria.
+Requires Node ≥ 20.
+
+```bash
+npm install -g @jackwener/opencli
+opencli --version
+opencli list                 # every command available
+opencli doctor               # daemon and browser-extension health
+```
+
+Many commands need nothing else: the local daemon calls the site's public API and no browser is involved. Commands that must drive a real page need the **Browser Bridge** Chrome extension connected — see `docs/notes.md` for the WSL2 setup.
+
+## What a sitemap is here
+
+Not an SEO sitemap. A **task execution graph for agents**: a folder of Markdown that tells whoever is driving `opencli browser` where it is, which actions exist, which adapter to prefer, and how to recover when the live page disagrees with memory.
 
 ```
-sitemaps/<sito>/
-  SITE.md                 # scopo, auth, rotte top-level
-  pages/<page-id>.md      # ancore, action (pre/do/post/fail/recover/evidence)
-  workflows/<task-id>.md  # best path, fallback, avoid
-  pitfalls.md             # modi di fallire durevoli
+sitemaps/<site>/
+  README.md               # what this site is, example commands, example output
+  SITE.md                 # purpose, auth, top-level routes
+  pages/<page-id>.md      # anchors and actions (pre/do/post/fail/recover/evidence)
+  workflows/<task-id>.md  # best path, fallback path, avoid list
+  pitfalls.md             # durable failure modes
 ```
 
-OpenCLI cerca le sitemap solo in `~/.opencli/sites/<sito>/sitemap/` (e dentro il pacchetto npm). Da qui si agganciano con symlink:
+OpenCLI only looks for sitemaps in `~/.opencli/sites/<site>/sitemap/` (and inside the npm package). Link this repo's sitemaps into place with:
 
 ```bash
 bash bin/sync-sitemaps.sh
 ```
 
-Lo script linka solo la sottocartella `sitemap`, mai `sites/<sito>` — lì vivono già `endpoints.json`, `notes.md` e `verify/`. `sitemaps/aliases.txt` copre i casi in cui OpenCLI risolve un host su un nome di sito diverso.
+The script symlinks **only** the `sitemap` subfolder, never `sites/<site>` itself — that folder already holds `endpoints.json`, `notes.md` and `verify/`. `sitemaps/aliases.txt` handles the case where OpenCLI resolves a host to a different site name; read the warning in that file before adding one.
 
-## Plugin
-
-Gli adapter stanno in `plugins/<sito>/` e si installano una volta:
+Verify a sitemap is found:
 
 ```bash
-opencli plugin install "file://$PWD/plugins/<sito>"
+opencli browser <session> open <url>     # look for "sitemap": { "available": true }
 ```
 
-## Siti coperti
+## Plugins
 
-| Sito | Sitemap | Adapter |
+Adapters live in `plugins/<site>/` and are installed once:
+
+```bash
+opencli plugin install "file://$PWD/plugins/<site>"
+opencli validate <site>
+```
+
+## Sites covered
+
+| Site | Sitemap | Adapter |
 |---|---|---|
-| law-tracker.europa.eu (EU Law Tracker) | `sitemaps/law-tracker/` | `plugins/law-tracker/` — `proposals`, `events`, `search`, `timeline`, `topics` |
+| [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 
-## Regola di editing
+## Editing rules
 
-`docs/*.md` (tranne `notes.md`) sono copie verbatim upstream: non si toccano a mano, si rigenerano dal refresh. Tutto il resto è scritto a mano. Vedi `CLAUDE.md`.
+Everything under `docs/` except `notes.md` is a verbatim upstream copy: never edit it by hand, regenerate it from the URLs in `docs/meta.yml`. Everything else — `sitemaps/`, `plugins/`, `bin/`, `tasks/`, `LOG.md` — is hand-written. See `CLAUDE.md`.

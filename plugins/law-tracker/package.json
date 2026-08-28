@@ -2,7 +2,7 @@
   "name": "opencli-plugin-law-tracker",
   "version": "0.1.0",
   "type": "module",
-  "description": "EU Law Tracker — procedure legislative dell'Unione europea",
+  "description": "EU Law Tracker — EU legislative procedures",
   "peerDependencies": {
     "@jackwener/opencli": ">=1.8.6"
   }
