@@ -113,6 +113,13 @@ Il `<session>` (`hello` qui) è un nome libero: stesso nome = stessa tab/stato t
 
 ## Trappole viste sul campo
 
+### L'annuncio della sitemap arriva una volta sola per sessione
+
+`opencli browser <sess> open <url>` mette nell'output un blocco `sitemap` quando esiste una sitemap per quel sito - ma **solo la prima volta che quella sessione tocca quel sito**. Dalla seconda apertura in poi il campo è `null`, anche cambiando pagina. Verificato il 2026-08-28: sessione nuova su `eur-lex.europa.eu` → `{"site":"eur-lex","available":true,…}`; seconda `open` nella stessa sessione → `null`.
+
+Conseguenza pratica: un agente che riprende a metà lavoro, o che apre la pagina prima di chiedersi se esista una sitemap, non vedrà mai l'annuncio. Non è un guasto. Il modo affidabile di verificarlo è guardare direttamente `~/.opencli/sites/<sito>/sitemap/`, oppure aprire con un nome di sessione nuovo.
+
+
 - **`--headless` non pilota le tab**: l'estensione si connette ma `chrome.debugger` dà `attach_failed`. Usare Xvfb (display virtuale) → `opencli-bridge`.
 - **`OPENCLI_CDP_ENDPOINT` non guida i comandi `opencli browser`** → serve l'estensione. Non perdere tempo con la strada CDP per i primitivi browser.
 - **Chrome su Windows non va bene**: la sua `localhost` non è quella di WSL dove gira il daemon. Caricare l'estensione nel **Chrome di WSL**.
