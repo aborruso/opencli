@@ -1,6 +1,6 @@
 {
   "name": "law-tracker",
   "version": "0.1.0",
-  "description": "EU Law Tracker — EU legislative procedures",
+  "description": "EU Law Tracker — EU legislative procedures, stages and events. Search matches procedure titles only, not the text of the acts; free text cannot be combined with --status/--stage",
   "opencli": ">=1.8.6"
 }

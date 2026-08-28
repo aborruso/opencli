@@ -6,11 +6,11 @@
   "plugins": {
     "law-tracker": {
       "path": "plugins/law-tracker",
-      "description": "EU Law Tracker — EU legislative procedures"
+      "description": "EU Law Tracker — EU legislative procedures, stages and events"
     },
     "eur-lex": {
       "path": "plugins/eur-lex",
-      "description": "EUR-Lex / Cellar — EU law full text and metadata"
+      "description": "EUR-Lex / Cellar — full text and metadata of EU law (search is a browser workflow)"
     }
   }
 }
