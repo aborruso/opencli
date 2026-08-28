@@ -59,6 +59,7 @@ Sources: the mirrored `docs/`, DeepWiki on `jackwener/OpenCLI`, and above all th
 - Language: English for repository content. See `CLAUDE.md`.
 
 ## Open questions
+0. **`eur-lex search` requires a visible browser today.** The Browser Bridge was running under X410 (`DISPLAY=127.0.0.1:0.0`), so a Chrome window appears. Restarting it under Xvfb (`opencli-bridge-stop` then `opencli-bridge`) should make it invisible and change nothing else, but this was never actually run and verified. Until it is, do not claim in the docs that search is invisible. Worth reconsidering more broadly whether a command that needs a browser at all belongs in this repo.
 1. `opencli browser verify` and plugin-installed adapters: eject, or drop the fixtures?
 2. Which site next?
    - `verify/<cmd>.json` for eur-lex too: same plugin-vs-`clis/` limitation.
