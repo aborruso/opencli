@@ -5,13 +5,24 @@ Two things in one repository, both built around [OpenCLI](https://github.com/jac
 - **`docs/`** — a verbatim mirror of the upstream documentation (`docs/meta.yml` records provenance and checksums) plus `docs/notes.md`, hand-written notes on the parts that are not obvious: Browser Bridge setup on WSL2, the three-case model, field traps.
 - **`sitemaps/`** and **`plugins/`** — one navigation graph and one adapter per site.
 
-## Install the CLI
+## Install
 
 Requires Node ≥ 20.
 
 ```bash
-npm install -g @jackwener/opencli
-opencli --version
+npm install -g @jackwener/opencli                       # the CLI itself
+opencli plugin install github:aborruso/opencli          # both adapters from this repo
+bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
+opencli list | grep -E 'law-tracker|eur-lex'            # check
+```
+
+The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`. One adapter only: `opencli plugin install github:aborruso/opencli/eur-lex`.
+
+The sitemaps come with the clone but OpenCLI does not link them itself — there is no install mechanism for sitemaps, which is what `bin/sync-sitemaps.sh` is for.
+
+Agents should start from [`AGENTS.md`](AGENTS.md).
+
+```bash
 opencli list                 # every command available
 opencli doctor               # daemon and browser-extension health
 ```
