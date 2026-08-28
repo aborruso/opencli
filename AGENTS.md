@@ -34,7 +34,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 | Site | Start here | Commands |
 |---|---|---|
 | law-tracker.europa.eu | [`sitemaps/law-tracker/SITE.md`](sitemaps/law-tracker/SITE.md) | `opencli law-tracker proposals\|events\|search\|timeline\|topics` |
-| eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex get\|meta\|sparql` |
+| eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|sparql` (only `search` needs a browser) |
 
 ## How to use a sitemap
 
@@ -47,7 +47,7 @@ A sitemap is a hint. **Live browser state is the truth.** When they disagree, tr
 ## What these two sites are, and how they relate
 
 - **law-tracker** follows the *legislative process*: which stage a file is at, what happened when. Its search matches **procedure titles only**, not the text of the acts.
-- **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names — but `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so search there is a browser workflow while retrieval is an adapter.
+- **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names. `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so `opencli eur-lex search` drives a real browser; `get`, `meta` and `sparql` need none.
 
 Neither source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
 

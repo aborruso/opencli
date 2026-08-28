@@ -17,10 +17,10 @@ curl -s -o /dev/null -w '%{http_code} %{size_download}\n' \
 202 0
 ```
 
-So the work is split, and the sitemap exists to say which half you are in:
+So the work is split:
 
-- **full-text search → browser only**, through deep-linkable URLs
-- **retrieving an act and its metadata → adapter, no browser**, against `publications.europa.eu` (Cellar REST and SPARQL), which is not challenged
+- **`opencli eur-lex search`** drives the site's own search page in your Chrome through the Browser Bridge. It is the only command here that needs a browser, because EUR-Lex full-text search exists nowhere else.
+- **`get`, `meta`, `sparql`** need no browser: they go to `publications.europa.eu` (Cellar REST and SPARQL), which is not challenged.
 
 No attempt is made to get around the WAF.
 
@@ -33,6 +33,7 @@ npm install -g @jackwener/opencli
 opencli plugin install github:aborruso/opencli/eur-lex
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 opencli validate eur-lex
+opencli doctor            # only needed for `search`, which drives a real browser
 ```
 
 Both sites at once: drop the `/eur-lex` and run the sync script with no arguments.
@@ -98,23 +99,35 @@ biometric identification     57
 biometric categorisation     12
 ```
 
-## Searching: the browser half
-
-There is no search command, and that is deliberate — see above. The search itself is a deep link:
+## Searching
 
 ```bash
-opencli browser ex open 'https://eur-lex.europa.eu/search.html?scope=EURLEX&text=%22facial+recognition%22&lang=en&type=quick'
-opencli browser ex eval '[...document.querySelectorAll(".SearchResult h2 a.title")].slice(0,3).map(a=>a.textContent.trim().slice(0,60))'
+opencli eur-lex search "facial recognition" --exact -f csv
 ```
 
 ```
-Regulation (EU) 2024/1358 … on the establishment of 'Eurodac' for the comparison of biometric data
-Regulation (EU) 2019/816 … establishing a centralised system for the identification of Member States
+celex,date,form,act,title,url
+32024R1358,14/05/2024,Regulation,Regulation (EU) 2024/1358,"Regulation (EU) 2024/1358 …",https://…
+32019R0816,17/04/2019,Regulation,Regulation (EU) 2019/816,"Regulation (EU) 2019/816 …",https://…
+32019R2144,27/11/2019,Regulation,Regulation (EU) 2019/2144,"Regulation (EU) 2019/2144 …",https://…
+32024R1689,13/06/2024,Regulation,Regulation (EU) 2024/1689,"Regulation (EU) 2024/1689 …",https://…
 ```
 
-Ten results per page, `&page=2` for the next ten. Search syntax, as documented by the site: `"exact phrase"`, `term*` for variations, `ca?e` for a single character.
+The result total is in the footer: `10 items · eur-lex/search · 356 results in total`. Ten results per page, `--page 2` for the next ten.
 
-Harvest the CELEX numbers from the result hrefs, then leave the browser and use `meta`/`get`. `workflows/find-legislation.md` spells the whole loop out.
+**Use `--exact` for a phrase.** Without it the words are OR-ed, and the count roughly triples: `facial recognition` → 904, `"facial recognition"` → 356. Wildcards work as the site documents them: `biometr*` for variations, `ca?e` for a single character.
+
+This is the one command that needs the Browser Bridge connected. If it is not, `opencli doctor` says so and the command cannot run — there is no HTTP fallback, because a plain client gets the WAF challenge.
+
+Then take the CELEX numbers and leave the browser behind:
+
+```bash
+opencli eur-lex search "facial recognition" --exact -f json | jq -r '.[].celex' | while read c; do
+  opencli eur-lex meta "$c" -f json | jq -r '.[] | "\(.celex)  \(.date)  \(.title[0:60])"'
+done
+```
+
+`workflows/find-legislation.md` spells the whole loop out, including what to do when the command fails.
 
 ## Raw SPARQL
 

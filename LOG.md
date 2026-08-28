@@ -1,5 +1,16 @@
 # LOG
 
+## 2026-08-28 (evening 7)
+
+- **`opencli eur-lex search` added** (`browser:true`, the only such command in the repo). The earlier decision to leave search out was right about the risk but wrong about the remedy: the objection was that a WAF challenge would make it degrade silently, and that is fixable — the command checks it actually landed on the results page and raises COMMAND_EXECUTION otherwise, so a challenge fails loudly instead of looking like zero results. What it replaced was a line of hand-written JavaScript that no user should have to invent.
+- Usability pass on the new command, driven by what the first run exposed:
+  - `--exact` wraps the query in quotes. Without it the site ORs the words: `facial recognition` → 904 results, `"facial recognition"` → 356. Nested shell quoting to get a phrase was a trap.
+  - The `Date of document` field carries `"14/05/2024; Date of signature"` — cut at the semicolon.
+  - `total` was a row column repeated on every row; moved to `footerExtra` where it belongs (`10 items · eur-lex/search · 356 results in total`).
+  - Added a derived `act` column (`Regulation (EU) 2024/1358`) so there is something scannable next to the 400-character official titles, and put `title` last so a wide table degrades from the right.
+  - Dropped `author`: almost always "European Parliament, Council of the European Union".
+- All nine declared examples run; `validate` and `convention-audit` pass on both sites. Sitemap, both READMEs, `AGENTS.md` and the plugin description updated: EUR-Lex's rule of engagement is now "one command needs the browser, three do not".
+
 ## 2026-08-28 (evening 6)
 
 - **Corrected a wrong pitfall.** `pitfall:no_reliable_result_total` claimed the EUR-Lex results page has no usable total. It does: the page text reads `Results 1 - 10 of 356`. The earlier probe looked for an element with a class of its own and found none, and I turned "my selector missed it" into "the source does not provide it". Replaced with `pitfall:result_total_is_in_the_page_text` plus an `action:read_result_total`, both carrying the regex and two measurements (`"facial recognition"` → 356, `biometr*` → 3246).

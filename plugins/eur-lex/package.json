@@ -2,7 +2,7 @@
   "name": "opencli-plugin-eur-lex",
   "version": "0.1.0",
   "type": "module",
-  "description": "EUR-Lex / Cellar — full text and metadata of EU law by CELEX number. Full-text search is NOT here: eur-lex.europa.eu is behind a WAF, so searching is a browser workflow — see the eur-lex sitemap",
+  "description": "EUR-Lex / Cellar — EU law: full-text search (needs the browser), plus text and metadata by CELEX number (no browser)",
   "peerDependencies": {
     "@jackwener/opencli": ">=1.8.6"
   }

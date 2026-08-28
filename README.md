@@ -93,7 +93,7 @@ opencli validate <site>
 | Site | Sitemap | Adapter |
 |---|---|---|
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
-| [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `get`, `meta`, `sparql` |
+| [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
 
 The two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
 

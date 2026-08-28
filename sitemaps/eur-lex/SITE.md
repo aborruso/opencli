@@ -17,8 +17,8 @@ The official repository of EU law: treaties, regulations, directives, decisions,
 
 `eur-lex.europa.eu` sits behind an **AWS WAF**: to a non-browser HTTP client it answers `HTTP 202` with a JavaScript challenge and an empty body. So:
 
-- **Searching full text → browser only.** No adapter can do it. `workflows/find-legislation.md` drives it through deep-linkable URLs.
-- **Retrieving an act and its metadata → adapter, no browser.** The commands go to `publications.europa.eu` (Cellar REST and SPARQL), which are the Publications Office's official machine-readable interfaces and are not challenged.
+- **Searching full text → needs a real browser.** `opencli eur-lex search` wraps it: the command drives the site's own search page in your Chrome, so it needs the Browser Bridge connected. It is the only command here that does.
+- **Retrieving an act and its metadata → no browser.** `get`, `meta` and `sparql` go to `publications.europa.eu` (Cellar REST and SPARQL), the Publications Office's official machine-readable interfaces, which are not challenged.
 
 Never try to get around the WAF. The browser is the sanctioned way through the front door; Cellar is the sanctioned back door for data.
 
@@ -38,7 +38,7 @@ Never try to get around the WAF. The browser is the sanctioned way through the f
 
 ## Available commands
 
-`opencli eur-lex get | meta | sparql` — plugin at `~/git/idee/opencli/plugins/eur-lex`, all `browser:false`, all against `publications.europa.eu`.
+`opencli eur-lex search | get | meta | sparql` — plugin at `~/git/idee/opencli/plugins/eur-lex`. Only `search` is `browser:true`; the other three are `browser:false` and hit `publications.europa.eu`.
 
 ## Related sitemap
 

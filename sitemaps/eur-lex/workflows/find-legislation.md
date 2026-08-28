@@ -18,15 +18,17 @@ None until you have CELEX numbers. Once you do, the browser is no longer needed.
 
 ## Best path
 
-**The browser, and only for the search step.** There is no adapter for this: EUR-Lex full-text search lives behind the WAF (`pitfalls.md#waf_answers_202`). This is the one place in this repo where the browser is the best path rather than the fallback.
-
 ```bash
-opencli browser <sess> open 'https://eur-lex.europa.eu/search.html?scope=EURLEX&text=%22facial+recognition%22&lang=en&type=quick'
+opencli eur-lex search "facial recognition" --exact
+opencli eur-lex search "facial recognition" --exact --page 2     # next ten
+opencli eur-lex search "biometr*"                                 # wildcard
 ```
 
-Then `action:list_results` in `pages/results.md` to harvest titles and CELEX numbers, `&page=2` for the next ten.
+Columns: `celex, date, form, act, title, url`; the result total is in the footer. Ten per page.
 
-Search syntax: `"exact phrase"`, `term*` for variations, `ca?e` for one character.
+This command needs the Browser Bridge connected — it drives the site's own search page, because EUR-Lex full-text search exists nowhere else (`pitfalls.md#waf_answers_202`). It is the only command in this repo that requires a browser.
+
+Without `--exact` the words are OR-ed: `facial recognition` gives 904 results, `"facial recognition"` gives 356. `--exact` adds the quotes for you. Wildcards: `term*` for variations, `ca?e` for one character.
 
 ## Then leave the browser
 
@@ -45,6 +47,13 @@ grep -c -i "biometric identification" aiact.txt
 ## Fallback path
 
 ```yaml
+on_adapter_fail:
+  - adapter_health_update: opencli eur-lex search -> suspect
+  - the command raises COMMAND_EXECUTION when the page it lands on is not the
+    results page (challenge, outage, redirect); it does NOT return an empty list
+  - drive the same URL by hand, then action:list_results in pages/results.md:
+      opencli browser <sess> open 'https://eur-lex.europa.eu/search.html?scope=EURLEX&text=%22facial+recognition%22&lang=en&type=quick'
+
 on_browser_unavailable:
   - the Browser Bridge is not connected: opencli doctor says "Extension: not connected"
   - full-text search is simply unavailable; do not fall back to curl, it returns 202
@@ -58,7 +67,8 @@ on_browser_unavailable:
 ## Avoid
 
 - Filling in the advanced search form when a `search.html?...` URL expresses the query.
-- Reporting a total without reading it: it is in the page text (`Results 1 - 10 of 356`), so read it rather than counting rows or guessing.
+- Reporting a total without reading it: `opencli eur-lex search` puts it in the footer, so use that rather than counting rows.
+- Forgetting `--exact` on a multi-word query and then reporting the count: the OR-ed number is two to three times larger.
 - Keeping `qid`/`rid` in a link you intend to save or cite.
 - Concluding "the EU has not legislated on this" from a search that found nothing without having tried a wildcard and a synonym. `facial recognition` appears twice in the AI Act, `biometric identification` 57 times.
 
