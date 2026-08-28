@@ -20,7 +20,7 @@ source: local
 /results?searchType=advanced&statusType=ONG&stage=%5B%22FR%22%5D&sort=REL&page=0&pageSize=10&lang=en
 ```
 
-`sort`: `REL` | `DATE` | `DOCD_DESC`. `pageSize`: 5 | 10 | 20 (sono le sole voci del menu "View"). `page` è zero-based. `statusType` nell'URL è maiuscolo (`ONG`, `ADO`, `NAD`, `WIT`), mentre nel body dell'API è minuscolo.
+`sort`: `REL` | `DATE` | `DOCD_DESC`. Attenzione: sono i valori dell'**URL**; nel body dell'API l'ordinamento per data si chiama `DOCD` e `DATE` dà 400 (vedi `pitfalls.md#sort_date_is_docd`). `pageSize`: 5 | 10 | 20 (sono le sole voci del menu "View"). `page` è zero-based. `statusType` nell'URL è maiuscolo (`ONG`, `ADO`, `NAD`, `WIT`), mentre nel body dell'API è minuscolo.
 
 ## Visual anchors
 

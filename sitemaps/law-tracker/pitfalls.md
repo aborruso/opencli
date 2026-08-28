@@ -54,6 +54,12 @@ symptom: HTTP 400 con `ParseError at [row,col]:[1,1] Message: Content is not all
 workaround: trattarlo come errore di argomento, non come risultato vuoto
 verified_at: 2026-08-28
 
+### pitfall:sort_date_is_docd
+trigger: ordinare `/search` per data mandando `sort:{order:"DATE"}`, come suggerisce il parametro `sort=DATE` dell'URL della pagina risultati
+symptom: HTTP 400
+workaround: nel body il valore è `DOCD` (`{"order":"DOCD","direction":"DESC"}` → dal più recente). Gli unici valori accettati provati sono `REL` e `DOCD`; `DOCD_DESC` e `DATE_DESC` danno 400. L'adapter accetta `--sort DATE` e traduce.
+verified_at: 2026-08-28 (DOCD/DESC → 2026-07-29 in testa; DOCD/ASC → 2004-07-07)
+
 ### pitfall:eurovoc_code_is_compound
 trigger: passare il codice EuroVoc così come lo stampa il vocabolario, es. `52,DOM`
 symptom: la risposta di `/search` non contiene affatto la chiave `searchResults`

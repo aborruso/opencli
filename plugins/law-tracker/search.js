@@ -38,7 +38,7 @@ cli({
         { name: 'eurovoc', type: 'string', help: 'Topic EuroVoc come CODICE,TIPO (es. "52,DOM"); più topic separati da ";"' },
         { name: 'policyArea', type: 'string', help: 'Codici policy area separati da virgola (es. 01,0107)' },
         { name: 'keyword', type: 'string', help: 'Parole chiave separate da virgola' },
-        { name: 'sort', type: 'string', default: 'REL', help: 'Ordinamento: REL (rilevanza) o DATE' },
+        { name: 'sort', type: 'string', default: 'REL', help: 'Ordinamento: REL (rilevanza) o DATE (data del documento)' },
         { name: 'direction', type: 'string', default: 'ASC', help: 'Direzione: ASC o DESC' },
         { name: 'page', type: 'int', default: 0, help: 'Pagina zero-based' },
         { name: 'size', type: 'int', default: 20, help: 'Risultati per pagina (il backend tetta intorno a 20)' },
@@ -56,7 +56,10 @@ cli({
         if (!['REL', 'DATE'].includes(sort)) throw new ArgumentError('sort deve essere REL o DATE');
         const direction = String(args.direction ?? 'ASC').toUpperCase();
         if (!['ASC', 'DESC'].includes(direction)) throw new ArgumentError('direction deve essere ASC o DESC');
-        body.sort = { order: sort, direction };
+        // Il backend non conosce "DATE": l'ordinamento per data si chiama DOCD.
+        // Mandare order:"DATE" fa rispondere HTTP 400. Nell'URL della pagina
+        // risultati, invece, lo stesso ordinamento si scrive sort=DATE.
+        body.sort = { order: sort === 'DATE' ? 'DOCD' : 'REL', direction };
 
         const freeText = args.query || args.title;
         const hasStatus = splitList(args.status).length > 0;
