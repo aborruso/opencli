@@ -12,6 +12,12 @@ symptom: the response contains rows that violate the filter — status `WIT` und
 workaround: do not combine them. Use `--keyword` instead of free text — unlike status and stage it is not ignored: with `quickSearch` set the result narrows to zero rows rather than returning the text-only result — or filter downstream on the `status` and `currentStage` columns. `opencli law-tracker search` refuses the combination with an ARGUMENT error.
 verified_at: 2026-08-28 (two probes: stage FR + "artificial intelligence" → rows at stage EOP; title "artificial intelligence" + status ong → a WIT procedure. On their own the filters work; `topics` and `procedure` do stay in AND.)
 
+### pitfall:search_is_title_only
+trigger: expecting free text to search the content of the acts, e.g. looking for a subject that is regulated but never named in a procedure title
+symptom: zero results for a subject the EU has legislated on. `biometric`, `facial recognition`, `video surveillance` all return nothing, while `artificial intelligence` returns three procedures.
+workaround: search the words that appear in procedure titles and short titles, not the subject matter. To reach a topic that titles do not name, come from the other side: `--eurovoc`/`--policyArea`, or the instrument you already know regulates it. For full text of the acts, this site is the wrong tool - go to EUR-Lex.
+verified_at: 2026-08-28 (also checked against the raw API with `countResults:true`: `quickSearch:"biometric"` → `totalResults: 0`, so it is the backend, not the adapter)
+
 ### pitfall:total_results_zero
 trigger: reading `totalResults` from a `/search` response with `countResults:false`
 symptom: it reads `0` even when `searchResults` is populated
