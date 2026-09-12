@@ -24,6 +24,11 @@ cli({
         { name: 'lang', type: 'string', default: 'it', help: 'Language of titles and category labels: it or en' },
         { name: 'node', type: 'int', default: 1, help: 'Data Browser node id' },
     ],
+    // Default to `plain` rather than `table`, as `ask` does: this is one row
+    // of eight fields, four of them long URLs, and laid out sideways it is
+    // unreadable. `plain` prints it as `key: value` lines. Any format is still
+    // reachable with an explicit -f.
+    defaultFormat: 'plain',
     columns: ['id', 'title', 'category', 'datasetType', 'table', 'data', 'structure', 'referenceMetadata'],
     func: async (args) => {
         const id = checkDatasetId(args.id);

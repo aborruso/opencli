@@ -39,6 +39,12 @@ cli({
     // auto-downgrades to yaml — a footer value is simply gone. An option like
     // `--session-id` whose input cannot be read back out of the output is a
     // broken option, and that matters more than the repetition.
+    // Default to `plain` rather than `table`: a question returns a handful of wide rows, and a
+    // nine-column table with a 400-character description in it is a wall of
+    // box-drawing characters nobody can read. `plain` prints one `key: value`
+    // block per dataset and skips the empty fields. Every format is still
+    // reachable with an explicit -f, and -f table is what it always was.
+    defaultFormat: 'plain',
     columns: ['id', 'title', 'category', 'similarity', 'table', 'data', 'aiTitle', 'description', 'sessionId'],
     func: async (args) => {
         const question = String(args.question ?? '').trim();

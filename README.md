@@ -1,13 +1,64 @@
-# opencli — notes and site sitemaps
+# opencli — terminal commands for public data sources
 
-Two things in one repository, both built around [OpenCLI](https://github.com/jackwener/OpenCLI), the tool that turns websites into terminal commands.
+[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for three public sources — EU legislative procedures, the text of EU law, and Italian official statistics — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
-- **`docs/`** — a verbatim mirror of the upstream documentation (`docs/meta.yml` records provenance and checksums) plus `docs/notes.md`, hand-written notes on the parts that are not obvious: Browser Bridge setup on WSL2, the three-case model, field traps.
-- **`sitemaps/`** and **`plugins/`** — an adapter per site, and a navigation graph for the sites where an agent has to drive the pages itself.
+One question in plain language, and out come the datasets that answer it — this is real output, not an illustration:
+
+```console
+$ opencli istatdata ask "reddito medio del comune di Bagheria" --limit 1
+id: IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0
+title: Contribuenti e reddito complessivo per classi di importo
+category: Condizioni economiche delle famiglie e disuguaglianze > Reddito delle persone fisiche (Irpef)  - comuni
+similarity: 1.479233
+table: https://esploradati.istat.it/databrowser/#/it/dw/categories/IT1,HOU,1.0/MEF_REDDITIIRPEF_COM/IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0
+data: https://esploradati.istat.it/SDMXWS/rest/data/IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0/?format=csv
+aiTitle: Distribuzione del reddito delle persone fisiche per classi di importo nei comuni italiani
+description: Le dimensioni di analisi presenti nella tavola sono Frequenza, Territorio, Indicatore, Classe di importo, Tempo.
+I dati diffusi riguardano: contribuenti per classe di importo, reddito per classi di importo.
+Frequenza di aggiornamento dei dati: annuale.
+Ultimo aggiornamento di dati e/o metadati: 09/15/2025 08:45:27.
+sessionId: wdKu96UGP3HoD7H6z7u3p
+```
+
+No key, no login, no browser. `data` is a URL you can pipe straight into DuckDB. The other two sites have the same shape: `opencli eur-lex get 32024R1689` prints the text of the AI Act, `opencli law-tracker timeline 2021_106` prints the stages a proposal went through.
+
+Every command here is `access: read`. Nothing writes anything anywhere.
+
+## Try it
+
+Needs Node ≥ 20.
+
+```bash
+npm install -g @jackwener/opencli                       # the CLI itself
+opencli plugin install github:aborruso/opencli          # every adapter in this repo
+opencli istatdata ask "incidenti stradali in Sicilia"   # a first question
+```
+
+That is enough for every command but one. Single-site install, sitemap linking and the browser setup are under [Install](#install).
+
+## Sites covered
+
+| Site | Sitemap | Adapter |
+|---|---|---|
+| [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
+| [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
+| [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
+
+The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
+
+**istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
+
+Commands talk to a public API through OpenCLI's local daemon and need **no browser**. The single exception is `eur-lex search`: EUR-Lex full-text search exists nowhere but on the site itself, which sits behind an AWS WAF, so that one command drives a real Chrome through the **Browser Bridge** extension.
+
+## What is in this repository
+
+- **`plugins/`** — the adapters, one folder per site. This is the part you install.
+- **`sitemaps/`** — navigation graphs for an agent that has to drive the pages of a site itself: which pages exist, what to click, where it will get stuck. Only the sites that need one have one.
+- **`docs/`** — a verbatim mirror of the upstream OpenCLI documentation (`docs/meta.yml` records provenance and checksums) plus `docs/notes.md`, hand-written notes on the parts that are not obvious: Browser Bridge setup on WSL2, the three-case model, field traps.
+
+Agents should start from [`AGENTS.md`](AGENTS.md).
 
 ## Install
-
-Requires Node ≥ 20.
 
 ```bash
 npm install -g @jackwener/opencli                       # the CLI itself
@@ -32,8 +83,6 @@ bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 Sync the sitemap for a site whose adapter you did not install and an agent will follow it to commands that do not exist — the clone carries every sitemap regardless of which adapter you picked, so name the ones you want. With no arguments the script links them all.
 
 Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`. A site with no sitemap, such as `istatdata`, simply has nothing for the script to link.
-
-Agents should start from [`AGENTS.md`](AGENTS.md).
 
 ### Working on this repo instead of using it
 
@@ -88,18 +137,6 @@ Adapters live in `plugins/<site>/` and are installed once:
 opencli plugin install "file://$PWD/plugins/<site>"
 opencli validate <site>
 ```
-
-## Sites covered
-
-| Site | Sitemap | Adapter |
-|---|---|---|
-| [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
-| [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
-| [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
-
-The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
-
-**istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
 
 ## Why one repository
 

@@ -54,6 +54,7 @@ opensdmx -o csv get 24_84_DF_DCIS_MATRIND_4 --provider istat --start-period 2020
 - **The `data` URL downloads the whole dataflow.** On a medium table that is ~10 s; on a large one it can exceed two minutes. Narrow it with an SDMX key or with `startPeriod`/`endPeriod`:
   `.../data/IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0/A.082006...?format=csv&startPeriod=2022` (082006 is Bagheria).
 - **`sessionId` repeats on every row.** It belongs to the answer, not to a dataset, and `footerExtra` would have been the tidy place for it — but the runtime renders the footer only in `table` format, so in `json`, `csv`, `yaml` and in any pipe the value would be gone, and `--session-id` would be an option whose input you cannot obtain.
+- **Both commands default to `-f plain`**, not to the usual table. Nine columns, one of them a 400-character description, make a table that is unreadable in any terminal; `plain` prints one `key: value` block per dataset and skips the empty fields. `-f table`, `-f csv`, `-f json`, `-f yaml` and `-f md` all still work exactly as elsewhere.
 - **`--lang` takes `it` or `en` only**, and it is the node's `UserLang`, not `Accept-Language`.
 - **Not surfaced:** the endpoint's `motivation` field, a single letter (`I`, `S`, `T`, `A`) for which no legend exists anywhere in the application, and `suggested_questions`, which comes back as unresolved i18n keys (`ISTAT1`, `ISTAT2`) rather than questions. Also unwrapped: `AI/GeneratePreview`, the data preview shown beside a result in the web app.
 
