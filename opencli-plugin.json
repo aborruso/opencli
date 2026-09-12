@@ -1,7 +1,7 @@
 {
   "name": "opencli-sitemaps",
   "version": "0.1.0",
-  "description": "OpenCLI adapters and agent sitemaps for EU law sources",
+  "description": "OpenCLI adapters and agent sitemaps for public data sources",
   "opencli": ">=1.8.6",
   "plugins": {
     "law-tracker": {
@@ -11,6 +11,10 @@
     "eur-lex": {
       "path": "plugins/eur-lex",
       "description": "EUR-Lex / Cellar — full text and metadata of EU law (search is a browser workflow)"
+    },
+    "istatdata": {
+      "path": "plugins/istatdata",
+      "description": "IstatData — the AI dataset search of the ISTAT Data Browser, plus dataset lookup by id"
     }
   }
 }

@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-istatdata",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "IstatData (esploradati.istat.it) — AI dataset search and dataset lookup, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

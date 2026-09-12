@@ -3,7 +3,7 @@
 Two things in one repository, both built around [OpenCLI](https://github.com/jackwener/OpenCLI), the tool that turns websites into terminal commands.
 
 - **`docs/`** — a verbatim mirror of the upstream documentation (`docs/meta.yml` records provenance and checksums) plus `docs/notes.md`, hand-written notes on the parts that are not obvious: Browser Bridge setup on WSL2, the three-case model, field traps.
-- **`sitemaps/`** and **`plugins/`** — one navigation graph and one adapter per site.
+- **`sitemaps/`** and **`plugins/`** — an adapter per site, and a navigation graph for the sites where an agent has to drive the pages itself.
 
 ## Install
 
@@ -11,9 +11,9 @@ Requires Node ≥ 20.
 
 ```bash
 npm install -g @jackwener/opencli                       # the CLI itself
-opencli plugin install github:aborruso/opencli          # both adapters from this repo
+opencli plugin install github:aborruso/opencli          # every adapter in this repo
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
-opencli list | grep -E 'law-tracker|eur-lex'            # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata'  # check
 ```
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.
@@ -31,7 +31,7 @@ bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 
 Sync the sitemap for a site whose adapter you did not install and an agent will follow it to commands that do not exist — the clone carries every sitemap regardless of which adapter you picked, so name the ones you want. With no arguments the script links them all.
 
-Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`.
+Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`. A site with no sitemap, such as `istatdata`, simply has nothing for the script to link.
 
 Agents should start from [`AGENTS.md`](AGENTS.md).
 
@@ -42,6 +42,7 @@ The install above points OpenCLI at the clone under `~/.opencli/monorepos/`. To 
 ```bash
 opencli plugin install "file://$PWD/plugins/law-tracker"
 opencli plugin install "file://$PWD/plugins/eur-lex"
+opencli plugin install "file://$PWD/plugins/istatdata"
 bash bin/sync-sitemaps.sh
 ```
 
@@ -94,14 +95,17 @@ opencli validate <site>
 |---|---|---|
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
+| [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
 
-The two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
+The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
+
+**istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
 
 ## Why one repository
 
 Each site can be installed on its own — `opencli plugin install github:aborruso/opencli/<site>` registers only that adapter, `opencli plugin update` only touches the sub-plugins you installed, and each carries its own version number. So separate repositories would buy nothing operationally.
 
-They stay together because the sitemaps reference each other: law-tracker follows the legislative process and points at EUR-Lex for the text of an act, EUR-Lex points back for the procedure behind it. Split across repositories those links become external URLs that rot silently, and `docs/`, `bin/` and `AGENTS.md` would have to be duplicated in each.
+They stay together because the sitemaps reference each other: law-tracker follows the legislative process and points at EUR-Lex for the text of an act, EUR-Lex points back for the procedure behind it. Split across repositories those links become external URLs that rot silently, and `docs/`, `bin/` and `AGENTS.md` would have to be duplicated in each. A site that cross-references nothing, like istatdata, stays here for the second reason alone.
 
 ## Licence and provenance
 

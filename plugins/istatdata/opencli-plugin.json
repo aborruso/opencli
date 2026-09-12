@@ -1,0 +1,6 @@
+{
+  "name": "istatdata",
+  "version": "0.1.0",
+  "description": "IstatData (esploradati.istat.it) — the AI search form as a command: ask a question in plain language, get the ISTAT datasets that answer it. Returns datasets, never a computed figure; the SDMX data URL downloads the whole dataflow unless you narrow it",
+  "opencli": ">=1.8.6"
+}

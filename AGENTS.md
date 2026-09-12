@@ -5,15 +5,15 @@ Instructions for an AI agent working with, or through, this repository.
 This repo ships two things for two different consumers:
 
 - **OpenCLI adapters** (`plugins/`) — commands you can run.
-- **Agent sitemaps** (`sitemaps/`) — navigation graphs telling you how to drive these websites with a real browser, which command to prefer, and how to recover when a page disagrees with memory.
+- **Agent sitemaps** (`sitemaps/`) — navigation graphs telling you how to drive these websites with a real browser, which command to prefer, and how to recover when a page disagrees with memory. Only the sites that need one have one: where the adapter covers everything the pages offer, there is nothing to navigate.
 
 ## Install
 
 ```bash
 npm install -g @jackwener/opencli                       # the CLI itself, Node >= 20
-opencli plugin install github:aborruso/opencli          # both adapters, in one shot
+opencli plugin install github:aborruso/opencli          # every adapter, in one shot
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
-opencli list | grep -E 'law-tracker|eur-lex'            # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata'  # check
 ```
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. The sitemaps travel with the clone but OpenCLI does not link them itself — that is what the sync script is for. It only ever creates `~/.opencli/sites/<site>/sitemap` symlinks and refuses to overwrite a real directory.
@@ -35,6 +35,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 |---|---|---|
 | law-tracker.europa.eu | [`sitemaps/law-tracker/SITE.md`](sitemaps/law-tracker/SITE.md) | `opencli law-tracker proposals\|events\|search\|timeline\|topics` |
 | eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|sparql` (only `search` needs a browser) |
+| esploradati.istat.it | [`plugins/istatdata/README.md`](plugins/istatdata/README.md) — no sitemap | `opencli istatdata ask\|dataset` (no browser) |
 
 ## How to use a sitemap
 
@@ -44,17 +45,19 @@ When `opencli browser <session> open <url>` returns `"sitemap": {"available": tr
 
 A sitemap is a hint. **Live browser state is the truth.** When they disagree, trust the browser and mark the entry stale rather than forcing the old path.
 
-## What these two sites are, and how they relate
+## What these sites are, and how they relate
 
 - **law-tracker** follows the *legislative process*: which stage a file is at, what happened when. Its search matches **procedure titles only**, not the text of the acts.
 - **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names. `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so `opencli eur-lex search` drives a real browser; `get`, `meta` and `sparql` need none.
 
-Neither source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
+**istatdata** is unrelated to the other two: Italian official statistics, not EU law. Its one thing worth knowing is that `ask` is a *dataset finder, not an oracle* — ask it for the average income in a town and it returns the table that holds the figure, never the figure. Getting the number out means downloading the `data` URL, which pulls the whole dataflow unless you narrow it.
+
+Neither EU-law source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
 
 ## Rules
 
-- Read the `pitfalls.md` of a site before concluding that something is not there. Both sites have failure modes that look like success: filters silently ignored, `totalResults` reading 0 with results present, a non-existent page returning HTTP 200, and a WAF challenge that is a 202 rather than a 403.
-- Never attempt to bypass the WAF, a CAPTCHA, or a rate limit. If the front door needs a browser, use the browser.
+- Read the `pitfalls.md` of a site before concluding that something is not there. Both EU-law sites have failure modes that look like success: filters silently ignored, `totalResults` reading 0 with results present, a non-existent page returning HTTP 200, and a WAF challenge that is a 202 rather than a 403.
+- Never attempt to bypass the WAF, a CAPTCHA, or a rate limit. If the front door needs a browser, use the browser. The ISTAT node declares 10 AI searches every 60 seconds: ask serially, and do not retry in a loop to find out where the ceiling is.
 - Do not report a result total that the source does not give you. Report what you actually paged through.
 - These commands are all `access: read`. Nothing here writes anything anywhere.
 

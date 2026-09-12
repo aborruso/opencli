@@ -52,6 +52,67 @@ Sources: the mirrored `docs/`, DeepWiki on `jackwener/OpenCLI`, and above all th
 ### Phase 5 — align the mirror
 - [ ] Add to `docs/meta.yml` and download: `SKILL-opencli-browser-sitemap.md`, `SKILL-opencli-sitemap-author.md`, `references/sitemap-schema.md`. They are missing today and the repo is now sitemap-centric → check: sha256/bytes regenerated.
 
+### Phase 6 — third site: IstatData AI search — DONE
+
+Goal: bring the AI search form of `esploradati.istat.it/databrowser/#/it/dw/search?ai=true` to the command line as an OpenCLI adapter. The Python tool `andy-tools/tools/istatdata-ai` already did the reverse engineering; this is a port to OpenCLI, not a new discovery.
+
+#### Strategy note (skill Step 6 — mandatory before any code)
+
+```
+Strategy: PUBLIC_API
+Contract: internal-unstable (undocumented product-internal hub endpoint, no public spec)
+Evidence:
+- observed request: POST https://esploradati.istat.it/databrowserhub/api/core/nodes/1/AI/ExecuteSearch
+                    body {session_id, request, aiSearchMaxResults, aiRateLimiting, action:{type:"query"}}
+                    header UserLang: it|en
+                    plus GET .../nodes/1/catalog (1.48 MB, ~2 s) for titles and category paths
+- auth source: none. No cookie, no token, no browser.
+- replay result: three live calls on 2026-09-12, all HTTP 200 with non-empty `chatContext.dataproducts`:
+  (1) "incidenti stradali in Sicilia", it -> 5 ids, titles filled
+  (2) same session_id + "e solo a Palermo?" -> 4-turn conversation, different id set (session works)
+  (3) "population of Italian municipalities", en -> 3 ids, `title`/`ai_title` EMPTY (catalog join is load-bearing)
+  catalog: HTTP 200, keys categoryGroups / datasetMap / datasetUncategorized
+Fragility to watch: `aiRateLimiting` is mandatory and echoes the node's own declared
+`AIRateLimiting` extra. If the node changes those numbers, the hardcoded payload is the
+first thing to drift. Read it from `GET nodes/{node}` instead of hardcoding.
+```
+
+No browser: `browser: false`, so `func: async (args)` - a single-argument signature. Do not copy `eur-lex/search.js` (browser adapter, `(page, args)`); copy `eur-lex/get.js`.
+
+#### Commands (two, not five)
+
+- `opencli istatdata ask "<question>"` -> one row per dataset: `id`, `title`, `aiTitle`, `category`, `similarity`, `table` (Data Browser URL), `data` (SDMX-CSV URL), `description`. `--session-id` continues a conversation; the new `session_id` goes in `footerExtra`, not in a row.
+- `opencli istatdata dataset "<id>"` -> the same row for one known id, straight from the catalog, no AI call.
+
+Dropped from the Python tool: `repl`, `catalog info`, `catalog refresh`, `--json`, `--no-links`. OpenCLI provides the shell, the output formats and the table itself; re-implementing them would be duplication.
+
+#### Steps
+
+- [x] `plugins/istatdata/` with `opencli-plugin.json`, `package.json`, `shared.js`, `ask.js`, `dataset.js`. `opencli validate istatdata` -> PASS, 2 commands, 0 warnings.
+- [x] `shared.js`: the ExecuteSearch POST, the node-settings read, the catalog fetch, the id -> {title, categoryIds, categoryLabels} join, the two URL builders. Checked: `ask` and `dataset` on `IT1,41_287_DF_DCIS_INDINCIDENT_1,1.0` agree on title and links.
+- [x] Error handling, all exercised: unknown id and malformed id and bad `--lang` -> ARGUMENT (exit 2); unknown node -> COMMAND_EXEC (exit 1); a question with no answer -> EMPTY_RESULT (exit 66), met for real by asking "e per le donne?" with no `--session-id`, which out of context matches nothing. The body-first guard was tested against three synthetic 200 responses (errorCode, rate-limit errorCode, missing chatContext) plus a 429 and a catalog without `datasetMap`: five throws, zero silent empty tables.
+- [x] Registered in the root `opencli-plugin.json` (that map is what the github install path reads) and installed locally.
+- [x] Live runs. First result for "qual è il reddito medio del comune di Bagheria" matches the Python tool's README byte for byte, table URL included - that is the eyeball check against a known-good reference. Session continuation verified end to end through the CLI: read `sessionId` from `-f json`, pass it to `--session-id`, get a different result set. Also verified from a clean `env -i` shell outside the repo.
+- [x] Site memory `~/.opencli/sites/istatdata/{endpoints.json,notes.md}`, `verified_at` 2026-09-12.
+- [x] `README.md`, `AGENTS.md`, `plugins/istatdata/README.md`, `LOG.md`.
+- [x] Every declared example run. One in the plugin README did not work and was replaced: DuckDB reading the SDMX-CSV URL directly gets `HTTP 416`, because that service does not serve byte ranges. Now it is curl to a file, then `read_csv` on the file (1 MB in 14 s). `opensdmx` is now the documented downstream tool, with a command verified end to end (231 rows in 22 s, labels resolved, dataflow id taken straight from an `ask` result). Its three apparent failures were all measurement errors of mine: `-o csv` after `get` rather than before, an `info` run killed by my own 110 s limit mid retry-loop, and a `get` backgrounded at a 120 s harness timeout that looked like "exit 0, no output".
+
+#### Decisions taken while building
+
+- **Root description widened** to "for public data sources"; the README already said "notes and site sitemaps" and needed no change on that point.
+- **No sitemap**, per the reasoning now written into the README: the API covers what the form does, so the graph would describe a path nobody walks.
+- **`aiRateLimiting` read live** from `GET nodes/{node}` (13 kB), falling back to the known values only if that call fails. It is the field most likely to drift and a drift would be silent.
+- **Catalog: fail loudly**, no degraded rows. `dataset` is meaningless without it, and null `category`/`table` is the silent-column-drop shape.
+- **No catalog cache in v1.** ~5 s per question end to end, measured. Revisit if it bites.
+- **`sessionId` is a column, not `footerExtra`.** This was the one real design change against the plan. `footerExtra` renders only in `table` format, and `table` auto-downgrades to yaml whenever stdout is not a TTY, so in every pipe and every machine-readable format the value is gone - which makes `--session-id` an option whose input cannot be obtained. It repeats identically down the column; that is the price. `eur-lex search` has the same exposure with its `_total`, but there the value is informational, not an input to the next call.
+- **`motivation` not surfaced.** A single letter with no legend anywhere in the application. A column of undocumented letters is noise; documented in the README as deliberately absent.
+
+#### Still open
+
+- **Unverified: what the node does past its declared 10 requests / 60 s.** Not tested, and not going to be: testing means deliberately tripping a public service. HTTP 429 and an `errorCode` matching /rate|limit/ are both mapped to a rate-limit error, and that mapping is written down as an assumption in the site notes.
+- The documented "HTTP 200 with an errorCode" quirk answered **HTTP 500** on 2026-09-12 with the same body. Either the hub gained a proper status since 2026-08-24, or the two measurements are not the same case. The guard reads the body first and so covers both; worth re-checking if anything else on this hub starts behaving oddly.
+- `opencli browser verify` still does not see plugin-installed adapters, so istatdata has no `verify/<cmd>.json` either. Same limitation as open question 1 of this plan, now on three sites.
+
 ## Conventions
 - `source:` in front matter: the content lives in the repo but is mounted at the local-overlay path → for the runtime it is `source: local`. Using `local` everywhere.
 - Stable ids: `page_id`/`workflow_id`/`pitfall_id` unique per site; `action:<id>` unique within its page.
