@@ -2,25 +2,30 @@
 
 [OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for four public sources — EU legislative procedures, the text of EU law, Italian official statistics and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
-One question in plain language, and out come the datasets that answer it — this is real output, not an illustration:
+Four sources, four commands, and none of them needs a browser or an API key:
 
-```console
-$ opencli istatdata ask "reddito medio del comune di Bagheria" --limit 1
-id: IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0
-title: Contribuenti e reddito complessivo per classi di importo
-category: Condizioni economiche delle famiglie e disuguaglianze > Reddito delle persone fisiche (Irpef)  - comuni
-similarity: 1.479233
-table: https://esploradati.istat.it/databrowser/#/it/dw/categories/IT1,HOU,1.0/MEF_REDDITIIRPEF_COM/IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0
-data: https://esploradati.istat.it/SDMXWS/rest/data/IT1,30_1008_DF_MEF_REDDITIIRPEF_COM_2,1.0/?format=csv
-aiTitle: Distribuzione del reddito delle persone fisiche per classi di importo nei comuni italiani
-description: Le dimensioni di analisi presenti nella tavola sono Frequenza, Territorio, Indicatore, Classe di importo, Tempo.
-I dati diffusi riguardano: contribuenti per classe di importo, reddito per classi di importo.
-Frequenza di aggiornamento dei dati: annuale.
-Ultimo aggiornamento di dati e/o metadati: 09/15/2025 08:45:27.
-sessionId: wdKu96UGP3HoD7H6z7u3p
+```bash
+opencli law-tracker timeline 2021_106       # the stages the AI Act went through
+opencli eur-lex get 32024R1689              # the full text of the AI Act
+opencli istatdata ask "reddito medio a Bagheria"   # which ISTAT tables answer a question
+opencli koboyo search "shopping cart"       # a free hand-drawn SVG icon
 ```
 
-No key, no login, no browser. `data` is a URL you can pipe straight into DuckDB. The other two sites have the same shape: `opencli eur-lex get 32024R1689` prints the text of the AI Act, `opencli law-tracker timeline 2021_106` prints the stages a proposal went through.
+Real output, not an illustration:
+
+```console
+$ opencli koboyo search "shopping cart" --style original --limit 1
+slug: shopping-cart
+name: Shopping cart
+group: object/commerce
+style: original
+relevance: 568
+url: https://koboyo.com/icons/shopping-cart
+svg: https://koboyo.com/icons/svg/shopping-cart.svg
+page: https://koboyo.com/icons/original?q=shopping+cart
+```
+
+Every command returns rows, in `table`, `json`, `csv`, `yaml` or plain text, and every URL in them is one you can follow: `svg` downloads the icon, and the `data` column of `istatdata` is an SDMX-CSV URL you can pipe into DuckDB.
 
 Every command here is `access: read`. Nothing writes anything anywhere.
 
@@ -31,7 +36,7 @@ Needs Node ≥ 20.
 ```bash
 npm install -g @jackwener/opencli                       # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
-opencli istatdata ask "incidenti stradali in Sicilia"   # a first question
+opencli koboyo search "shopping cart"                   # a first command
 ```
 
 That is enough for every command but one. Single-site install, sitemap linking and the browser setup are under [Install](#install).
