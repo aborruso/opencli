@@ -1,0 +1,6 @@
+{
+  "name": "koboyo",
+  "version": "0.1.0",
+  "description": "Koboyo Icons (koboyo.com/icons) — search 261,740 free hand-drawn SVG icons and get one by slug. The site's own search index, ranked exactly as the page ranks it; no key, no browser",
+  "opencli": ">=1.8.6"
+}

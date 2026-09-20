@@ -1,6 +1,6 @@
 # Plan — a collection of OpenCLI sitemaps in one repository
 
-Status: in progress. Updated 2026-08-28.
+Status: in progress. Updated 2026-09-20.
 
 ## What was verified (facts, not guesses)
 
@@ -112,6 +112,62 @@ Dropped from the Python tool: `repl`, `catalog info`, `catalog refresh`, `--json
 - **Unverified: what the node does past its declared 10 requests / 60 s.** Not tested, and not going to be: testing means deliberately tripping a public service. HTTP 429 and an `errorCode` matching /rate|limit/ are both mapped to a rate-limit error, and that mapping is written down as an assumption in the site notes.
 - The documented "HTTP 200 with an errorCode" quirk answered **HTTP 500** on 2026-09-12 with the same body. Either the hub gained a proper status since 2026-08-24, or the two measurements are not the same case. The guard reads the body first and so covers both; worth re-checking if anything else on this hub starts behaving oddly.
 - `opencli browser verify` still does not see plugin-installed adapters, so istatdata has no `verify/<cmd>.json` either. Same limitation as open question 1 of this plan, now on three sites.
+### Phase 7 — fourth site: Koboyo Icons search — DONE
+
+Goal: bring the icon search of `koboyo.com/icons` to the command line. 261,740 hand-drawn SVG icons; the search box needs JavaScript, so there is no URL that returns results and no documented API.
+
+#### Strategy note (skill Step 6 — mandatory before any code)
+
+Reverse-engineered from `/icons/_astro/IconBrowser.C_JvFU5V.js` on 2026-09-20. The search is **not** a server endpoint: it is a static, prefix-sharded JSON index served off the same origin, and all ranking happens in the browser. Verified live:
+
+- `GET /icons/data/search/v1/<prefix>.json` — `{split: [...], truncated: bool, entries: [...]}`. `ca.json` = 146 kB, 800 entries, `truncated: true`, `split` listing 18 three-letter shards.
+- `GET /icons/data/search/v1/_common.json` — the stop-word list (`action`, `hand`, `person`, `cartoon`, …).
+- `GET /icons/svg/<slug>.svg` — the icon itself.
+- `GET /icons/<slug>` — the icon page. `GET /icons/data/groups/v1/<group>--<subgroup>.json` and `/icons/data/style/v1/<style>.json` — the browse listings.
+
+Ranking, to be ported verbatim from `he()`: exact slug 1000, name-token 120, name-token prefix 60, keyword 40, keyword prefix 20, substring 4; **any token scoring 0 kills the row** (semantics are AND); bonuses (+200 phrase, +80 same token count, +max(0, 40-8*extra)) only when every token matched through the slug/name path; `+entry[4]` base weight last. Entry = `[slug, name, keywords, nameTokens, weight, group, subgroup, style]`, empty style meaning `original`.
+
+Shard selection: the **longest** token of length ≥ 2 that is not in `_common.json`; then walk `split` from the 2-char shard down. The site fetches prefixes 2..len in parallel and then walks; walking sequentially gives the same shard for about half the requests.
+
+Strategy PUBLIC, `browser: false`, `access: read`. No key, no cookie, no Chrome: the index is public static JSON on the CDN.
+
+**Koboyo already ships an MCP server**, key-gated and account-bound. This adapter exists alongside it for the same reason the rest of the repo exists: keyless, browserless, pipeable. To be written into the plugin README so it reads as a decision.
+
+**License boundary** (`koboyo.com/icons/license`): the icons are free for personal and commercial use, no attribution, but one cannot "bundle the icons into any app where they are the feature, or where users can pick, extract, download or re-share them". The repo's own rule settles it: every command here is `access: read` and nothing writes anything anywhere. So the adapter returns the `/icons/svg/<slug>.svg` URL and, on request, prints the markup to stdout; it never writes a file and never caches the library.
+
+#### Commands (three: two planned, one added while building)
+
+- `opencli koboyo search "<query>"` → `slug`, `name`, `group`, `style`, `relevance`, `url`, `svg`, `page`. `--style`, `--group`, `--limit`.
+- `opencli koboyo get <slug>` → the same icon with keywords and description; `--svg` adds the markup.
+- `opencli koboyo groups` → the 111 `group/subgroup` pairs `--group` accepts, with counts. Not in the plan: `--group` draws on a controlled vocabulary that nothing publishes as data, and an option whose values cannot be discovered is close to an option that does not exist.
+
+#### Steps
+
+- [x] `plugins/koboyo/` with `opencli-plugin.json`, `package.json`, `shared.js`, `search.js`, `get.js`, `groups.js`, `README.md`; `node_modules/@jackwener/opencli` symlinked as in the other three. `opencli validate koboyo` → PASS, 3 commands, 0 warnings.
+- [x] `shared.js`: `_common.json`, the sequential shard walk, `he()` verbatim, the style and group filters, the four URL shapes, the sidebar taxonomy parser.
+- [x] **No featured fallback.** `search "hand person"` → ARGUMENT naming the common words; `search "a b"` → ARGUMENT naming the length rule. Neither prints a row.
+- [x] `truncated` surfaced in the footer with the match count and the shard that answered (`7 matches in the "dog" index shard, which is capped`).
+- [x] Error handling exercised: unknown slug → EMPTY_RESULT (66); bad `--style`, bad `--group`, empty query → ARGUMENT (2). Zero results carries the two invisible causes — English-only index, ANDed words — plus the active filters.
+- [x] Registered in the root `opencli-plugin.json` and installed locally.
+- [x] **Ranking parity against the site's own code**: the minified `he`/`W`/`Se`/`$e` extracted into a scratch module and run against the same shards. `acoustic guitar`, `coffee mug`, `warehouse shelf`, `dog run`, `birthday cake candle`, `abacus`, `rocket launch`, plus `--style cartoon` and `--group object/entertainment` — identical ordered slug lists every time, and the one empty case empty on both sides.
+- [x] The four page URL shapes verified in a real browser (`agent-browser`, X410 display), `?q=` honoured on each: `/icons`, `/icons/<style>`, `/icons/set/<g>/<s>`, `/icons/set/<g>/<s>/<style>`.
+- [x] `search` defaults to `-f plain`: eight columns, three of them URLs, make the default table unreadable.
+- [x] Parity harness kept, not left in a scratch directory: `~/.opencli/sites/koboyo/{site.mjs,parity.mjs}` plus how to re-run it in the site notes.
+- [x] Site memory `~/.opencli/sites/koboyo/{endpoints.json,notes.md}`; root `README.md` table, `AGENTS.md`, plugin `README.md`, `LOG.md`.
+
+#### Decisions and corrections while building
+
+- **`page` is a column, not the footer.** An agent has to be able to hand a person a link — a slug cannot show what an icon looks like — and the footer renders in `table` format only. Same tradeoff as istatdata's `sessionId`, knowingly repeated.
+- **`footerExtra` is an option of `cli()`, not a key of the returned value.** Returning `{data, footerExtra}` made the runtime read the object as a single row and print an empty table, while `-f json` looked right. Caught by looking at `-f table`.
+- **Two wrong claims, both corrected by a screenshot of the actual page**: a drawing style does have a URL (`/icons/inkbrush`), and style and group do combine (`/icons/set/object/animal/inkbrush`). Both came from reading the code and stopping at the first explanation that fit.
+- **Zero results explains itself**: English-only index and ANDed words are invisible from the query.
+- **No sitemap**, third time. The search page is the only page worth driving and the adapter reproduces it.
+
+#### Still open
+
+- Does `truncated` mean every popular prefix is capped by construction, or that this shard overflowed? Unmeasured across shards.
+- The index is versioned `v1` and static. Nothing signals a rebuild; a drift would show up as a parity failure and nothing else.
+- `opencli browser verify` still does not see plugin-installed adapters, so koboyo has no `verify/<cmd>.json` either. Same limitation, now on four sites - and **`convention-audit` is blind in the same way**: it scans the `clis/` inside the npm package and reports `OK` on zero files for `--site koboyo`. Which puts the 2026-08-28 claim that the audit passes on eur-lex and law-tracker in doubt: it was probably an empty scan too. The seven rules were checked by hand here. Open question 1 is about two tools, not one.
 
 ## Conventions
 - `source:` in front matter: the content lives in the repo but is mounted at the local-overlay path → for the runtime it is `source: local`. Using `local` everywhere.

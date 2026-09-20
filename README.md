@@ -1,6 +1,6 @@
 # opencli — terminal commands for public data sources
 
-[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for three public sources — EU legislative procedures, the text of EU law, and Italian official statistics — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
+[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for four public sources — EU legislative procedures, the text of EU law, Italian official statistics and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
 One question in plain language, and out come the datasets that answer it — this is real output, not an illustration:
 
@@ -43,8 +43,11 @@ That is enough for every command but one. Single-site install, sitemap linking a
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
+| [Koboyo Icons](https://koboyo.com/icons) — 261,740 free hand-drawn SVG icons | — | [`plugins/koboyo/`](plugins/koboyo/) — `search`, `get`, `groups` |
 
 The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
+
+**koboyo has no sitemap either**, for the same reason and more so: its search page is the only page worth driving, and the adapter reproduces it exactly, ranking included.
 
 **istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
 
@@ -64,7 +67,7 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 npm install -g @jackwener/opencli                       # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
-opencli list | grep -E 'law-tracker|eur-lex|istatdata'  # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata|koboyo'  # check
 ```
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.

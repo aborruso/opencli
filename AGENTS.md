@@ -13,7 +13,7 @@ This repo ships two things for two different consumers:
 npm install -g @jackwener/opencli                       # the CLI itself, Node >= 20
 opencli plugin install github:aborruso/opencli          # every adapter, in one shot
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
-opencli list | grep -E 'law-tracker|eur-lex|istatdata'  # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata|koboyo'  # check
 ```
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. The sitemaps travel with the clone but OpenCLI does not link them itself — that is what the sync script is for. It only ever creates `~/.opencli/sites/<site>/sitemap` symlinks and refuses to overwrite a real directory.
@@ -36,6 +36,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 | law-tracker.europa.eu | [`sitemaps/law-tracker/SITE.md`](sitemaps/law-tracker/SITE.md) | `opencli law-tracker proposals\|events\|search\|timeline\|topics` |
 | eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|sparql` (only `search` needs a browser) |
 | esploradati.istat.it | [`plugins/istatdata/README.md`](plugins/istatdata/README.md) — no sitemap | `opencli istatdata ask\|dataset` (no browser) |
+| koboyo.com | [`plugins/koboyo/README.md`](plugins/koboyo/README.md) — no sitemap | `opencli koboyo search\|get\|groups` (no browser) |
 
 ## How to use a sitemap
 
@@ -51,6 +52,8 @@ A sitemap is a hint. **Live browser state is the truth.** When they disagree, tr
 - **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names. `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so `opencli eur-lex search` drives a real browser; `get`, `meta` and `sparql` need none.
 
 **istatdata** is unrelated to the other two: Italian official statistics, not EU law. Its one thing worth knowing is that `ask` is a *dataset finder, not an oracle* — ask it for the average income in a town and it returns the table that holds the figure, never the figure. Getting the number out means downloading the `data` URL, which pulls the whole dataflow unless you narrow it.
+
+**koboyo** is unrelated to all three: a library of 261,740 free hand-drawn SVG icons. Its search is not a server endpoint — the site ships a static JSON index and ranks in the browser — so the adapter ports that ranking and returns what the page would have shown. Three things to hold: the words are **ANDed**, so fewer words find more; names and keywords are **English only**, and an Italian query returns nothing; and every row carries a `page` URL, the same search on the site, which is what to hand to a person who needs to *see* the icons. Commands are read-only: they return URLs and print markup, and never write a file.
 
 Neither EU-law source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
 

@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-koboyo",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Koboyo Icons (koboyo.com/icons) — icon search and lookup by slug, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

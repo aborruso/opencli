@@ -15,6 +15,10 @@
     "istatdata": {
       "path": "plugins/istatdata",
       "description": "IstatData — the AI dataset search of the ISTAT Data Browser, plus dataset lookup by id"
+    },
+    "koboyo": {
+      "path": "plugins/koboyo",
+      "description": "Koboyo Icons — search 261,740 free hand-drawn SVG icons and look one up by slug"
     }
   }
 }
