@@ -85,7 +85,7 @@ bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 
 Sync the sitemap for a site whose adapter you did not install and an agent will follow it to commands that do not exist — the clone carries every sitemap regardless of which adapter you picked, so name the ones you want. With no arguments the script links them all.
 
-Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`. A site with no sitemap, such as `istatdata`, simply has nothing for the script to link.
+Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`. A site with no sitemap, such as `istatdata` or `koboyo`, simply has nothing for the script to link.
 
 ### Working on this repo instead of using it
 
@@ -95,6 +95,7 @@ The install above points OpenCLI at the clone under `~/.opencli/monorepos/`. To 
 opencli plugin install "file://$PWD/plugins/law-tracker"
 opencli plugin install "file://$PWD/plugins/eur-lex"
 opencli plugin install "file://$PWD/plugins/istatdata"
+opencli plugin install "file://$PWD/plugins/koboyo"
 bash bin/sync-sitemaps.sh
 ```
 
@@ -145,7 +146,7 @@ opencli validate <site>
 
 Each site can be installed on its own — `opencli plugin install github:aborruso/opencli/<site>` registers only that adapter, `opencli plugin update` only touches the sub-plugins you installed, and each carries its own version number. So separate repositories would buy nothing operationally.
 
-They stay together because the sitemaps reference each other: law-tracker follows the legislative process and points at EUR-Lex for the text of an act, EUR-Lex points back for the procedure behind it. Split across repositories those links become external URLs that rot silently, and `docs/`, `bin/` and `AGENTS.md` would have to be duplicated in each. A site that cross-references nothing, like istatdata, stays here for the second reason alone.
+They stay together because the sitemaps reference each other: law-tracker follows the legislative process and points at EUR-Lex for the text of an act, EUR-Lex points back for the procedure behind it. Split across repositories those links become external URLs that rot silently, and `docs/`, `bin/` and `AGENTS.md` would have to be duplicated in each. A site that cross-references nothing, like istatdata or koboyo, stays here for the second reason alone.
 
 ## Licence and provenance
 
