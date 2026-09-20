@@ -11,21 +11,7 @@ opencli istatdata ask "reddito medio a Bagheria"   # which ISTAT tables answer a
 opencli koboyo search "shopping cart"       # a free hand-drawn SVG icon
 ```
 
-Real output, not an illustration:
-
-```console
-$ opencli koboyo search "shopping cart" --style original --limit 1
-slug: shopping-cart
-name: Shopping cart
-group: object/commerce
-style: original
-relevance: 568
-url: https://koboyo.com/icons/shopping-cart
-svg: https://koboyo.com/icons/svg/shopping-cart.svg
-page: https://koboyo.com/icons/original?q=shopping+cart
-```
-
-Every command returns rows, in `table`, `json`, `csv`, `yaml` or plain text, and every URL in them is one you can follow: `svg` downloads the icon, and the `data` column of `istatdata` is an SDMX-CSV URL you can pipe into DuckDB.
+Every command returns rows, in `table`, `json`, `csv`, `yaml` or plain text, so the output pipes into `jq`, into a spreadsheet or into the next command. The URLs in those rows are ones you can follow: a document to download, a dataset to read, a page to open.
 
 Every command here is `access: read`. Nothing writes anything anywhere.
 
@@ -36,10 +22,12 @@ Needs Node ≥ 20.
 ```bash
 npm install -g @jackwener/opencli                       # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
-opencli koboyo search "shopping cart"                   # a first command
+opencli list                                            # what you can now run
 ```
 
 That is enough for every command but one. Single-site install, sitemap linking and the browser setup are under [Install](#install).
+
+Each adapter has its own README with its commands, its examples and the traps of that particular source. Start from the table below.
 
 ## Sites covered
 
