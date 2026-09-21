@@ -19,6 +19,10 @@
     "koboyo": {
       "path": "plugins/koboyo",
       "description": "Koboyo Icons — search 261,740 free hand-drawn SVG icons and look one up by slug"
+    },
+    "eu-funding": {
+      "path": "plugins/eu-funding",
+      "description": "EU Funding & Tenders Portal - calls, tenders, topics, grant updates, FAQs, organisations, partner searches, projects and reference codes"
     }
   }
 }

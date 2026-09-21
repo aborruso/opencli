@@ -1,0 +1,6 @@
+{
+  "name": "eu-funding",
+  "version": "0.1.0",
+  "description": "EU Funding & Tenders Portal - calls for proposals and tenders, topics, grant updates, FAQs, organisations, partner searches, projects and the reference codes behind them, through the portal's public APIs; no key, no browser",
+  "opencli": ">=1.8.6"
+}

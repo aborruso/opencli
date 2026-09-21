@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-eu-funding",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "EU Funding & Tenders Portal — calls, tenders, topics, grant updates, FAQs, organisations, partner searches and projects, through the portal's public APIs, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

@@ -182,3 +182,58 @@ Strategy PUBLIC, `browser: false`, `access: read`. No key, no cookie, no Chrome:
    - `verify/<cmd>.json` for eur-lex too: same plugin-vs-`clis/` limitation.
 3. Does the repo stay local or go to GitHub? Only the README changes, not the layout.
 4. Sitemaps only for sites with an adapter, or for sites without one too? In the second case the folder name is the SLD label and collisions are possible — accept it, or handle it with an alias.
+
+---
+
+# Plan — fifth site: `eu-funding` (EU Funding & Tenders Portal APIs)
+
+Status: done, 2026-09-21. Source: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/support/apis (Angular SPA, text read with agent-browser; saved in `tmp/sedia-apis-page.txt`).
+
+## What was verified (curl, 2026-09-21)
+
+- Two endpoints, both public, no login, no browser: `POST https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=<KEY>&text=<TEXT>&pageSize=&pageNumber=` and `.../facet?apiKey=<KEY>&text=***` (decodes reference codes). Plus `GET .../document/<PIC>?apiKey=SEDIA_PERSON`.
+- Body is multipart: parts `query` (Elasticsearch-style bool JSON), `languages` (`["en"]`), `sort` (`{"field":..,"order":..}`), each `type=application/json`.
+- Keys: `SEDIA` (grants, tenders, topics, grant updates), `SEDIA_FAQ` (FAQs), `SEDIA_PERSON` (organisations, partner searches), `SEDIA_NONH2020_PROD` (projects & results — not written on the doc page, captured from the portal's own XHR).
+- All 8 documented services answer: grants & tenders (622 forthcoming grants), topic details (`text="HORIZON-CL3-2022-BM-01-01"`), grant updates (`type 6`, 45,687), FAQ index (1,689), FAQ detail (`nid` — the doc's own example `755` returns 0, `55257` returns 1), organisation (`PIC 999991722`), partner searches by topic (40), projects (Horizon: 23,759).
+- **Trap 1: the status codes.** Facet says `31094501` = Forthcoming, `31094502` = Open for submission, `31094503` = Closed. The doc's "only open tenders" sample uses 501+502, i.e. forthcoming+open. The adapter exposes names, never raw codes.
+- **Trap 2: languages.** Without `languages` the same record appears once per translation (topic `HORIZON-CL3-2022-BM-01-01`: 10+ rows, `language` es/fr/hr/…). Always send `languages`.
+- **Trap 2b: an identifier is not one record.** With `["en"]` the same topic id still returns 4 records: 2 grant updates (`type 6`, 21 keys), the topic itself (`DATASOURCE SEDIA`, `type 1`, 56 keys) and a `SEDIA_PRD_CENTRICITY` copy (38 keys). `topic` must filter on `type` 1/2/8 and `DATASOURCE SEDIA`, and fail loudly if that still is not exactly one.
+- **Trap 4: `pageSize` is capped at 100** (asked 500 and 1000, got 100, response echoes `pageSize: 100`). `--limit` pages through `pageNumber`; no `--limit 0 = all` (projects alone: 88,322).
+- **Trap 5: `type` is scoped to the key.** SEDIA: 0 Tender, 1 Grant, 2 Calls for proposals, 8 Cascade funding, 6 grant update. SEDIA_FAQ: its own 4 values. SEDIA_PERSON: `ORGANISATION`/`PERSON`. Projects: no `type`. Name maps are per key, never shared.
+- The facet endpoint answers on all four keys (FAQ 7 facets, PERSON 16, projects 19+).
+- Out of scope: the "previous version APIs" linked from the page. Only the eight current services.
+- **Trap 3: every metadata value is an array** (`identifier: ["..."]`), dates as `2027-04-06T00:00:00.000+0000`.
+
+## Commands (all PUBLIC, `browser: false`, `access: read`)
+
+| command | service | key |
+|---|---|---|
+| `calls [text]` `--type grant,tender,cascade --status open,forthcoming,closed --programme --call --limit` | Grants & Tenders | SEDIA |
+| `topic <identifier>` | Topic details | SEDIA |
+| `updates [text]` `--programme` | Grant updates (type 6) | SEDIA |
+| `faqs [text]` `--programme` | FAQ index | SEDIA_FAQ |
+| `faq <nid>` | FAQ detail (full answer) | SEDIA_FAQ |
+| `org <PIC>` | Organisation public data | SEDIA_PERSON (GET document) |
+| `partners <topic>` | Published partner searches for a topic | SEDIA_PERSON |
+| `projects [text]` `--programme --topic --limit` | Projects & results | SEDIA_NONH2020_PROD |
+| `codes <field>` `--index calls|faqs|partners|projects` | Facet API: code → label | any |
+
+Plus on every search command `--query <json>`: raw bool query passthrough, so anything the API allows but the flags do not cover stays reachable ("copy the query from the portal", as the doc itself recommends).
+
+## Phases
+
+- [x] 1. `shared.js`: `search(key, text, query, opts)` with paging over the 100 cap, `facet(...)`, array flattening, per-key type maps, status map, body-first error guard → verify: probe script returns the counts above.
+- [x] 2. `calls` + `topic` + `codes` → verify: `calls --status forthcoming --type grant` total = facet count; `topic HORIZON-CL3-2022-BM-01-01` one row.
+- [x] 3. `updates`, `faqs`, `faq`, `org`, `partners`, `projects` → verify: each declared example runs, columns == emitted keys.
+- [x] 4. Programme names: `--programme horizon` resolved through the facet (`frameworkProgramme` / `programId` codes) instead of raw ids → verify: `43108390` ↔ Horizon Europe.
+- [x] 5. README (plugin + root table + `opencli-plugin.json`), LOG.md, `opencli validate`, install via `plugin install` from local path, clean `env -i` run.
+
+## Unresolved questions
+
+All four answered by Andrea on 2026-09-21: name `eu-funding`; expose individuals' names in `partners`; `codes` both as a command and for labelling output; default `-f json`.
+
+## Review
+
+- Built as planned, with three departures, all recorded in `LOG.md` and in the plugin README. `partners` defaults to `ANNOUNCEMENT` records rather than the doc's ORGANISATION/PERSON sample, which is heavy. `--deadline-after` was added because statuses can be stale. And range dates must be written in full timestamp form, because a bare date is silently ignored.
+- Also a fourth: `faqs` covers all four FAQ types (the doc's sample covers 3% of the index).
+- Not done: a `git commit`. Left for Andrea.
