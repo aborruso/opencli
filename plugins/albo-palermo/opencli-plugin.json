@@ -1,0 +1,6 @@
+{
+  "name": "albo-palermo",
+  "version": "0.1.0",
+  "description": "Albo Pretorio of the Comune di Palermo - the acts currently in publication, by document type, with their permanent link, sector and attachments; no browser",
+  "opencli": ">=1.8.6"
+}

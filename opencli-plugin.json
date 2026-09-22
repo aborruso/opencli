@@ -23,6 +23,10 @@
     "eu-funding": {
       "path": "plugins/eu-funding",
       "description": "EU Funding & Tenders Portal - calls, tenders, topics, grant updates, FAQs, organisations, partner searches, projects and reference codes"
+    },
+    "albo-palermo": {
+      "path": "plugins/albo-palermo",
+      "description": "Albo Pretorio del Comune di Palermo - acts in publication by document type, with permanent link, sector and attachments; search and JSON Lines dump"
     }
   }
 }

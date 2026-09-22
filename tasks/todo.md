@@ -237,3 +237,48 @@ All four answered by Andrea on 2026-09-21: name `eu-funding`; expose individuals
 - Built as planned, with three departures, all recorded in `LOG.md` and in the plugin README. `partners` defaults to `ANNOUNCEMENT` records rather than the doc's ORGANISATION/PERSON sample, which is heavy. `--deadline-after` was added because statuses can be stale. And range dates must be written in full timestamp form, because a bare date is silently ignored.
 - Also a fourth: `faqs` covers all four FAQ types (the doc's sample covers 3% of the index).
 - Not done: a `git commit`. Left for Andrea.
+
+---
+
+# Plan — sixth site: `albo-palermo` (Albo Pretorio of the Comune di Palermo)
+
+Status: done, 2026-09-22. Source: https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp (server-rendered JSP by SISPI, readable with curl).
+
+## What was verified (curl, 2026-09-22)
+
+- **No browser needed.** Every page is server-rendered HTML; the "no JavaScript" banner is cosmetic. Strategy PUBLIC, `browser: false`.
+- **Three levels.** 11 categories on `servizi.jsp`, each with an `onclick` to `scelta_tipo_documento.jsp&AP=AP&TD=<cat>&SERCOD=<n>`. Each category lists document types (112 in all; the page paginates them client side, all are in the HTML). Every type, in every category, opens the same endpoint: `pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&AP=AP&TD=<type>`.
+- **The list is stateful.** 10 rows per page, columns: protocol number, protocol date, subject, publication start, publication end. Next page is `POST dbmanager/tabella-lista-piu.do`; the detail is `dbmanager/tabella-modifica.do?row=N`, where N is 0-9 *within the current page* (`row=10` on page 2 answers "Servizio temporaneamente non disponibile"). One cookie jar per run, requests strictly sequential.
+- **The list has no permalink and no id.** Only `row=N`. The permalink is in the detail, inside `copiaCollegamento()`: `pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&TD=<type>&ALBCOD=<hex>&sportello=albopretorio`. Opened from a fresh session it shows that single act ("record 1 di 1").
+- **`ALBCOD` is the internal id `ALB_COD` (hidden field in the detail), XORed with the fixed key `SISPISICUL` and hex-encoded.** Checked on 4 acts. It does not save requests (the id is not in the list either), but lets `get` accept either form.
+- **The detail adds** sector (`SET_COD_DECODIFICATO`) and attachments `viewDocument?col=ALLEGATI&idx=i` with size and signed/unsigned icon. Attachments are session-bound: no permanent link to the PDF. Download works in the same session (`content-disposition` carries the original filename).
+- **Search** (`POST dbmanager/tabella-filtro.do` then `tabella-ricerca.do`, `siglaStato=R`): subject substring (`ALB_DESOGGETTO`), year (`ALB_DESANNOPROT`), protocol number (`ALB_NUMPROT`), sector (`SET_COD`). One document type at a time. Checked: `PEG` on Giunta → 2 rows; year+number `291` → the single record. A sector-only query returned "errori interni": to recheck.
+- Only acts currently in publication: no archive.
+
+## Commands (all PUBLIC, `browser: false`, `access: read`)
+
+| command | what |
+|---|---|
+| `types [--category]` | categories and document types with their `TD` code, read from the two index pages |
+| `list <TD>` `--pages 1\|2` | acts of one type; opens every detail, so each row carries `permalink`, `sector`, `attachments`. Hard cap: 2 pages (20 acts, 22 requests) |
+| `dump [types]` | every type or a comma-separated list of TD codes and names, JSON Lines on stdout, same cap per type (added mid-build at Andrea's request) |
+| `search <TD>` `--text --year --number` | the portal's filter; same row shape as `list`, same 2-page cap |
+| `get <permalink\|ALBCOD\|ALB_COD --type TD>` | one act by its permanent link |
+
+## Phases
+
+- [x] 1. `shared.js`: session (cookie jar), fetch + ISO-8859/UTF-8 check, row parser, detail parser, `ALBCOD` encode/decode → verify: parser on saved pages returns 10 rows; encode(1800156607) = `6271636078667F75657B`.
+- [x] 2. `types` → verify: 11 categories, 112 types, Giunta = `TD 2024`, "Avviso Pubblico" = `TD 1041037357` under "Avvisi ed atti diversi".
+- [x] 3. `list` → verify: Giunta 2 pages = 20 rows, each permalink opens "record 1 di 1" with the same protocol number.
+- [x] 4. `search` + `get` → verify: `search 2024 --text PEG` = 2 rows; `get` on a permalink from `list` returns the same row.
+- [x] 5. README (plugin + root table + `opencli-plugin.json`), LOG.md, `opencli validate`, clean `env -i` run.
+
+## Unresolved questions
+
+All answered by Andrea on 2026-09-22: name `albo-palermo`; default 2 pages; attachments as sizes only, no download; default `-f json`; `dump` in JSON Lines. The sector filter needed no fix: the "errori interni" came from my own malformed request.
+
+## Review
+
+- Built as planned plus `dump`. The ids and permanent links went further than planned: `ALBCOD` decodes to the internal id, so `get` also accepts a bare `ALBCOD` with `--type`.
+- Future: a full dump beyond 20 acts per type (TD 2010 has 855) would need several sessions striding the pages of one type in parallel. Not built: a daily follow-up needs only the newest acts.
+- Not done: a `git commit`. Left for Andrea.

@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-albo-palermo",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Albo Pretorio of the Comune di Palermo - document types, acts in publication, search and permanent links, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}
