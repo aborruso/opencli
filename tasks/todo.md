@@ -282,3 +282,40 @@ All answered by Andrea on 2026-09-22: name `albo-palermo`; default 2 pages; atta
 - Built as planned plus `dump`. The ids and permanent links went further than planned: `ALBCOD` decodes to the internal id, so `get` also accepts a bare `ALBCOD` with `--type`.
 - Future: a full dump beyond 20 acts per type (TD 2010 has 855) would need several sessions striding the pages of one type in parallel. Not built: a daily follow-up needs only the newest acts.
 - Not done: a `git commit`. Left for Andrea.
+
+# Plan — nightly archive of the Albo Pretorio of Palermo
+
+Status: in progress. Written 2026-09-23.
+
+Goal: a GitHub Actions workflow that every night runs `opencli albo-palermo dump`, merges it into one JSON Lines archive (append, sort, dedupe) and publishes only the latest version, with no history. Any sign of a broken run stops everything and leaves the published archive untouched.
+
+## Design
+
+- **Where the archive lives: a GitHub Release asset**, tag `albo-palermo-data`, file `albo-palermo.jsonl`, replaced each night with `gh release upload --clobber`. No commits, so no history and no diffs in the repo. Stable download URL: `https://github.com/aborruso/opencli/releases/download/albo-palermo-data/albo-palermo.jsonl`.
+- **Flow**: install opencli and the adapter from the checkout → download the current archive (first run: none) → `dump > today.jsonl` → `bin/albo-palermo-merge.sh` (`cat archive today | LC_ALL=C sort -u` plus the checks) → upload.
+- **Checks, any failure = job fails, nothing uploaded**:
+  1. `dump` exits 0 (it already fails on 429 after retries, and on an empty result).
+  2. today's dump has more than 0 rows.
+  3. merged archive rows >= previous archive rows (catches a lost or truncated previous archive).
+  4. schema: every row of today's dump and of the merged archive has exactly the 11 keys `category, td, type, number, date, subject, sector, published_from, published_to, attachments, permalink`, all strings, same set as the previous archive.
+- A failed run shows up as a failed workflow, and GitHub emails the repo owner.
+
+## Phases
+
+### Phase 1 — feasibility from a GitHub runner
+- [ ] Workflow with `workflow_dispatch` only, running `dump "Avviso Pubblico"` → verify: the portal answers from a GitHub (US, Azure) IP, no 429, no geo-block; the opencli daemon starts on the runner.
+
+### Phase 2 — the workflow
+- [ ] `.github/workflows/albo-palermo-nightly.yml`: cron nightly + `workflow_dispatch`, `permissions: contents: write`, `concurrency` so two runs never overlap → verify: first manual run creates the release and the asset.
+- [x] Checks as a small shell/jq script in the workflow → verify: second manual run keeps row count >= first; a local test with a truncated previous archive, an empty dump and a row with a renamed key each make the check fail.
+
+### Phase 3 — docs
+- [x] `plugins/albo-palermo/README.md`: the archive URL and what it is (and is not: at most 20 newest acts per type per night) → verify: link resolves.
+- [x] `LOG.md` entry.
+
+## Decisions (2026-09-23)
+
+- Duplicates: exact line, `sort -u`. An act whose fields change stays twice, by choice.
+- Storage: Release asset, tag `albo-palermo-data`.
+- 20-acts cap per type: accepted.
+- Cron: 03:17 UTC. Scheduled workflows are disabled after 60 days without repo activity: known.

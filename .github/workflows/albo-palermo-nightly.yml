@@ -1,0 +1,66 @@
+# Every night: dump the acts in publication on the Albo Pretorio of Palermo,
+# merge them into one JSON Lines archive (append, sort, drop identical lines)
+# and replace the asset of the release `albo-palermo-data`. Only the latest
+# archive is kept: no commits, no history.
+#
+# Any failure stops the job before the upload, so the published archive stays
+# as it was: a failed or empty dump, a row with different fields, an archive
+# that would shrink. See bin/albo-palermo-merge.sh.
+name: albo-palermo nightly
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: albo-palermo-nightly
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: albo-palermo-data
+      ASSET: albo-palermo.jsonl
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install opencli and the adapter
+        run: |
+          npm install -g @jackwener/opencli@1.8.7
+          opencli plugin install "file://$PWD/plugins/albo-palermo"
+          opencli validate albo-palermo
+
+      - name: Download the current archive
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release download "$TAG" --pattern "$ASSET" --output previous.jsonl
+            echo "PREV=previous.jsonl" >> "$GITHUB_ENV"
+          else
+            echo "no release $TAG yet: first run"
+            echo "PREV=" >> "$GITHUB_ENV"
+          fi
+
+      - name: Dump
+        run: opencli albo-palermo dump > today.jsonl
+
+      - name: Merge and check
+        run: bin/albo-palermo-merge.sh "$PREV" today.jsonl "$ASSET"
+
+      - name: Publish
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --latest=false --title "Albo Pretorio di Palermo - archive" \
+              --notes "Acts published on the Albo Pretorio of the Comune di Palermo, one JSON object per line, collected every night by \`opencli albo-palermo dump\` (at most the 20 newest acts per document type). Only the latest version is kept."
+          fi
+          gh release upload "$TAG" "$ASSET" --clobber

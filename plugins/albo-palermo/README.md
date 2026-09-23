@@ -70,6 +70,12 @@ opencli albo-palermo dump > today.jsonl
 jq -c --slurpfile y yesterday.jsonl '($y | map(.permalink)) as $old | select(.permalink as $p | $old | index($p) | not)' today.jsonl
 ```
 
+A nightly archive is published as a release asset, rebuilt every night by `.github/workflows/albo-palermo-nightly.yml`: tonight's `dump` appended to the archive, sorted, identical lines dropped. Only the latest version is kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the night before (`bin/albo-palermo-merge.sh`). It holds at most the 20 newest acts per type per night, so a type that publishes more in a day has gaps.
+
+```bash
+curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data/albo-palermo.jsonl | head -1 | jq .
+```
+
 ## Traps of this source
 
 - **At most two pages per type, 20 acts, by design.** Each act costs one request for its detail, sequential within a type because the session is stateful. The register lists newest first, so the last 20 are what a daily follow-up needs. `list`, `search` and `dump` all stop there, and say what they left out: the footer of `list` and `search` gives the total and the page count, and `dump` writes on stderr every type it cut. On 2026-09-22 seven types went past 20 acts. The biggest was Determinazioni Dirigenziali (TD 2010), with 855 acts on 86 pages.

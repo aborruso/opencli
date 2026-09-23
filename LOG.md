@@ -2,6 +2,7 @@
 
 ## 2026-09-23
 
+- **Nightly archive of albo-palermo** (`.github/workflows/albo-palermo-nightly.yml`, `bin/albo-palermo-merge.sh`). At 03:17 UTC: `dump`, then `cat archive dump | LC_ALL=C sort -u`, published as the asset `albo-palermo.jsonl` of the release `albo-palermo-data`, replaced with `--clobber`, so no history. Andrea's choices: identical-line dedupe (an act whose fields change stays twice), release asset over an orphan branch, the 20-acts cap kept. The merge refuses, and nothing is uploaded, on an empty or invalid dump, on a row whose keys or value types differ from the eleven string fields, and on a merged archive smaller than the previous one. Tested locally on today's dump: 3 valid cases, 7 refusals.
 - **`list` and `dump` missed a document type with a single act in publication.** For such a type the portal skips the list and opens the act, as it does for a search with one match. `collect()` looked only for list rows, so `list 1040804645` (Decreto Prefettizio) answered "no act in publication" while the portal showed protocol 65781. `collect()` now reads that shape too. Verified: `list` and `dump` of 1040804645 return the act, `list "Avviso Pubblico"` still returns 10 rows per page, `validate` passes.
 - **Not reproduced: the page failing on the first visit.** In a fresh browser profile and with an empty cookie jar, the first and second load of the list URL show the same content. The only difference is `;jsessionid=` in the navigation links of the first response.
 
