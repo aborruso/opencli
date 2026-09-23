@@ -277,6 +277,8 @@ export function checkPages(value) {
  * detail of every row. The session must be sitting on page 1 of a list.
  */
 export async function collect(session, firstPage, pages) {
+    // A type with one act in publication skips the list, as a search with one match does.
+    if (isDetail(firstPage)) return { rows: [parseDetail(firstPage)], total: 1, pages: 1 };
     const info = listInfo(firstPage);
     const rows = [];
     let html = firstPage;

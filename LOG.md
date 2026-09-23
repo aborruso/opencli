@@ -1,5 +1,10 @@
 # LOG
 
+## 2026-09-23
+
+- **`list` and `dump` missed a document type with a single act in publication.** For such a type the portal skips the list and opens the act, as it does for a search with one match. `collect()` looked only for list rows, so `list 1040804645` (Decreto Prefettizio) answered "no act in publication" while the portal showed protocol 65781. `collect()` now reads that shape too. Verified: `list` and `dump` of 1040804645 return the act, `list "Avviso Pubblico"` still returns 10 rows per page, `validate` passes.
+- **Not reproduced: the page failing on the first visit.** In a fresh browser profile and with an empty cookie jar, the first and second load of the list URL show the same content. The only difference is `;jsessionid=` in the navigation links of the first response.
+
 ## 2026-09-22
 
 - **Sixth site: `albo-palermo`** (`plugins/albo-palermo/`, commands `types`, `list`, `search`, `get`, `dump`). It covers the [Albo Pretorio of the Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp), a server-rendered JSP application by SISPI. Strategy PUBLIC, `browser: false`, `access: read`, default `-f json`. Andrea's goal is to follow the register day by day, so the newest 20 acts per type are enough for a first release.
