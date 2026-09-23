@@ -285,7 +285,7 @@ All answered by Andrea on 2026-09-22: name `albo-palermo`; default 2 pages; atta
 
 # Plan — nightly archive of the Albo Pretorio of Palermo
 
-Status: in progress. Written 2026-09-23.
+Status: done 2026-09-23. Runs 35872009064 (first, 229 acts, release created) and 35872558929 (previous 229, merged 229, 0 new) passed from a GitHub runner.
 
 Goal: a GitHub Actions workflow that every night runs `opencli albo-palermo dump`, merges it into one JSON Lines archive (append, sort, dedupe) and publishes only the latest version, with no history. Any sign of a broken run stops everything and leaves the published archive untouched.
 
@@ -303,10 +303,10 @@ Goal: a GitHub Actions workflow that every night runs `opencli albo-palermo dump
 ## Phases
 
 ### Phase 1 — feasibility from a GitHub runner
-- [ ] Workflow with `workflow_dispatch` only, running `dump "Avviso Pubblico"` → verify: the portal answers from a GitHub (US, Azure) IP, no 429, no geo-block; the opencli daemon starts on the runner.
+- [x] Workflow with `workflow_dispatch` only, running `dump "Avviso Pubblico"` → verify: the portal answers from a GitHub (US, Azure) IP, no 429, no geo-block; the opencli daemon starts on the runner.
 
 ### Phase 2 — the workflow
-- [ ] `.github/workflows/albo-palermo-nightly.yml`: cron nightly + `workflow_dispatch`, `permissions: contents: write`, `concurrency` so two runs never overlap → verify: first manual run creates the release and the asset.
+- [x] `.github/workflows/albo-palermo-nightly.yml`: cron nightly + `workflow_dispatch`, `permissions: contents: write`, `concurrency` so two runs never overlap → verify: first manual run creates the release and the asset.
 - [x] Checks as a small shell/jq script in the workflow → verify: second manual run keeps row count >= first; a local test with a truncated previous archive, an empty dump and a row with a renamed key each make the check fail.
 
 ### Phase 3 — docs
