@@ -27,6 +27,10 @@
     "albo-palermo": {
       "path": "plugins/albo-palermo",
       "description": "Albo Pretorio del Comune di Palermo - acts in publication by document type, with permanent link, sector and attachments; search and JSON Lines dump"
+    },
+    "palermo-delibere": {
+      "path": "plugins/palermo-delibere",
+      "description": "Delibere e Ordinanze del Comune di Palermo - the permanent archive of the online services portal: eight sections, permanent links, attachments, daily JSON Lines dump"
     }
   }
 }

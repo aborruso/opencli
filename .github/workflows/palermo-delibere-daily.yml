@@ -1,0 +1,83 @@
+# Every morning: collect the acts of the eight sections of "Delibere e
+# Ordinanze" of the Comune di Palermo for the previous day, merge them into
+# one JSON Lines archive (append, sort, drop identical lines) and replace the
+# asset of the release `palermo-delibere-data`. Acts accumulate; past versions
+# of the file are not kept: no commits, no history.
+#
+# Per section, at most 2 pages of 10: the newest acts of the five sections
+# with a list and of DCCIR (year filter), the acts protocolled on the day for
+# DDI and ODT (date filter). See plugins/palermo-delibere/README.md.
+#
+# Any failure stops the job before the upload, so the published archive stays
+# as it was: a failed or empty dump, a row with different fields, an archive
+# that would shrink. See bin/jsonl-merge.sh.
+name: palermo-delibere daily
+
+on:
+  schedule:
+    # 05:00 in Rome in summer, 04:00 in winter.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Day to collect, YYYY-MM-DD (default: yesterday in Rome)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: palermo-delibere-daily
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: palermo-delibere-data
+      ASSET: palermo-delibere.jsonl
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install opencli and the adapter
+        run: |
+          npm install -g @jackwener/opencli@1.8.8
+          opencli plugin install "file://$PWD/plugins/palermo-delibere"
+          opencli validate palermo-delibere
+
+      - name: Pick the day
+        run: |
+          DAY="${{ github.event.inputs.date }}"
+          [ -n "$DAY" ] || DAY=$(TZ=Europe/Rome date -d yesterday +%F)
+          echo "DAY=$DAY" >> "$GITHUB_ENV"
+          echo "collecting $DAY"
+
+      - name: Download the current archive
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release download "$TAG" --pattern "$ASSET" --output previous.jsonl
+            echo "PREV=previous.jsonl" >> "$GITHUB_ENV"
+          else
+            echo "no release $TAG yet: first run"
+            echo "PREV=" >> "$GITHUB_ENV"
+          fi
+
+      - name: Dump
+        run: opencli palermo-delibere dump --date "$DAY" > today.jsonl
+
+      - name: Merge and check
+        run: bin/palermo-delibere-merge.sh "$PREV" today.jsonl "$ASSET"
+
+      - name: Publish
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --latest=false --title "Delibere e Ordinanze del Comune di Palermo - archive" \
+              --notes "Deliberations, determinations and ordinances of the Comune di Palermo, from the permanent archive of its online services portal, one JSON object per line. Every morning \`opencli palermo-delibere dump\` (at most 20 acts per section: the newest ones, or those protocolled the previous day for the executive determinations and ordinances) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each day: past versions of the file are not kept."
+          fi
+          gh release upload "$TAG" "$ASSET" --clobber

@@ -1,15 +1,16 @@
 // ==UserScript==
 // @name         Albo Pretorio Palermo - attachment names
 // @namespace    https://github.com/aborruso/opencli
-// @version      0.1.1
-// @description  Shows the real file name of each attachment on the act pages of the Albo Pretorio of the Comune di Palermo, instead of "(Acrobat Kb ...)"
+// @version      0.2.0
+// @description  Shows the real file name of each attachment on the act pages of the Comune di Palermo (Albo Pretorio, and the deliberations and ordinances archive of the online services portal), instead of "(Acrobat Kb ...)"
 // @match        https://albopretorio.comune.palermo.it/albopretorio/*
+// @match        https://servizionline.comune.palermo.it/portcitt/*
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
 
-// The page links each attachment as `viewDocument?col=ALLEGATI&idx=N`, with
-// only its type and size. The file name is in the `content-disposition`
+// Both portals are the same SISPI application. The page links each
+// attachment as `viewDocument?col=ALLEGATI&idx=N`, with only its type and size. The file name is in the `content-disposition`
 // header of that URL, and the portal answers HEAD with the headers alone.
 // The request runs from the page, so it carries the session cookies the
 // index depends on. One request at a time: the portal answers bursts with

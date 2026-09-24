@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-palermo-delibere",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Deliberations, determinations and ordinances of the Comune di Palermo - the permanent archive of the online services portal, with permanent link and attachments, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

@@ -350,3 +350,77 @@ Status: done 2026-09-24.
 - Default folder: one per act, `./albo-<TD>-<number>/`.
 - Existing file: skipped, never overwritten.
 - No `--list` flag: `get` already lists the attachments.
+
+# Plan — new adapter for the deliberations and ordinances archive of the Comune di Palermo
+
+Status: in progress. Written 2026-09-24.
+
+Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&info=servizi.jsp&SERCOD=60&SERCODROOT=60 ("Delibere e Ordinanze" of the online services portal). Decisions already taken: a new adapter in this repo; CLI plus a nightly archive; every archive row carries its permanent link.
+
+## What was verified (2026-09-24)
+
+- Same SISPI application as the Albo Pretorio: list → `dbmanager/tabella-modifica.do?row=N` → detail at `jsp/home.jsp?modo=tabella`, stateful session, `viewDocument?col=ALLEGATI&idx=N` attachments, HEAD gives the file name.
+- Unlike the Albo it is an archive: acts stay after their publication period, from 2018 (DDI) or 2020 (ODT, DCCIR) onwards.
+- Permanent link: `pu/push-tabella-delibere.do?nomeTabella=<table>&TD=<code>&ALBCOD=<hex>&sportello=portcitt`. `ALBCOD` uses the same XOR key: `627E6A627A607C716675` → `1792335239`, which is also the prefix of that act's attachment names.
+- Eight sections, each its own table and code:
+
+| Section | table | TD | SERCOD | Access | Acts |
+|---|---|---|---|---|---|
+| Delibere di Giunta Comunale | FO_SCEDELIBERE | DGC | 6000 | list | 2,349 |
+| Delibere di Consiglio Comunale | FO_SCEDELIBERE | DCC | 6010 | list | 3,247 |
+| Delibere di Consiglio di Circoscrizione | FO_SCEDELIBERE | DCCIR | 6015 | filter only (year, circoscrizione) | ? |
+| Delibere del Comitato dei Sindaci | FO_SCEDELIBERE | DCS | 6017 | list | 73 |
+| Determinazioni e Ordinanze Sindacali | FO_SCEALBOPRETORIO | OS | 6020 | list | 2,106 |
+| Determinazioni e Ordinanze Commissariali | FO_SCEALBOPRETORIO | DCO | 6021 | list | 221 |
+| Determinazioni e Ordinanze Dirigenziali | FO_SCEDETDIRIGENZIALI | DDI | 6030 | filter only | 12,493 in 2026 alone |
+| Dirigenziali Ufficio Traffico | FO_SCEDETDIRIGENZIALIUT | ODT | 6040 | filter only | ? |
+
+- The filter refuses broad queries: year 2026 alone on DDI answers "I criteri di filtro impostati corrispondono ad un numero eccessivo di elementi: 12.493". One protocol date passes: 22/09/2026 → 28 acts, 3 pages. Andrea confirmed the same with today's date in his browser.
+- My curl replay of the filter POST came back to the form ("Filtro attivo") with no list; the same search clicked in a headless browser worked. The exact request sequence is still to be pinned down (Phase 0).
+
+## Design
+
+- `plugins/palermo-delibere/`, strategy PUBLIC, no browser, `access: read`, default `-f json`. Own copy of the session, ALBCOD and attachment code: a single-site install (`plugin install github:aborruso/opencli/palermo-delibere`) cannot import from `plugins/albo-palermo/`.
+- Commands:
+  - `sections`: the eight sections, codes, how each is reached.
+  - `day <YYYY-MM-DD> [--section] [--pages 1|2]`: acts with that protocol date, all filter sections or some, at most 2 pages each. The core of the archive for DDI, ODT, DCCIR.
+  - `search <section>`: the portal's filter (`--text`, `--year`, `--number`, `--date`, `--sector`), with the portal's "too many" refusal passed on as a clear error.
+  - `list <section>`: newest acts, for the sections that have a list.
+  - `get <permalink>` and `attachments <permalink>`: as in albo-palermo, `act.html` and `act.json` included.
+- Row: `section`, `type`, `number`, `date`, `subject`, `sector`, extra fields per section if the detail has them, `attachments`, `permalink`.
+- Daily workflow, same pattern as albo-palermo: release asset, append + `sort -u`, same stop conditions (empty or invalid dump, schema change, archive shrinking). Andrea's scope (2026-09-24): no history. Sections with a list: the first 2 pages (the 20 newest acts). Sections reached only through the filter: see "Daily run, per section" below. Like albo-palermo, a day with more than 20 acts in one section is cut, and the run says so on stderr.
+
+## Phases
+
+### Phase 0 — recon — DONE 2026-09-24
+- [x] Filter sequence with curl: GET the section's list URL, then POST `dbmanager/tabella-ricerca.do` with every form field plus `ALB_COD=&siglaStato=F&row=0&chiave=&provieneDa=`; it answers 302 to `jsp/home.jsp?modo=tabella`, which holds the list. `ALB_DATPROT=22/09/2026` on DDI → 28 rows, as in the browser. My earlier "failure" was the year filter's legitimate refusal (too many), not a bad request. The extra hex cookie the browser holds is not needed.
+- [x] Filter fields: DGC, DCC, DCS, DCCIR: year, number, subject, `ARECOD` (empty select). OS, DCO: year, subject, type. DDI: year, type, number, protocol date, sector, progressive number and date, subject. ODT: as DDI without sector. Only DDI and ODT have a date.
+- [x] Volumes under the filter: DCCIR year 2026 → 1,248 acts, ODT 2026 → 1,902, ODT 2025 → 2,627: all accepted. DDI 2026 → 12,493: refused. DCCIR and ODT lists are newest first.
+- [x] Detail fields: `ALB_NUMPROT`, `ALB_DATPROT`, `ALB_DATFINPUB`, `ALB_COD`, `TAT_COD` everywhere; `TAT_COD_DECODIFICATO` on OS, ODT, DDI; `SET_COD_DECODIFICATO` (sector) on DDI only; `ALB_NUMPROTESTERNO`/`ALB_DATPROTESTERNO` on ODT, DDI; subject in the `ALB_DESOGGETTO` textarea. No publication start date.
+- [x] **Same records as the Albo Pretorio.** DGC 302 has `ALB_COD=1802029321` and `ALBCOD=6271636279617070677D` here and on the Albo; `TAT_COD` values are the Albo's TD codes (2024, 2022, 2010, 2012, 1037940907). This portal is the permanent archive of the Albo's acts.
+
+### Daily run, per section (Andrea, 2026-09-24: 05:00 Rome, yesterday's date)
+- DGC, DCC, DCS, OS, DCO: the list, first 2 pages.
+- DCCIR, ODT: filter on the current year, first 2 pages (newest first).
+- DDI: filter on yesterday's protocol date, at most 2 pages.
+
+### Phase 1 — adapter — DONE 2026-09-24
+- [x] `sections`, `list`, `search`, `get`, `attachments`, `dump --date` (the nightly entry point, per-section daily rule). `validate` PASS, 6 commands.
+- [x] Verified live: `get` on Andrea's example (DGC 272, the PEBA adoption, 26 attachments) and on acts already off the Albo (DCS 9, DCO 2) in a clean session; `list DGC` 20 distinct acts over 2 pages, the permalink of row 20 opens act 283; `search DDI --date 2026-09-22` 20 of 28; a Sunday gives the empty result; a single match (DGC 302/2026) is read from the detail; DCCIR and ODT through the year filter; the "too many" refusal (DDI 2026: 12.493); a flag a section lacks is refused by name; `attachments` on DCS 9 (2 PDFs, act.html, act.json, rerun all `exists`).
+- [x] `dump --date 2026-09-22`: 148 acts in 44 s, 9 string columns on every row.
+- Fixes found by running it: the subject is a `<div>` here, a `<textarea>` on the Albo; six DCO acts of 2024-12-30 have a "Copia" link with no ALBCOD, so the link is built from `ALB_COD` when the page's own lacks it.
+- Albo → portal: the same ALBCOD opens the act here, with the section's code and table. Checked one act per Albo type: 2024→DGC, 2022→DCC, 1037940907→DCCIR, 2010→DDI, 2001 and 2011→OS, 2012→ODT (an Ordinanza Dirigenziale of another office may be in DDI). The other 16 Albo types are not in the portal.
+- Trap for the README: `search --text` matches the subject as written, and subjects break words with hyphens ("ARCHI-TETTONICHE" in DGC 272), so "barriere architettoniche" misses it.
+
+### Phase 2 — nightly archive
+- [x] `bin/jsonl-merge.sh` + wrappers; 10 local cases pass on both schemas.
+- [ ] Workflow → verify: two manual runs on GitHub, second one appends.
+
+### Phase 3 — docs
+- [x] Adapter README with traps, root README table and intro, AGENTS.md, userscript README, LOG.
+
+## Decisions (2026-09-24)
+
+- Name: `palermo-delibere`.
+- Daily run at 05:00 Rome (cron `0 3 * * *` UTC: 05:00 in summer, 04:00 in winter), reading yesterday's protocol date for DDI (Andrea's second proposal, replacing 23:00 on today's date).
+- No history, no look-back: 2 pages per section per run.

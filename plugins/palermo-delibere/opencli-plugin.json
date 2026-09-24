@@ -1,0 +1,6 @@
+{
+  "name": "palermo-delibere",
+  "version": "0.1.0",
+  "description": "Deliberations, determinations and ordinances of the Comune di Palermo - eight sections of the online services portal, which keeps acts after their publication on the Albo Pretorio; permanent links and attachments, no browser",
+  "opencli": ">=1.8.6"
+}
