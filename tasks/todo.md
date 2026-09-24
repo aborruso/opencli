@@ -353,7 +353,7 @@ Status: done 2026-09-24.
 
 # Plan — new adapter for the deliberations and ordinances archive of the Comune di Palermo
 
-Status: in progress. Written 2026-09-24.
+Status: done 2026-09-24.
 
 Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&info=servizi.jsp&SERCOD=60&SERCODROOT=60 ("Delibere e Ordinanze" of the online services portal). Decisions already taken: a new adapter in this repo; CLI plus a nightly archive; every archive row carries its permanent link.
 
@@ -414,7 +414,7 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 
 ### Phase 2 — nightly archive
 - [x] `bin/jsonl-merge.sh` + wrappers; 10 local cases pass on both schemas.
-- [ ] Workflow → verify: two manual runs on GitHub, second one appends.
+- [x] Workflow → runs 36036129768 (2026-09-22, first run: 148 acts, release created) and 36036337210 (default date 2026-09-23: previous 148, dump 140, merged 168, 20 new = DDI of 23/09) passed on GitHub.
 
 ### Phase 3 — docs
 - [x] Adapter README with traps, root README table and intro, AGENTS.md, userscript README, LOG.
