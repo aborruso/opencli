@@ -15,7 +15,7 @@ opencli koboyo search "shopping cart"       # a free hand-drawn SVG icon
 
 Every command returns rows, in `table`, `json`, `csv`, `yaml` or plain text, so the output pipes into `jq`, into a spreadsheet or into the next command. The URLs in those rows are ones you can follow: a document to download, a dataset to read, a page to open.
 
-Every command here is `access: read`. Nothing writes anything anywhere.
+Every command here is `access: read`. Nothing writes to any site. The one command that writes anything at all is `albo-palermo attachments`, which saves the attachments of an act to a local folder.
 
 ## Try it
 
@@ -39,7 +39,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `sparql` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
 | [Koboyo Icons](https://koboyo.com/icons) — 261,740 free hand-drawn SVG icons | — | [`plugins/koboyo/`](plugins/koboyo/) — `search`, `get`, `groups` |
-| [Albo Pretorio del Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp) — the acts of the city of Palermo in publication | — | [`plugins/albo-palermo/`](plugins/albo-palermo/) — `types`, `list`, `search`, `get`, `dump` |
+| [Albo Pretorio del Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp) — the acts of the city of Palermo in publication | — | [`plugins/albo-palermo/`](plugins/albo-palermo/) — `types`, `list`, `search`, `get`, `dump`, `attachments` |
 | [EU Funding & Tenders Portal](https://ec.europa.eu/info/funding-tenders/opportunities/portal/) — EU calls, tenders and funded projects | — | [`plugins/eu-funding/`](plugins/eu-funding/) — `calls`, `topic`, `updates`, `faqs`, `faq`, `org`, `partners`, `projects`, `codes` |
 
 The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.

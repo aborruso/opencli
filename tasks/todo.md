@@ -319,3 +319,34 @@ Goal: a GitHub Actions workflow that every night runs `opencli albo-palermo dump
 - Storage: Release asset, tag `albo-palermo-data`.
 - 20-acts cap per type: accepted.
 - Cron: 03:17 UTC. Scheduled workflows are disabled after 60 days without repo activity: known.
+
+# Plan — albo-palermo `attachments`: download the attachments of one act
+
+Status: done 2026-09-24.
+
+## What was verified
+
+- The detail page links each attachment as `../viewDocument?col=ALLEGATI&idx=N`, i.e. `/albopretorio/viewDocument?...` (not under `/pu/`). The index points into the detail page last opened in the session: there is no permanent URL.
+- Same cookie jar as the detail page → HTTP 200, `content-type: application/pdf`, `content-disposition: filename=<name>.pdf`. Tested on Delibera di Consiglio 548 (25 attachments): idx 0 = `Parere_Contabile_DC_PROP_614_2026_1800989618_20260917.pdf` (2 pages), idx 1 = `dlc_Delibera_18-09-2026_11-13-10_omissis_1800989618_20260917.pdf` (14 pages).
+- Without that session → HTTP 200, `text/html`, "File non visualizzabile. Sessione scaduta". So a 200 is not enough: the command must check the content type.
+
+## Design
+
+- New command `opencli albo-palermo attachments <act> [--type] [--dir <path>]`. `<act>` as in `get`: permanent link, or bare `ALBCOD` plus `--type`.
+- One session: open the detail, read the `idx` links (with size and signed flag, as `parseDetail` does), then download them sequentially, reusing the existing 429 retry and the two-requests cap.
+- Filename from `content-disposition`, sanitised; fallback `attachment-<idx>.pdf`. An existing file is not overwritten (skip and say so).
+- Output: one row per attachment, `idx`, `filename`, `bytes`, `signed`, `path`. `access: read`: it writes only local files.
+- A response that is HTML instead of a document → clear error ("session expired").
+
+## Phases
+
+- [x] `shared.js`: a binary GET on the session (the current `get` returns text) → verify: the two PDFs above come out byte-identical to curl's.
+- [x] `attachments.js` → verify: Delibera 548 gives 25 files whose sizes match the "Kb" shown on the page; an act with one attachment (Decreto Prefettizio 65781); a bare ALBCOD with `--type`; an act out of publication gives the empty-result error; a second run skips the existing files.
+- [x] `opencli validate albo-palermo` → 6 commands, PASS.
+- [x] README: command table, example, and the trap "Attachments have no permanent link" rewritten (no longer "There is no download command"). LOG entry.
+
+## Decisions (2026-09-24)
+
+- Default folder: one per act, `./albo-<TD>-<number>/`.
+- Existing file: skipped, never overwritten.
+- No `--list` flag: `get` already lists the attachments.

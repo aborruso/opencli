@@ -1,13 +1,13 @@
 # albo-palermo — OpenCLI adapter
 
-Five commands over the [Albo Pretorio of the Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp), the register where the city publishes its acts with legal effect: deliberations, executive decisions, ordinances, notices, calls, marriage banns. No key, no auth, no browser.
+Six commands over the [Albo Pretorio of the Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp), the register where the city publishes its acts with legal effect: deliberations, executive decisions, ordinances, notices, calls, marriage banns. No key, no auth, no browser.
 
 The portal is a server-rendered JSP application by SISPI. Its "your browser does not support JavaScript" banner is cosmetic: the data is in the HTML. What the portal lacks is a stable handle in its lists. A row links to `row=N` of the current session, and the permanent link of an act, the one the "Copia" button copies, appears only on its detail page. So every row these commands return comes from the detail page, and carries that permanent link.
 
 ```bash
 opencli plugin install github:aborruso/opencli/albo-palermo   # from the published repo
 opencli plugin install "file://$PWD"                          # from a local clone
-opencli validate albo-palermo      # expected: PASS, 5 commands
+opencli validate albo-palermo      # expected: PASS, 6 commands
 ```
 
 | Command | What it does | Browser |
@@ -17,6 +17,7 @@ opencli validate albo-palermo      # expected: PASS, 5 commands
 | `search <type>` | the portal's filter: `--text` in the subject, `--year` and `--number` of protocol, `--sector` | no |
 | `get <permalink>` | one act, from its permanent link or from `ALBCOD` plus `--type` | no |
 | `dump [types]` | every type, or a comma-separated list of TD codes and type names, as JSON Lines on stdout | no |
+| `attachments <permalink>` | downloads the attachments of one act into `./albo-<TD>-<number>/`, or `--dir`, with the act itself as `act.json` (the row of `get`) and `act.html` (the page, its attachment links pointing at the local files); files already there are skipped | no |
 
 A document type is given by its exact name, case-insensitive (`"Avviso Pubblico"`), or by its TD code (`1041037357`). The codes are the portal's internal ones: `2024` is Delibera Di Giunta Comunale, not a year. Two names belong to two types each, Decreto Prefettizio and Rilascio Immobile, and for those the command refuses the name and lists both codes.
 
@@ -59,6 +60,7 @@ opencli albo-palermo list "Delibera Di Giunta Comunale" -f table
 opencli albo-palermo search "Delibera Di Giunta Comunale" --text "variazione peg"
 opencli albo-palermo search "Delibera Di Giunta Comunale" --sector segreteria --pages 1
 opencli albo-palermo get "https://albopretorio.comune.palermo.it/albopretorio/pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&TD=2024&ALBCOD=6271636078667F75657B&sportello=albopretorio"
+opencli albo-palermo attachments "https://albopretorio.comune.palermo.it/albopretorio/pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&TD=2022&ALBCOD=62716360706B70756474&sportello=albopretorio"   # 25 PDFs, act.html and act.json into ./albo-2022-548/
 opencli albo-palermo dump > albo-$(date +%F).jsonl              # every type, about 4 minutes
 opencli albo-palermo dump "Avviso Pubblico,Delibera Di Giunta Comunale,Determinazioni Dirigenziali" > watch.jsonl
 ```
@@ -84,6 +86,6 @@ curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data
 - **A search with one match skips the list** and opens the act directly, and so does a document type with one act in publication. `list`, `search` and `dump` handle both shapes.
 - **`--year` and `--sector` accept only what the filter form offers** for that type, which means the years and sectors that have acts in publication. A wrong value gets the list of valid ones back. `--sector` takes a code or a piece of the name that picks one sector.
 - **`ALBCOD` is the internal id `ALB_COD`, XORed with the fixed key `SISPISICUL` and hex-encoded.** `1800156607` ↔ `6271636078667F75657B`. The ids are dense, so a mistyped `ALBCOD` can open a different act rather than none: prefer the whole permanent link.
-- **Attachments have no permanent link.** On the portal they are `viewDocument?col=ALLEGATI&idx=i`, an index into the session. So a row lists their size and signature, not a URL. There is no download command.
+- **Attachments have no permanent link.** On the portal they are `/albopretorio/viewDocument?col=ALLEGATI&idx=i`, an index into the detail page last opened in the session. So a row lists their size and signature, not a URL, and `attachments` opens the act and downloads them on the same session, one at a time. Without that session the portal answers HTTP 200 with an HTML page, "Sessione scaduta": a 200 is not a file, and the command checks the content type. The file name comes from `content-disposition`, so to skip a file already on disk the command reads the headers and drops the body.
 - **The portal rate-limits bursts with HTTP 429**, with no `Retry-After`. It happened on 2026-09-22 after about a dozen requests in parallel. The adapter keeps at most two requests in flight, and on a 429 it waits 3, 10 and 30 s before giving up with a clear message. The limit is per address, so it also blocks the portal in your own browser for a while.
 - **`dump` prints its own JSON Lines.** OpenCLI's `-f` has no JSON Lines format, so `dump` writes one line per act as each type finishes, and returns nothing to the renderer. `-f` does not apply to it.

@@ -74,7 +74,8 @@ export class Session {
         this.jar = new Map();
     }
 
-    async request(url, form, attempt = 0) {
+    /** The response of one request, after cookies, redirects and 429 retries. */
+    async send(url, form, attempt = 0) {
         const headers = { 'User-Agent': UA, Accept: 'text/html,*/*;q=0.8' };
         if (this.jar.size) headers.Cookie = [...this.jar].map(([k, v]) => `${k}=${v}`).join('; ');
         const init = { headers, redirect: 'manual', signal: AbortSignal.timeout(TIMEOUT_MS) };
@@ -96,18 +97,22 @@ export class Session {
         }
         // Follow redirects by hand, so the cookies they set are kept.
         const location = resp.headers.get('location');
-        if (resp.status >= 300 && resp.status < 400 && location) return this.request(new URL(location, url).href);
+        if (resp.status >= 300 && resp.status < 400 && location) return this.send(new URL(location, url).href);
         // The portal rate-limits bursts with 429 and sends no Retry-After.
         // Wait and retry a few times, then say so plainly.
         if (resp.status === 429) {
             if (attempt < RETRY_WAIT_MS.length) {
                 await new Promise((r) => setTimeout(r, RETRY_WAIT_MS[attempt]));
-                return this.request(url, form, attempt + 1);
+                return this.send(url, form, attempt + 1);
             }
             throw new CommandExecutionError('albo-palermo: the portal is rate-limiting this address (HTTP 429). Wait a minute and retry');
         }
         if (!resp.ok) throw new CommandExecutionError(`albo-palermo request failed: HTTP ${resp.status} for ${url}`);
-        const html = await resp.text();
+        return resp;
+    }
+
+    async request(url, form) {
+        const html = await (await this.send(url, form)).text();
         // The application answers 200 with this page when a request does not
         // fit the session state, e.g. a row index that is not on the current page.
         if (/Servizio temporaneamente non disponibile/.test(html)) {
@@ -186,6 +191,32 @@ function field(html, name) {
     return m ? text(m[1]) : '';
 }
 
+/**
+ * The attachments of a detail page: `viewDocument?col=ALLEGATI&idx=N` is an
+ * index into the detail last opened in the session, not a permanent URL.
+ */
+export function attachmentLinks(html) {
+    return [...html.matchAll(/viewDocument\?col=ALLEGATI&(?:amp;)?idx=(\d+)[^>]*>\s*<img src='[^']*\/([a-z_]+)\.gif'[\s\S]*?Kb&nbsp;([\d.,]+)\)<\/a>/g)]
+        .map((m) => ({ idx: Number(m[1]), kb: m[3], signed: m[2].endsWith('_signed') }));
+}
+
+/** The URL of one act, from its permanent link or from a bare ALBCOD plus a document type. */
+export async function actUrl(act, type) {
+    const s = String(act ?? '').trim();
+    if (/^https?:\/\//.test(s)) {
+        const u = new URL(s);
+        if (!u.searchParams.get('ALBCOD') || !u.searchParams.get('TD')) {
+            throw new ArgumentError('this is not a permanent link of the Albo Pretorio: it needs TD and ALBCOD');
+        }
+        return s;
+    }
+    if (/^[0-9A-F]+$/i.test(s) && s.length % 2 === 0) {
+        if (!type) throw new ArgumentError('a bare ALBCOD needs --type <TD>: the permanent link is built from both');
+        return permalink((await resolveType(type)).td, s.toUpperCase());
+    }
+    throw new ArgumentError(`"${s}" is neither a permanent link nor an ALBCOD (hex)`);
+}
+
 /** Everything the detail page says about one act, shaped as an output row. */
 export function parseDetail(html) {
     const subject = /id='ALB_DESOGGETTO'[^>]*>([\s\S]*?)<\/textarea>/.exec(html);
@@ -194,8 +225,7 @@ export function parseDetail(html) {
     const albcod = link ? link[1] : encodeAlbcod(field(html, 'ALB_COD'));
     // Attachments have no permanent link, only an index into the session, so
     // a row lists their size and whether the file is digitally signed.
-    const attachments = [...html.matchAll(/viewDocument\?col=ALLEGATI&(?:amp;)?idx=\d+[^>]*>\s*<img src='[^']*\/([a-z_]+)\.gif'[\s\S]*?Kb&nbsp;([\d.,]+)\)<\/a>/g)]
-        .map((m) => `${m[2]} KB${m[1].endsWith('_signed') ? ' signed' : ''}`);
+    const attachments = attachmentLinks(html).map((a) => `${a.kb} KB${a.signed ? ' signed' : ''}`);
     return {
         type: pageTitle(html),
         number: field(html, 'ALB_NUMPROT'),
