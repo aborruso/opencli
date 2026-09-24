@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- **Userscript 0.2.1**: attachment links get `target="_blank"`, so a PDF opens in a new tab and the act page is not lost (asked by a reader of the Albo).
 - **Seventh site: `palermo-delibere`** (`plugins/palermo-delibere/`, commands `sections`, `list`, `search`, `get`, `attachments`, `dump`, `from-albo`), over "Delibere e Ordinanze" of the Comune di Palermo's online services portal. Same SISPI application and same records as the Albo Pretorio (same `ALB_COD` and `ALBCOD`), but acts stay after publication: the permanent archive, back to 2018 for DDI. Eight sections, each its own table; five open on a list, DDI, ODT and DCCIR on the filter form. The filter refuses broad queries (DDI 2026: 12,493 acts); one protocol date passes.
 - **Daily archive** (`.github/workflows/palermo-delibere-daily.yml`, 03:00 UTC = 05:00 Rome in summer, yesterday's date, Andrea's choices): at most 2 pages per section, by the section's rule (list; DCCIR by year, no date field; DDI and ODT by date), no history, no look-back. Release `palermo-delibere-data`.
 - **The portal's own "Copia" link is broken on ODT** (DDI table, empty TD: "Nessun record presente") **and on six DCO acts of 2024-12-30** (base URL only). Every permalink is built from `ALB_COD` with the section's code and table; `get` on one act per section opens the same number.

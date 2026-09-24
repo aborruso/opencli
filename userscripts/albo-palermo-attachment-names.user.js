@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Albo Pretorio Palermo - attachment names
 // @namespace    https://github.com/aborruso/opencli
-// @version      0.2.0
+// @version      0.2.1
 // @description  Shows the real file name of each attachment on the act pages of the Comune di Palermo (Albo Pretorio, and the deliberations and ordinances archive of the online services portal), instead of "(Acrobat Kb ...)"
 // @match        https://albopretorio.comune.palermo.it/albopretorio/*
 // @match        https://servizionline.comune.palermo.it/portcitt/*
@@ -22,6 +22,8 @@
     const box = links[0]?.closest('.container-field');
     if (box) box.style.width = 'auto';
     for (const a of links) {
+        // Open the attachment in a new tab: the act page is hard to find again.
+        a.target = '_blank';
         let resp;
         try {
             resp = await fetch(a.href, { method: 'HEAD', credentials: 'same-origin' });
