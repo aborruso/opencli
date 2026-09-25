@@ -33,7 +33,21 @@ The sections:
 | `DDI` | Determinazioni e Ordinanze Dirigenziali | the filter: protocol date |
 | `ODT` | Determinazioni e Ordinanze Dirigenziali Ufficio Traffico | the filter: protocol date |
 
-Every row has the same columns: `section`, `type`, `number`, `date` (of protocol), `subject`, `sector`, `published_to` (end of the publication on the Albo), `attachments` (size, and whether the file is digitally signed), `permalink`. `type` is the portal's own label where the detail has one (OS, DDI, ODT), else the section's name. `sector` is filled on DDI only, the one section whose detail names it. Dates are ISO.
+## Data schema
+
+One row per act, the same for `list`, `search`, `get`, `from-albo` and `dump`. Every value is a string; dates are ISO (`YYYY-MM-DD`). The portal's field is the `id` of the input on the detail page. The Albo Pretorio adapter gives the same record with two more fields, `category` and `published_from`, which this portal does not show.
+
+| Field | Portal field | Meaning |
+|---|---|---|
+| `section` | `TD` in the URL | The section's code, one of the eight above, e.g. `DGC`, `DDI` |
+| `type` | `TAT_COD_DECODIFICATO`, "Tipo atto" | The portal's own label where the detail has one (OS, DDI and ODT: `Ordinanze Sindacali`, `Determinazioni Sindacali`, `Determinazioni Dirigenziali`, `Ordinanze Dirigenziale`), else the section's name |
+| `number` | `ALB_NUMPROT`, "N. Protocollo" | Protocol number. It restarts every year and is only unique within a section and a year |
+| `date` | `ALB_DATPROT`, "Data Protocollo" | Date of protocol, not of the act's adoption: a deliberation "del 15.09.2026" protocolled on the 24th has `2026-09-24` |
+| `subject` | `ALB_DESOGGETTO`, "Oggetto" | Subject, as typed by the office, hyphenated line breaks included |
+| `sector` | `SET_COD_DECODIFICATO`, "Settore" | The office that issued the act, e.g. `AREA SUAP, SVILUPPO ECONOMICO, MERCATI E LAVORO`. Filled on DDI only, the one section whose detail names it; empty elsewhere |
+| `published_to` | `ALB_DATFINPUB`, "Data Fine Pubblicazione" | Last day of the publication on the Albo Pretorio. The act stays here after it |
+| `attachments` | the attachment links | One entry per attachment, `; `-separated: its size as the portal prints it (`151.58 KB`) plus `signed` when the file is digitally signed. No names and no URLs: see the traps below. Empty means no attachment |
+| `permalink` | built from `ALB_COD` | The permanent link of the act, stable over time; the key of the daily archive |
 
 ## Examples
 

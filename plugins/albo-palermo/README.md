@@ -23,6 +23,24 @@ A document type is given by its exact name, case-insensitive (`"Avviso Pubblico"
 
 Every row has the same columns: `type`, `number`, `date` (of protocol), `subject`, `sector`, `published_from`, `published_to`, `attachments` (size, and whether the file is digitally signed), `permalink`. `dump` adds `category` and `td` in front. Dates are ISO.
 
+## Data schema
+
+One row per act, the same for `list`, `search`, `get` and `dump`. Every value is a string; dates are ISO (`YYYY-MM-DD`). The portal's field is the `id` of the input on the detail page.
+
+| Field | Portal field | Meaning |
+|---|---|---|
+| `category` | index page | The register's group of document types, e.g. `DELIBERE`, `DETERMINAZIONI DIRIGENZIALI`, `PUBBLICAZIONI DI MATRIMONIO`. `dump` only |
+| `td` | `TD` in the URL | The document type's code, e.g. `2024` for Delibera Di Giunta Comunale; the argument of `list`, `search` and `dump`. `dump` only |
+| `type` | page title | The document type's name, e.g. `Determinazioni Dirigenziali`, `Avviso Pubblico` |
+| `number` | `ALB_NUMPROT`, "N. Protocollo" | Protocol number. It restarts every year and is only unique within a type and a year |
+| `date` | `ALB_DATPROT`, "Data Protocollo" | Date of protocol, not of the act's adoption |
+| `subject` | `ALB_DESOGGETTO`, "Oggetto" | Subject, as typed by the office, hyphenated line breaks included |
+| `sector` | `SET_COD_DECODIFICATO`, "Settore" | The office that issued the act, e.g. `AREA SERVIZI DEMOGRAFICI E DECENTRAMENTO`; empty where the detail has none |
+| `published_from` | `ALB_DATINIPUB`, "Data inizio pubblicazione" | First day on the Albo; same as `date` or a few days later |
+| `published_to` | `ALB_DATFINPUB`, "Data fine pubblicazione" | Last day on the Albo; after it the act drops out of the register |
+| `attachments` | the attachment links | One entry per attachment, `; `-separated: its size as the portal prints it (`296,26 KB`, Italian decimal comma) plus `signed` when the file is digitally signed. No names and no URLs: see the traps below. Empty means no attachment |
+| `permalink` | built from `ALB_COD` | The permanent link of the act, valid while it is in publication; the key of the nightly archive |
+
 ## Examples
 
 ```console

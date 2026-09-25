@@ -2,6 +2,7 @@
 
 ## 2026-09-25
 
+- **`## Data schema` in both plugin READMEs** (asked by a reader on Telegram): field, portal field with its label on the detail page, meaning. Labels checked live. The DDI detail also carries `ALB_NUMPROTESTERNO` "N. Determina" and `ALB_DATPROTESTERNO` "Data Determina", the number and date of the act itself, which the adapters do not read.
 - **No scheduled run in the night of 24→25**: neither workflow started, nothing queued, both `active`, Actions operational. GitHub delays or drops scheduled runs in busy slots, and the nightly of 24/09 was already 14 min late. Cron moved off the full hour: delibere daily `23 3`, albo nightly `41 3` (UTC). Both launched by hand for today.
 
 ## 2026-09-24
