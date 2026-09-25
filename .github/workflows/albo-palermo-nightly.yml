@@ -10,7 +10,9 @@ name: albo-palermo nightly
 
 on:
   schedule:
-    - cron: '17 3 * * *'
+    # Off the full hour and apart from the delibere daily: GitHub delays or
+    # drops scheduled runs in busy slots.
+    - cron: '41 3 * * *'
   workflow_dispatch:
 
 permissions:

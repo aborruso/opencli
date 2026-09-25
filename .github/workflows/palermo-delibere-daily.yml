@@ -15,8 +15,9 @@ name: palermo-delibere daily
 
 on:
   schedule:
-    # 05:00 in Rome in summer, 04:00 in winter.
-    - cron: '0 3 * * *'
+    # 05:23 in Rome in summer, 04:23 in winter. Off the full hour: GitHub
+    # delays or drops scheduled runs in busy slots, and 03:00 UTC is one.
+    - cron: '23 3 * * *'
   workflow_dispatch:
     inputs:
       date:
