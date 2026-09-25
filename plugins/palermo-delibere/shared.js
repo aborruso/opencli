@@ -183,7 +183,7 @@ export function attachmentLinks(html) {
         .map((m) => ({ idx: Number(m[1]), kb: m[3], signed: m[2].endsWith('_signed') }));
 }
 
-export const COLUMNS = ['section', 'type', 'number', 'date', 'subject', 'sector', 'published_to', 'attachments', 'permalink'];
+export const COLUMNS = ['section', 'type', 'number', 'date', 'act_number', 'act_date', 'subject', 'sector', 'published_to', 'attachments', 'permalink'];
 
 /**
  * One act as an output row. Every row has the same columns, empty where a
@@ -204,6 +204,10 @@ export function parseDetail(html, s) {
         type: field(html, 'TAT_COD_DECODIFICATO') || s.name,
         number: field(html, 'ALB_NUMPROT'),
         date: isoDate(field(html, 'ALB_DATPROT')),
+        // The act's own number and date, "N. Determina" and "Data Determina":
+        // only DDI and ODT show them, the others stay empty.
+        act_number: field(html, 'ALB_NUMPROTESTERNO'),
+        act_date: isoDate(field(html, 'ALB_DATPROTESTERNO')),
         subject: subject ? text(subject[1]) : '',
         sector: field(html, 'SET_COD_DECODIFICATO'),
         published_to: isoDate(field(html, 'ALB_DATFINPUB')),

@@ -43,6 +43,8 @@ One row per act, the same for `list`, `search`, `get`, `from-albo` and `dump`. E
 | `type` | `TAT_COD_DECODIFICATO`, "Tipo atto" | The portal's own label where the detail has one (OS, DDI and ODT: `Ordinanze Sindacali`, `Determinazioni Sindacali`, `Determinazioni Dirigenziali`, `Ordinanze Dirigenziale`), else the section's name |
 | `number` | `ALB_NUMPROT`, "N. Protocollo" | Protocol number. It restarts every year and is only unique within a section and a year |
 | `date` | `ALB_DATPROT`, "Data Protocollo" | Date of protocol, not of the act's adoption: a deliberation "del 15.09.2026" protocolled on the 24th has `2026-09-24` |
+| `act_number` | `ALB_NUMPROTESTERNO`, "N. Determina" | The act's own number, as given by the office. DDI and ODT only; empty elsewhere |
+| `act_date` | `ALB_DATPROTESTERNO`, "Data Determina" | The act's own date, the day it was signed. DDI and ODT only; empty elsewhere |
 | `subject` | `ALB_DESOGGETTO`, "Oggetto" | Subject, as typed by the office, hyphenated line breaks included |
 | `sector` | `SET_COD_DECODIFICATO`, "Settore" | The office that issued the act, e.g. `AREA SUAP, SVILUPPO ECONOMICO, MERCATI E LAVORO`. Filled on DDI only, the one section whose detail names it; empty elsewhere |
 | `published_to` | `ALB_DATFINPUB`, "Data Fine Pubblicazione" | Last day of the publication on the Albo Pretorio. The act stays here after it |
@@ -63,7 +65,7 @@ opencli palermo-delibere dump --date 2026-09-22 > delibere.jsonl         # 8 sec
 opencli palermo-delibere from-albo "https://albopretorio.comune.palermo.it/albopretorio/pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&TD=2024&ALBCOD=6271636279617070677D&sportello=albopretorio"
 ```
 
-A daily archive is published as a release asset, rebuilt every morning by `.github/workflows/palermo-delibere-daily.yml`: `dump` for the previous day appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each day, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the nine above, all strings, or if the archive would have fewer rows than the day before (`bin/jsonl-merge.sh`).
+A daily archive is published as a release asset, rebuilt every morning by `.github/workflows/palermo-delibere-daily.yml`: `dump` for the previous day appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each day, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the day before (`bin/jsonl-merge.sh`).
 
 ```bash
 curl -sL https://github.com/aborruso/opencli/releases/download/palermo-delibere-data/palermo-delibere.jsonl | head -1 | jq .
@@ -79,7 +81,7 @@ curl -sL https://github.com/aborruso/opencli/releases/download/palermo-delibere-
 - **`ALBCOD` is the internal id `ALB_COD`, XORed with the key `SISPISICUL` and hex-encoded**, as on the Albo: `627E6A627A607C716675` ↔ `1792335239`, which is also the prefix of that act's attachment names.
 - **The Albo and this archive share their records.** The same `ALBCOD` opens the act here once the link names the right section: Albo TD 2024 → DGC, 2022 → DCC, 1037940907 → DCCIR, 2010 → DDI, 2001 and 2011 → OS, 2012 → ODT. An Ordinanza Dirigenziale of an office other than traffic may be in DDI, so `from-albo` tries both. The other Albo types (notices, calls, marriage banns, building permits, convocations and so on) are not archived here.
 - **The text search is literal.** `--text` matches the subject as it was typed, and subjects break words with hyphens: the adoption of the barrier-removal plan (DGC 272 of 2026) reads "ARCHI-TETTONICHE", so "barriere architettoniche" misses it.
-- **`date` is the date of protocol, not of the act.** A district council deliberation "del 15.09.2026" was protocolled on 24/09, and that is its `date`.
+- **`date` is the date of protocol, not of the act.** A district council deliberation "del 15.09.2026" was protocolled on 24/09, and that is its `date`. Only DDI and ODT also give the act's own number and date, in `act_number` and `act_date`.
 - **Numbers restart every year.** A number alone does not name an act: pair `search --number` with `--year`. `attachments` puts the year in the folder name.
 - **The subject is a `<div>` here, a `<textarea>` on the Albo.** Same application, different template.
 - **Attachments have no permanent link.** As on the Albo, `viewDocument?col=ALLEGATI&idx=i` is an index into the detail last opened in the session; `attachments` opens the act and downloads on the same session. The file name is in `content-disposition`; the [userscript](../../userscripts/) shows it on the page.

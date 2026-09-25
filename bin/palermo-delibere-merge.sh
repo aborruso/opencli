@@ -4,5 +4,5 @@
 #
 # Usage: palermo-delibere-merge.sh <previous.jsonl or ""> <today.jsonl> <merged.jsonl>
 exec "$(dirname "$0")/jsonl-merge.sh" palermo-delibere \
-    '["section","type","number","date","subject","sector","published_to","attachments","permalink"]' \
+    '["section","type","number","date","act_number","act_date","subject","sector","published_to","attachments","permalink"]' \
     "${1:-}" "$2" "$3"

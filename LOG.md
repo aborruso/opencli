@@ -2,6 +2,7 @@
 
 ## 2026-09-25
 
+- **`act_number` and `act_date` in `palermo-delibere`** ("N. Determina", "Data Determina"): the act's own number and date, on DDI and ODT only, empty elsewhere; the Albo shows them on no type. Merge keys updated. Archive migrated once: the 67 DDI and ODT rows re-read with `get`, the other 120 given empty fields; no other field changed. On all 67 they equal the protocol number and date.
 - **`## Data schema` in both plugin READMEs** (asked by a reader on Telegram): field, portal field with its label on the detail page, meaning. Labels checked live. The DDI detail also carries `ALB_NUMPROTESTERNO` "N. Determina" and `ALB_DATPROTESTERNO` "Data Determina", the number and date of the act itself, which the adapters do not read.
 - **No scheduled run in the night of 24→25**: neither workflow started, nothing queued, both `active`, Actions operational. GitHub delays or drops scheduled runs in busy slots, and the nightly of 24/09 was already 14 min late. Cron moved off the full hour: delibere daily `23 3`, albo nightly `41 3` (UTC). Both launched by hand for today.
 
