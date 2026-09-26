@@ -47,7 +47,16 @@ def open_index(path):
         model TEXT NOT NULL,
         dims INTEGER NOT NULL,
         vec BLOB NOT NULL)""")
+    # The keyword side of the hybrid search: FTS5 over the same text, BM25
+    # built in. No Italian stemmer in FTS5, so the query side uses prefixes.
+    db.execute("CREATE VIRTUAL TABLE IF NOT EXISTS acts_fts USING fts5(permalink UNINDEXED, text, tokenize='unicode61 remove_diacritics 2')")
     return db
+
+
+def refresh_fts(db):
+    db.execute('DELETE FROM acts_fts')
+    db.execute('INSERT INTO acts_fts (permalink, text) SELECT permalink, text FROM acts')
+    db.commit()
 
 
 def main():
@@ -70,6 +79,8 @@ def main():
             [tuple(str(r.get(c, '') or '') for c in ['permalink'] + [c for c in COLUMNS if c != 'permalink'])
              + (act_text(r), MODEL, len(v), struct.pack(f'{len(v)}f', *v)) for r, v in zip(chunk, vecs)])
         db.commit()
+    if todo or db.execute('SELECT count(*) FROM acts_fts').fetchone()[0] != db.execute('SELECT count(*) FROM acts').fetchone()[0]:
+        refresh_fts(db)
     total = db.execute('SELECT count(*) FROM acts').fetchone()[0]
     print(f'albo-palermo-index: {len(rows)} acts in the archive, {len(todo)} embedded ({tokens} tokens, ${cost:.5f}), {total} in the index', file=sys.stderr)
 

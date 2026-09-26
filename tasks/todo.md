@@ -455,4 +455,4 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 
 ## Unresolved questions
 - whether to add the deliberations archive to the same index once it holds a few weeks
-- whether to fuse a keyword rank (FTS5) with the vector rank for numbers and sigle
+- [x] keyword rank (FTS5/BM25) fused with the vector rank by RRF, `--mode`; done 2026-09-26

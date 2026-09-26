@@ -17,7 +17,7 @@ opencli validate albo-palermo      # expected: PASS, 6 commands
 | `search <type>` | the portal's filter: `--text` in the subject, `--year` and `--number` of protocol, `--sector` | no |
 | `get <permalink>` | one act, from its permanent link or from `ALBCOD` plus `--type` | no |
 | `dump [types]` | every type, or a comma-separated list of TD codes and type names, as JSON Lines on stdout | no |
-| `similar <question>` | the acts of the nightly archive closest in meaning to a question in plain words (`--limit`, `--type`); needs `OPENROUTER_API_KEY` | no |
+| `similar <question>` | the acts of the nightly archive closest to a question in plain words: vector similarity and BM25 fused (`--mode hybrid|vector|keyword`, `--limit`, `--type`); needs `OPENROUTER_API_KEY` except in keyword mode | no |
 | `attachments <permalink>` | downloads the attachments of one act into `./albo-<TD>-<number>/`, or `--dir`, with the act itself as `act.json` (the row of `get`) and `act.html` (the page, its attachment links pointing at the local files); files already there are skipped | no |
 
 A document type is given by its exact name, case-insensitive (`"Avviso Pubblico"`), or by its TD code (`1041037357`). The codes are the portal's internal ones: `2024` is Delibera Di Giunta Comunale, not a year. Two names belong to two types each, Decreto Prefettizio and Rilascio Immobile, and for those the command refuses the name and lists both codes.
@@ -99,16 +99,19 @@ curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data
 
 ### Semantic index
 
-Next to the archive, the release carries `albo-palermo.sqlite`: one row per act with the archive columns and a vector of the text "Tipo di atto: … Ufficio: … Oggetto: …", from `openai/text-embedding-3-small` through OpenRouter. The nightly job embeds only the acts that are new or whose text changed (`bin/albo-palermo-index.py`), so an act costs a fraction of a cent once. To ask the index a question in plain words:
+Next to the archive, the release carries `albo-palermo.sqlite`: one row per act with the archive columns, the text "Tipo di atto: … Ufficio: … Oggetto: …", its vector from `openai/text-embedding-3-small` through OpenRouter, and an FTS5 table over the same text. The nightly job embeds only the acts that are new or whose text changed (`bin/albo-palermo-index.py`), so an act costs a fraction of a cent once; the FTS5 table is rebuilt from the rows. To ask the index a question in plain words:
 
 ```bash
 export OPENROUTER_API_KEY=…
 opencli albo-palermo similar "aree bruciate dagli incendi" --limit 5
 opencli albo-palermo similar "chiusura di strade per lavori" --type "Ordinanze Sindacali" -f json
-bin/albo-palermo-similar.py albo-palermo.sqlite "aree bruciate dagli incendi"   # the same, on a local copy of the index
+opencli albo-palermo similar "O.D. 1675" --mode keyword          # words only, no call outside
+bin/albo-palermo-similar.py albo-palermo.sqlite "aree bruciate"   # the vector side alone, on a local copy
 ```
 
-`similar` downloads the index from the release into `~/.cache/opencli-albo-palermo/` and keeps it for 12 hours (`--index` points to another file). The question is the only thing sent out, to OpenRouter, for its vector; the ranking is a cosine over every act, computed locally, and the footer says how many acts the index holds and what the question cost (a few millionths of a dollar). Measured on 367 acts (2026-09-26): "aree bruciate dagli incendi" gives first the council deliberation on the register of land burnt in 2025, "concorsi per assumere personale" the two competition notices, "auto abbandonate" the vehicle deposit notices. Scores sit between 0.35 and 0.6; a number, an acronym or a street name is still better served by `search`.
+`similar` downloads the index from the release into `~/.cache/opencli-albo-palermo/` and keeps it for 12 hours (`--index` points to another file). Two rankings, fused by reciprocal rank (1/(60+rank), summed): the cosine between the question's vector and every act's, and BM25 over the words of the question, each as a prefix (`rifiut*`: FTS5 has no Italian stemmer), function words dropped. `vector_rank` and `keyword_rank` say where each act stood in the two lists, and an empty one means that list did not have it. The question is the only thing sent out, to OpenRouter, for its vector; `--mode keyword` sends nothing. The footer says how many acts the index holds, how many match the words and what the question cost (a few millionths of a dollar).
+
+What the two sides are for, measured on 387 acts (2026-09-26): the vector finds "aree bruciate dagli incendi" in the council deliberation on the register of land burnt in 2025, whose subject shares no word with the question; the words find "O.D. 1675" or a street name exactly, where the vector is blind, and say when nothing matches. When neither side has a real answer, as for "raccolta differenziata dei rifiuti" on an archive without any act on waste, the top results are still printed: read the two ranks and the footer's match count.
 
 ## Traps of this source
 
