@@ -306,7 +306,7 @@ Goal: a GitHub Actions workflow that every night runs `opencli albo-palermo dump
 - [x] Workflow with `workflow_dispatch` only, running `dump "Avviso Pubblico"` → verify: the portal answers from a GitHub (US, Azure) IP, no 429, no geo-block; the opencli daemon starts on the runner.
 
 ### Phase 2 — the workflow
-- [x] `.github/workflows/albo-palermo-nightly.yml`: cron nightly + `workflow_dispatch`, `permissions: contents: write`, `concurrency` so two runs never overlap → verify: first manual run creates the release and the asset.
+- [x] `.github/workflows/albo-palermo-archive.yml`: cron nightly + `workflow_dispatch`, `permissions: contents: write`, `concurrency` so two runs never overlap → verify: first manual run creates the release and the asset.
 - [x] Checks as a small shell/jq script in the workflow → verify: second manual run keeps row count >= first; a local test with a truncated previous archive, an empty dump and a row with a renamed key each make the check fail.
 
 ### Phase 3 — docs

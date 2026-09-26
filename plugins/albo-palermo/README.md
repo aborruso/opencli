@@ -90,7 +90,7 @@ opencli albo-palermo dump > today.jsonl
 jq -c --slurpfile y yesterday.jsonl '($y | map(.permalink)) as $old | select(.permalink as $p | $old | index($p) | not)' today.jsonl
 ```
 
-A nightly archive is published as a release asset, rebuilt every night by `.github/workflows/albo-palermo-nightly.yml`: tonight's `dump` appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each night, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the night before (`bin/albo-palermo-merge.sh`). It holds at most the 20 newest acts per type per night, so a type that publishes more in a day has gaps.
+A nightly archive is published as a release asset, rebuilt every night by `.github/workflows/albo-palermo-archive.yml`: tonight's `dump` appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each night, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the night before (`bin/albo-palermo-merge.sh`). It holds at most the 20 newest acts per type per night, so a type that publishes more in a day has gaps.
 
 ```bash
 curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data/albo-palermo.jsonl | head -1 | jq .

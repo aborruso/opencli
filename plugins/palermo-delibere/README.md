@@ -65,7 +65,7 @@ opencli palermo-delibere dump --date 2026-09-22 > delibere.jsonl         # 8 sec
 opencli palermo-delibere from-albo "https://albopretorio.comune.palermo.it/albopretorio/pu/push-tabella-delibere.do?nomeTabella=FO_SCEDELIBEREAP&TD=2024&ALBCOD=6271636279617070677D&sportello=albopretorio"
 ```
 
-A daily archive is published as a release asset, rebuilt every morning by `.github/workflows/palermo-delibere-daily.yml`: `dump` for the previous day appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each day, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the day before (`bin/jsonl-merge.sh`).
+A daily archive is published as a release asset, rebuilt every morning by `.github/workflows/palermo-delibere-archive.yml`: `dump` for the previous day appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each day, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the day before (`bin/jsonl-merge.sh`).
 
 ```bash
 curl -sL https://github.com/aborruso/opencli/releases/download/palermo-delibere-data/palermo-delibere.jsonl | head -1 | jq .
