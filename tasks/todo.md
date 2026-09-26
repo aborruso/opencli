@@ -424,3 +424,7 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 - Name: `palermo-delibere`.
 - Daily run at 05:00 Rome (cron `0 3 * * *` UTC: 05:00 in summer, 04:00 in winter), reading yesterday's protocol date for DDI (Andrea's second proposal, replacing 23:00 on today's date).
 - No history, no look-back: 2 pages per section per run.
+
+### Phase 4 — pages per section (2026-09-26) — DONE
+- Measured acts per day from the list pages, 27/08→26/09, no detail opened (`tmp/measure/measure.mjs`): DDI up to 98 a day, over 20 on 22 of 30 days; DCC 83 on one council day; ODT 34; DCCIR 28; the rest under 20. Albo: only 2010 and 2012 exceed 20 a day, and they are DDI and ODT here.
+- [x] `SECTIONS[].dailyPages`: DGC 2, DCC 3 (Andrea's choice over a by-date rule), DCCIR 3, DCS 2, OS 2, DCO 2, DDI all pages of the day (up to 25), ODT 4. `dump --pages` overrides for every section. → verify: `dump DDI,DCC,ODT --date 2026-09-25` gives DDI 63 of 63, DCC 30, in 52 s; `validate` and `convention-audit` pass.

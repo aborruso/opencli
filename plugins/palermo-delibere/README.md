@@ -17,21 +17,23 @@ opencli validate palermo-delibere      # expected: PASS, 7 commands
 | `search <section>` | the portal's filter: `--text` in the subject, `--year`, `--number`, `--date`, `--sector`, as far as the section's form offers them | no |
 | `get <permalink>` | one act, from its permanent link or from `ALBCOD` plus `--section` | no |
 | `attachments <permalink>` | downloads the attachments of one act into `./<section>-<year>-<number>/`, or `--dir`, with `act.json` and `act.html`; files already there are skipped | no |
-| `dump [sections]` | the acts each section gives for one day (`--date`, default yesterday in Rome), as JSON Lines on stdout | no |
+| `dump [sections]` | the acts each section gives for one day (`--date`, default yesterday in Rome), as JSON Lines on stdout; pages per section sized on the day's volume, `--pages` overrides | no |
 | `from-albo <albo link>` | the same act in this archive, from a permanent link of the Albo Pretorio | no |
 
 The sections:
 
-| Code | Section | Reached through |
-|---|---|---|
-| `DGC` | Delibere di Giunta Comunale | its list |
-| `DCC` | Delibere di Consiglio Comunale | its list |
-| `DCCIR` | Delibere di Consiglio di Circoscrizione | the filter: year (its form has no date) |
-| `DCS` | Delibere del Comitato dei Sindaci | its list |
-| `OS` | Determinazioni e Ordinanze Sindacali | its list |
-| `DCO` | Determinazioni e Ordinanze Commissariali | its list |
-| `DDI` | Determinazioni e Ordinanze Dirigenziali | the filter: protocol date |
-| `ODT` | Determinazioni e Ordinanze Dirigenziali Ufficio Traffico | the filter: protocol date |
+| Code | Section | Reached through | Pages `dump` reads |
+|---|---|---|---|
+| `DGC` | Delibere di Giunta Comunale | its list | 2 |
+| `DCC` | Delibere di Consiglio Comunale | its list | 3 |
+| `DCCIR` | Delibere di Consiglio di Circoscrizione | the filter: year (its form has no date) | 3 |
+| `DCS` | Delibere del Comitato dei Sindaci | its list | 2 |
+| `OS` | Determinazioni e Ordinanze Sindacali | its list | 2 |
+| `DCO` | Determinazioni e Ordinanze Commissariali | its list | 2 |
+| `DDI` | Determinazioni e Ordinanze Dirigenziali | the filter: protocol date | all of the day, up to 25 |
+| `ODT` | Determinazioni e Ordinanze Dirigenziali Ufficio Traffico | the filter: protocol date | 4 |
+
+The pages come from a measurement of 27/08-26/09/2026 on the list pages, which carry the protocol date of every row, so no act had to be opened: DDI brought up to 98 acts a day and more than 20 on 22 days of 30; DCC 83 on one council day (01/09) and under 10 otherwise; ODT up to 34; DCCIR up to 28; every other section under 20. The only day the pages above would not cover is a council session like that one.
 
 ## Data schema
 
@@ -76,7 +78,7 @@ curl -sL https://github.com/aborruso/opencli/releases/download/palermo-delibere-
 - **The filter refuses broad queries.** "I criteri di filtro impostati corrispondono ad un numero eccessivo di elementi: 12.493" is what the year 2026 alone gets on DDI. A single protocol date passes (22/09/2026: 28 acts). The same filter accepts a year of DCCIR (1,248 acts in 2026) or of ODT (2,627 in 2025). `search` passes the refusal on with the count.
 - **Three sections have no list.** DDI, ODT and DCCIR open on the filter form. `list` reaches ODT and DCCIR through the current year, whose result is newest first, and refuses DDI.
 - **Each section has its own form.** Only DDI and ODT have a date, only DDI a sector, OS and DCO have no number. A flag the section lacks is refused by name, not ignored.
-- **At most two pages per section, 20 acts, by design.** Each act costs one request for its detail. `dump` reads, per section: the list (DGC, DCC, DCS, OS, DCO), the year of the day (DCCIR), the protocol date of the day (DDI, ODT). A day with more than 20 acts in DDI is cut; `dump` says per section how many it read and of how many on stderr.
+- **Each act costs one request for its detail**, so the pages are bounded. `list` and `search` read at most two. `dump` reads, per section: the list (DGC, DCC, DCS, OS, DCO), the year of the day (DCCIR), the protocol date of the day (DDI, ODT), with the pages of the table above; it says per section how many acts it read and of how many on stderr.
 - **The "Copia" link of the portal cannot be trusted.** On ODT it names the DDI table with an empty `TD`, and opens "Nessun record presente". On six DCO deliberations of 2024-12-30 it is only the portal's base URL. So the adapter builds every permanent link from the act's internal id, with the section's own code and table. Checked on one act per section with `get`.
 - **`ALBCOD` is the internal id `ALB_COD`, XORed with the key `SISPISICUL` and hex-encoded**, as on the Albo: `627E6A627A607C716675` ↔ `1792335239`, which is also the prefix of that act's attachment names.
 - **The Albo and this archive share their records.** The same `ALBCOD` opens the act here once the link names the right section: Albo TD 2024 → DGC, 2022 → DCC, 1037940907 → DCCIR, 2010 → DDI, 2001 and 2011 → OS, 2012 → ODT. An Ordinanza Dirigenziale of an office other than traffic may be in DDI, so `from-albo` tries both. The other Albo types (notices, calls, marriage banns, building permits, convocations and so on) are not archived here.

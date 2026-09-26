@@ -1,11 +1,13 @@
 // The daily harvest: for each section, the acts its daily rule reaches for
 // one day, as JSON Lines on stdout. Sections with a list give their newest
 // acts, DCCIR the newest of the day's year, DDI and ODT the acts protocolled
-// that day. At most two pages per section. OpenCLI has no JSON Lines format,
+// that day. Each section has its own number of pages, sized on what a day
+// brings (see SECTIONS); DDI reads every page of the day. OpenCLI has no JSON Lines format,
 // so this prints its own lines and returns nothing; `-f` does not apply.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
-import { COLUMNS, MAX_PAGES, sectionList, daily, checkPages, formDate } from './shared.js';
+import { ArgumentError } from '@jackwener/opencli/errors';
+import { COLUMNS, DAILY_PAGES_MAX, SECTIONS, sectionList, daily, formDate } from './shared.js';
 
 /** Yesterday in Rome, YYYY-MM-DD. */
 function yesterday() {
@@ -17,7 +19,7 @@ cli({
     site: 'palermo-delibere',
     name: 'dump',
     access: 'read',
-    description: `The acts each section of the deliberations and ordinances archive of the Comune di Palermo gives for one day, as JSON Lines on stdout (at most ${MAX_PAGES} pages of 10 per section)`,
+    description: `The acts each section of the deliberations and ordinances archive of the Comune di Palermo gives for one day, as JSON Lines on stdout (${SECTIONS.map((s) => `${s.code} ${s.dailyPages || 'all'}`).join(', ')} pages of 10)`,
     example: 'opencli palermo-delibere dump --date 2026-09-22 > delibere.jsonl',
     domain: 'servizionline.comune.palermo.it',
     strategy: Strategy.PUBLIC,
@@ -25,12 +27,13 @@ cli({
     args: [
         { name: 'sections', type: 'string', positional: true, required: false, help: 'Comma-separated section codes, e.g. "DDI,ODT"; omit for all eight' },
         { name: 'date', type: 'string', default: '', help: 'The day, YYYY-MM-DD: the protocol date for DDI and ODT, the year for DCCIR. Default: yesterday in Rome' },
-        { name: 'pages', type: 'int', default: MAX_PAGES, help: `List pages to read per section, 1 or ${MAX_PAGES}` },
+        { name: 'pages', type: 'int', default: 0, help: `Pages of 10 to read in every section, 1 to ${DAILY_PAGES_MAX}; default: each section's own number (${SECTIONS.map((s) => `${s.code} ${s.dailyPages || 'all'}`).join(', ')})` },
     ],
     defaultFormat: 'json',
     columns: COLUMNS,
     func: async (args) => {
-        const pages = checkPages(args.pages);
+        const pages = Number(args.pages);
+        if (!Number.isInteger(pages) || pages < 0 || pages > DAILY_PAGES_MAX) throw new ArgumentError(`--pages must be 1 to ${DAILY_PAGES_MAX}`);
         const date = args.date ? String(args.date).trim() : yesterday();
         formDate(date);
         const sections = sectionList(args.sections);

@@ -4,9 +4,10 @@
 # asset of the release `palermo-delibere-data`. Acts accumulate; past versions
 # of the file are not kept: no commits, no history.
 #
-# Per section, at most 2 pages of 10: the newest acts of the five sections
-# with a list and of DCCIR (year filter), the acts protocolled on the day for
-# DDI and ODT (date filter). See plugins/palermo-delibere/README.md.
+# Per section, a number of pages of 10 sized on what a day brings: the newest
+# acts of the five sections with a list (2, DCC 3) and of DCCIR (year filter,
+# 3), the acts protocolled on the day for DDI (every page) and ODT (4). See
+# plugins/palermo-delibere/README.md.
 #
 # Any failure stops the job before the upload, so the published archive stays
 # as it was: a failed or empty dump, a row with different fields, an archive
@@ -79,6 +80,6 @@ jobs:
         run: |
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --latest=false --title "Delibere e Ordinanze del Comune di Palermo - archive" \
-              --notes "Deliberations, determinations and ordinances of the Comune di Palermo, from the permanent archive of its online services portal, one JSON object per line. Every morning \`opencli palermo-delibere dump\` (at most 20 acts per section: the newest ones, or those protocolled the previous day for the executive determinations and ordinances) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each day: past versions of the file are not kept."
+              --notes "Deliberations, determinations and ordinances of the Comune di Palermo, from the permanent archive of its online services portal, one JSON object per line. Every morning \`opencli palermo-delibere dump\` (the newest acts of each section, 20 to 30 of them, or every act protocolled the previous day for the executive determinations) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each day: past versions of the file are not kept."
           fi
           gh release upload "$TAG" "$ASSET" --clobber

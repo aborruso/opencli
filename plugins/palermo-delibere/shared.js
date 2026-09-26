@@ -21,22 +21,28 @@ const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 const TIMEOUT_MS = 60_000;
 const RETRY_WAIT_MS = [3_000, 10_000, 30_000];
 
-// A run reads at most two list pages per section: ten acts a page, and every
-// act costs one more request for its permanent link.
+// `list` and `search` read at most two list pages: ten acts a page, and
+// every act costs one more request for its permanent link.
 export const MAX_PAGES = 2;
+// `dump` reads `dailyPages` pages per section, sized on the acts a day brings
+// (measured 27/08-26/09/2026 from the list pages: DDI up to 98 a day, over 20
+// on 22 days of 30; DCC 83 on one council day; ODT 34; DCCIR 28; the rest
+// under 20). 0 means every page of the day, up to DAILY_PAGES_MAX.
+export const DAILY_PAGES_MAX = 25;
 
 // How the daily dump reaches each section: `list` reads the list as it
 // opens, `year` filters on the year (no date field in the form), `date` on
-// the protocol date (the year alone is too many acts).
+// the protocol date (the year alone is too many acts). `dailyPages` is how
+// many pages `dump` reads there.
 export const SECTIONS = [
-    { code: 'DGC', table: 'FO_SCEDELIBERE', sercod: 6000, daily: 'list', name: 'Delibere di Giunta Comunale' },
-    { code: 'DCC', table: 'FO_SCEDELIBERE', sercod: 6010, daily: 'list', name: 'Delibere di Consiglio Comunale' },
-    { code: 'DCCIR', table: 'FO_SCEDELIBERE', sercod: 6015, daily: 'year', name: 'Delibere di Consiglio di Circoscrizione' },
-    { code: 'DCS', table: 'FO_SCEDELIBERE', sercod: 6017, daily: 'list', name: 'Delibere del Comitato dei Sindaci' },
-    { code: 'OS', table: 'FO_SCEALBOPRETORIO', sercod: 6020, daily: 'list', name: 'Determinazioni e Ordinanze Sindacali' },
-    { code: 'DCO', table: 'FO_SCEALBOPRETORIO', sercod: 6021, daily: 'list', name: 'Determinazioni e Ordinanze Commissariali' },
-    { code: 'DDI', table: 'FO_SCEDETDIRIGENZIALI', sercod: 6030, daily: 'date', name: 'Determinazioni e Ordinanze Dirigenziali' },
-    { code: 'ODT', table: 'FO_SCEDETDIRIGENZIALIUT', sercod: 6040, daily: 'date', name: 'Determinazioni e Ordinanze Dirigenziali Ufficio Traffico' },
+    { code: 'DGC', table: 'FO_SCEDELIBERE', sercod: 6000, daily: 'list', dailyPages: 2, name: 'Delibere di Giunta Comunale' },
+    { code: 'DCC', table: 'FO_SCEDELIBERE', sercod: 6010, daily: 'list', dailyPages: 3, name: 'Delibere di Consiglio Comunale' },
+    { code: 'DCCIR', table: 'FO_SCEDELIBERE', sercod: 6015, daily: 'year', dailyPages: 3, name: 'Delibere di Consiglio di Circoscrizione' },
+    { code: 'DCS', table: 'FO_SCEDELIBERE', sercod: 6017, daily: 'list', dailyPages: 2, name: 'Delibere del Comitato dei Sindaci' },
+    { code: 'OS', table: 'FO_SCEALBOPRETORIO', sercod: 6020, daily: 'list', dailyPages: 2, name: 'Determinazioni e Ordinanze Sindacali' },
+    { code: 'DCO', table: 'FO_SCEALBOPRETORIO', sercod: 6021, daily: 'list', dailyPages: 2, name: 'Determinazioni e Ordinanze Commissariali' },
+    { code: 'DDI', table: 'FO_SCEDETDIRIGENZIALI', sercod: 6030, daily: 'date', dailyPages: 0, name: 'Determinazioni e Ordinanze Dirigenziali' },
+    { code: 'ODT', table: 'FO_SCEDETDIRIGENZIALIUT', sercod: 6040, daily: 'date', dailyPages: 4, name: 'Determinazioni e Ordinanze Dirigenziali Ufficio Traffico' },
 ];
 
 /** One section from its code, case-insensitive. */
@@ -312,6 +318,7 @@ export function formDate(value) {
  * `date` itself.
  */
 export async function daily(s, date, pages) {
+    if (!pages) pages = s.dailyPages || DAILY_PAGES_MAX;
     const session = new Session();
     let first;
     if (s.daily === 'list') first = await session.get(listUrl(s));
