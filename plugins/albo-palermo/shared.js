@@ -42,6 +42,12 @@ export async function pool(items, fn) {
 // The list shows 10 acts a page and every act costs one more request for its
 // permanent link, so a run stops at two pages by design.
 export const MAX_PAGES = 2;
+// `dump` reads more pages for the two types that publish more than 20 acts a
+// day (measured 11-26/09/2026 on the list pages: Determinazioni Dirigenziali
+// up to 132 a day, Ordinanze Dirigenziale up to 50; every other type at most
+// 20). 4 pages, 40 acts, at Andrea's request.
+export const DUMP_PAGES = { 2010: 4, 2012: 4 };
+export const DUMP_PAGES_MAX = 10;
 
 // The permanent link carries `ALBCOD`: the internal id `ALB_COD`, XORed digit
 // by digit with this fixed key and written in hex. 1800156607 ↔

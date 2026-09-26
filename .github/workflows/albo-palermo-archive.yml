@@ -63,6 +63,6 @@ jobs:
         run: |
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --latest=false --title "Albo Pretorio di Palermo - archive" \
-              --notes "Acts published on the Albo Pretorio of the Comune di Palermo, one JSON object per line. Every night \`opencli albo-palermo dump\` (at most the 20 newest acts per document type) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each night: past versions of the file are not kept."
+              --notes "Acts published on the Albo Pretorio of the Comune di Palermo, one JSON object per line. Every night \`opencli albo-palermo dump\` (the 20 newest acts per document type, 40 for the executive determinations and ordinances) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each night: past versions of the file are not kept."
           fi
           gh release upload "$TAG" "$ASSET" --clobber
