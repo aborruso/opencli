@@ -96,6 +96,18 @@ A nightly archive is published as a release asset, rebuilt every night by `.gith
 curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data/albo-palermo.jsonl | head -1 | jq .
 ```
 
+### Semantic index
+
+Next to the archive, the release carries `albo-palermo.sqlite`: one row per act with the archive columns and a vector of the text "Tipo di atto: … Ufficio: … Oggetto: …", from `openai/text-embedding-3-small` through OpenRouter. The nightly job embeds only the acts that are new or whose text changed (`bin/albo-palermo-index.py`), so an act costs a fraction of a cent once. To ask the index a question in plain words:
+
+```bash
+gh release download albo-palermo-data -R aborruso/opencli --pattern albo-palermo.sqlite
+OPENROUTER_API_KEY=… bin/albo-palermo-similar.py albo-palermo.sqlite "aree bruciate dagli incendi" -n 5
+bin/albo-palermo-similar.py albo-palermo.sqlite "chiusura di strade per lavori" --type "Ordinanze Sindacali" --json
+```
+
+It ranks every act by cosine similarity in Python, no SQLite extension. Measured on 367 acts (2026-09-26): "aree bruciate dagli incendi" gives first the council deliberation on the register of land burnt in 2025, "concorsi per assumere personale" the two competition notices, "auto abbandonate" the vehicle deposit notices. Scores sit between 0.35 and 0.6; a number, an acronym or a street name is still better served by `search`.
+
 ## Traps of this source
 
 - **At most two pages per type, 20 acts, by design.** Each act costs one request for its detail, sequential within a type because the session is stateful. The register lists newest first, so the last 20 are what a daily follow-up needs. `list` and `search` stop there; `dump` reads 4 pages for TD 2010 and 2012, and `--pages` sets the pages for every type, up to 10. All three say what they left out: the footer of `list` and `search` gives the total and the page count, and `dump` writes on stderr every type it cut. On 2026-09-22 seven types went past 20 acts. The biggest was Determinazioni Dirigenziali (TD 2010), with 855 acts on 86 pages.

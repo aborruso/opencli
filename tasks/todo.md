@@ -428,3 +428,31 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 ### Phase 4 — pages per section (2026-09-26) — DONE
 - Measured acts per day from the list pages, 27/08→26/09, no detail opened (`tmp/measure/measure.mjs`): DDI up to 98 a day, over 20 on 22 of 30 days; DCC 83 on one council day; ODT 34; DCCIR 28; the rest under 20. Albo: only 2010 and 2012 exceed 20 a day, and they are DDI and ODT here.
 - [x] `SECTIONS[].dailyPages`: DGC 2, DCC 3 (Andrea's choice over a by-date rule), DCCIR 3, DCS 2, OS 2, DCO 2, DDI all pages of the day (up to 25), ODT 4. `dump --pages` overrides for every section. → verify: `dump DDI,DCC,ODT --date 2026-09-25` gives DDI 63 of 63, DCC 30, in 52 s; `validate` and `convention-audit` pass.
+
+---
+
+# albo-palermo semantic index (2026-09-26)
+
+## Design
+
+- One SQLite file, `albo-palermo.sqlite`, published as a second asset of the release `albo-palermo-data`, rebuilt incrementally every night from the JSONL archive. Table `acts` (permalink primary key, the archive columns, `text`, `model`, `vec` as float32 blob). No extension: 20k rows × 1536 dims is a brute-force cosine in under a second, and sqlite-vec can be added later without changing the file.
+- Text embedded: type of act, proposing office and subject (`Tipo di atto: … Ufficio: … Oggetto: …`). The category is left out: on the 26/09 test it made serial acts (vehicle deposits) surface on unrelated questions. The test on 367 acts (tmp/measure is separate) showed the composite text beating the subject alone on 2 of 10 questions and losing on 1.
+- Model: `openai/text-embedding-3-small` through the OpenRouter embeddings endpoint (the `llm-openrouter` plugin has no embeddings). Key: `OPENROUTER_API_KEY`, a repository secret. Cost measured: 45k tokens, $0.0009 for 367 acts; under $0.05 a year.
+- Python 3 stdlib only (`sqlite3`, `urllib`, `struct`), two scripts in `bin/`: `albo-palermo-index.py` (update the index from the archive: embed the rows whose permalink is missing or whose text changed) and `albo-palermo-similar.py` (a question → the top N acts, with score). Both usable locally.
+- Only the Albo for now: its rows carry category, type and office; the deliberations archive can join the same index later with the same schema.
+
+## Phases
+
+### Phase 1 — scripts
+- [ ] `bin/albo-palermo-index.py <archive.jsonl> <index.sqlite>` → verify: first run embeds 367 rows; second run embeds 0; a changed subject re-embeds 1.
+- [ ] `bin/albo-palermo-similar.py <index.sqlite> "<question>" [-n 10] [--type …]` → verify: the ten questions of the test give the same top hits as the composite index of the test.
+
+### Phase 2 — nightly
+- [ ] Workflow step after the merge: download the previous index, update it, upload it with the JSONL. Missing key = job fails before upload. → verify: a manual run publishes both assets; the log says how many rows were embedded.
+
+### Phase 3 — docs
+- [ ] README of the adapter (section "Semantic index"), root README table, LOG.
+
+## Unresolved questions
+- whether to add the deliberations archive to the same index once it holds a few weeks
+- whether to fuse a keyword rank (FTS5) with the vector rank for numbers and sigle

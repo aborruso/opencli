@@ -30,6 +30,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       TAG: albo-palermo-data
       ASSET: albo-palermo.jsonl
+      INDEX: albo-palermo.sqlite
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
       - uses: actions/checkout@v5
 
@@ -48,6 +50,7 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release download "$TAG" --pattern "$ASSET" --output previous.jsonl
             echo "PREV=previous.jsonl" >> "$GITHUB_ENV"
+            gh release download "$TAG" --pattern "$INDEX" --output "$INDEX" || echo "no index yet: first build"
           else
             echo "no release $TAG yet: first run"
             echo "PREV=" >> "$GITHUB_ENV"
@@ -59,10 +62,15 @@ jobs:
       - name: Merge and check
         run: bin/albo-palermo-merge.sh "$PREV" today.jsonl "$ASSET"
 
+      # The semantic index: one vector per act, only the new or changed rows are
+      # embedded. A missing key or a failed call stops the job before the upload.
+      - name: Update the semantic index
+        run: bin/albo-palermo-index.py "$ASSET" "$INDEX"
+
       - name: Publish
         run: |
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --latest=false --title "Albo Pretorio di Palermo - archive" \
               --notes "Acts published on the Albo Pretorio of the Comune di Palermo, one JSON object per line. Every night \`opencli albo-palermo dump\` (the 20 newest acts per document type, 40 for the executive determinations and ordinances) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each night: past versions of the file are not kept."
           fi
-          gh release upload "$TAG" "$ASSET" --clobber
+          gh release upload "$TAG" "$ASSET" "$INDEX" --clobber
