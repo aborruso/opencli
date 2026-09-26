@@ -17,6 +17,7 @@ opencli validate albo-palermo      # expected: PASS, 6 commands
 | `search <type>` | the portal's filter: `--text` in the subject, `--year` and `--number` of protocol, `--sector` | no |
 | `get <permalink>` | one act, from its permanent link or from `ALBCOD` plus `--type` | no |
 | `dump [types]` | every type, or a comma-separated list of TD codes and type names, as JSON Lines on stdout | no |
+| `similar <question>` | the acts of the nightly archive closest in meaning to a question in plain words (`--limit`, `--type`); needs `OPENROUTER_API_KEY` | no |
 | `attachments <permalink>` | downloads the attachments of one act into `./albo-<TD>-<number>/`, or `--dir`, with the act itself as `act.json` (the row of `get`) and `act.html` (the page, its attachment links pointing at the local files); files already there are skipped | no |
 
 A document type is given by its exact name, case-insensitive (`"Avviso Pubblico"`), or by its TD code (`1041037357`). The codes are the portal's internal ones: `2024` is Delibera Di Giunta Comunale, not a year. Two names belong to two types each, Decreto Prefettizio and Rilascio Immobile, and for those the command refuses the name and lists both codes.
@@ -101,12 +102,13 @@ curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data
 Next to the archive, the release carries `albo-palermo.sqlite`: one row per act with the archive columns and a vector of the text "Tipo di atto: … Ufficio: … Oggetto: …", from `openai/text-embedding-3-small` through OpenRouter. The nightly job embeds only the acts that are new or whose text changed (`bin/albo-palermo-index.py`), so an act costs a fraction of a cent once. To ask the index a question in plain words:
 
 ```bash
-gh release download albo-palermo-data -R aborruso/opencli --pattern albo-palermo.sqlite
-OPENROUTER_API_KEY=… bin/albo-palermo-similar.py albo-palermo.sqlite "aree bruciate dagli incendi" -n 5
-bin/albo-palermo-similar.py albo-palermo.sqlite "chiusura di strade per lavori" --type "Ordinanze Sindacali" --json
+export OPENROUTER_API_KEY=…
+opencli albo-palermo similar "aree bruciate dagli incendi" --limit 5
+opencli albo-palermo similar "chiusura di strade per lavori" --type "Ordinanze Sindacali" -f json
+bin/albo-palermo-similar.py albo-palermo.sqlite "aree bruciate dagli incendi"   # the same, on a local copy of the index
 ```
 
-It ranks every act by cosine similarity in Python, no SQLite extension. Measured on 367 acts (2026-09-26): "aree bruciate dagli incendi" gives first the council deliberation on the register of land burnt in 2025, "concorsi per assumere personale" the two competition notices, "auto abbandonate" the vehicle deposit notices. Scores sit between 0.35 and 0.6; a number, an acronym or a street name is still better served by `search`.
+`similar` downloads the index from the release into `~/.cache/opencli-albo-palermo/` and keeps it for 12 hours (`--index` points to another file). The question is the only thing sent out, to OpenRouter, for its vector; the ranking is a cosine over every act, computed locally, and the footer says how many acts the index holds and what the question cost (a few millionths of a dollar). Measured on 367 acts (2026-09-26): "aree bruciate dagli incendi" gives first the council deliberation on the register of land burnt in 2025, "concorsi per assumere personale" the two competition notices, "auto abbandonate" the vehicle deposit notices. Scores sit between 0.35 and 0.6; a number, an acronym or a street name is still better served by `search`.
 
 ## Traps of this source
 

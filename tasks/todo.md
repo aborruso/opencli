@@ -444,14 +444,14 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 ## Phases
 
 ### Phase 1 — scripts
-- [ ] `bin/albo-palermo-index.py <archive.jsonl> <index.sqlite>` → verify: first run embeds 367 rows; second run embeds 0; a changed subject re-embeds 1.
-- [ ] `bin/albo-palermo-similar.py <index.sqlite> "<question>" [-n 10] [--type …]` → verify: the ten questions of the test give the same top hits as the composite index of the test.
+- [x] `bin/albo-palermo-index.py <archive.jsonl> <index.sqlite>` → verified: first run 367 embedded, rerun 0, one changed subject 1.
+- [x] `bin/albo-palermo-similar.py` and the adapter command `similar` (node:sqlite, index cached from the release) → verified on the test questions.
 
 ### Phase 2 — nightly
-- [ ] Workflow step after the merge: download the previous index, update it, upload it with the JSONL. Missing key = job fails before upload. → verify: a manual run publishes both assets; the log says how many rows were embedded.
+- [x] Workflow step after the merge → verified: run 36235207394 published both assets, 387 embedded on the first build.
 
 ### Phase 3 — docs
-- [ ] README of the adapter (section "Semantic index"), root README table, LOG.
+- [x] README of the adapter (section "Semantic index"), root README table, LOG.
 
 ## Unresolved questions
 - whether to add the deliberations archive to the same index once it holds a few weeks
