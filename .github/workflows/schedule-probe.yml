@@ -1,0 +1,17 @@
+# Temporary probe: does this repository's scheduler fire at all? It does
+# nothing but print the time. Remove after the test (2026-09-27).
+name: schedule probe
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "probe fired at $(date -u +%FT%TZ) by ${{ github.event_name }}"
