@@ -1,5 +1,11 @@
 # LOG
 
+## 2026-09-28
+
+- **Scheduled runs are back, 6 hours late.** The renamed workflows fired on schedule on 27/09 (delibere 09:24, albo 09:30 UTC) and 28/09 (09:59, 10:08), for crons at 03:23 and 03:41. `created_at` equals `run_started_at` to the second on every scheduled run, so the delay is in when GitHub creates the schedule event, not in the runner queue. Today: albo 18 new acts (405), 18 embedded ($0.00003); delibere 2 new (290).
+- **The delay is not specific to this repo.** In `archivioDatiPubbliciPreziosi` every daily cron starts 4-5 h late too (ANAC `10 0` at 04:49-05:15, `anagrafica` `5 5` at 09:48-10:30, `mimit-carburanti` `12 11` at 14:57-15:37); weekly ones only 5-30 min. An earlier note here said that repo ran on time: wrong, it ran, but late. What is specific to opencli are the nights of 25 and 26/09 with no scheduled run at all, which look like a broken schedule registration that the rename (26/09) replaced. A no-op probe with cron `*/5` (27/09, pushed 08:42) fired once, at 14:19, then removed.
+- **Support**: ticket #4798623 closed by a virtual assistant (GitHub Free: self-service only). Discussion https://github.com/orgs/community/discussions/208924, category Actions: the accepted answer splits the global delay from the repo-specific missed nights, as above. If a night is missed again on the renamed files, dispatch by hand and report it there. For exact times the only lever is a scheduler outside GitHub (e.g. cron-job.org) calling `workflow_dispatch`, which starts at once; a trigger from another repo would share the same delay.
+
 ## 2026-09-26
 
 - **`similar` is hybrid**: the index gets an FTS5 table over the same text (rebuilt by `albo-palermo-index.py`), the command fuses the cosine rank and the BM25 rank by reciprocal rank (k=60), `--mode hybrid|vector|keyword`, columns `vector_rank` and `keyword_rank`; the words of the question are prefixes, function words dropped. Checked: "aree bruciate dagli incendi" is rank 1 on both sides; "O.D. 1675" matches one act by words; "PEBA" by words matches nothing because FTS5 splits "P.E.B.A." into letters, the vector side finds it. The release index needs tonight's build (or a manual run) to carry `acts_fts`.
