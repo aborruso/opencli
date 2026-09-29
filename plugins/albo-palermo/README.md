@@ -101,6 +101,8 @@ curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data
 
 ### Semantic index
 
+**Off since 2026-09-29**: the nightly job no longer rebuilds `albo-palermo.sqlite` (switch `SEMANTIC_INDEX` in the workflow). The asset left in the release stops at the archive of that day, so `similar` answers on it until the index is switched on again.
+
 Next to the archive, the release carries `albo-palermo.sqlite`: one row per act with the archive columns, the text "Tipo di atto: … Ufficio: … Oggetto: …", its vector from `openai/text-embedding-3-small` through OpenRouter, and an FTS5 table over the same text. The nightly job embeds only the acts that are new or whose text changed (`bin/albo-palermo-index.py`), so an act costs a fraction of a cent once; the FTS5 table is rebuilt from the rows. To ask the index a question in plain words:
 
 ```bash
