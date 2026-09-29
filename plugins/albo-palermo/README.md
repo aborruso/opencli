@@ -16,7 +16,7 @@ opencli validate albo-palermo      # expected: PASS, 6 commands
 | `list <type>` | the acts of one type in publication, newest first; `--pages 1\|2` | no |
 | `search <type>` | the portal's filter: `--text` in the subject, `--year` and `--number` of protocol, `--sector` | no |
 | `get <permalink>` | one act, from its permanent link or from `ALBCOD` plus `--type` | no |
-| `dump [types]` | every type, or a comma-separated list of TD codes and type names, as JSON Lines on stdout | no |
+| `dump [types]` | every type, or a comma-separated list of TD codes and type names, as JSON Lines on stdout, newest publications first; with `--known <archive>` only the acts the archive lacks | no |
 | `similar <question>` | the acts of the nightly archive closest to a question in plain words: vector similarity and BM25 fused (`--mode hybrid|vector|keyword`, `--limit`, `--type`); needs `OPENROUTER_API_KEY` except in keyword mode | no |
 | `attachments <permalink>` | downloads the attachments of one act into `./albo-<TD>-<number>/`, or `--dir`, with the act itself as `act.json` (the row of `get`) and `act.html` (the page, its attachment links pointing at the local files); files already there are skipped | no |
 
@@ -84,14 +84,16 @@ opencli albo-palermo dump > albo-$(date +%F).jsonl              # every type, ab
 opencli albo-palermo dump "Avviso Pubblico,Delibera Di Giunta Comunale,Determinazioni Dirigenziali" > watch.jsonl
 ```
 
-To follow the register day by day, keep yesterday's dump and look for permanent links that were not in it:
+To follow the register day by day, keep an archive and ask `dump` only for what it lacks:
 
 ```bash
-opencli albo-palermo dump > today.jsonl
-jq -c --slurpfile y yesterday.jsonl '($y | map(.permalink)) as $old | select(.permalink as $p | $old | index($p) | not)' today.jsonl
+opencli albo-palermo dump --known archive.jsonl > new.jsonl
+cat archive.jsonl new.jsonl | LC_ALL=C sort -u > merged.jsonl
 ```
 
-A nightly archive is published as a release asset, rebuilt every night by `.github/workflows/albo-palermo-archive.yml`: tonight's `dump` appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each night, and past versions of it are not kept. The job stops without touching the archive if the dump fails or is empty, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the night before (`bin/albo-palermo-merge.sh`). It holds the 20 newest acts per type per night, 40 for Determinazioni Dirigenziali (TD 2010) and Ordinanze Dirigenziale (2012), the two types that publish more than 20 acts a day (measured 11-26/09/2026 on the list pages: up to 132 and 50 a day; every other type at most 20). So Determinazioni Dirigenziali still has gaps on most days, and the permanent archive of [palermo-delibere](../palermo-delibere/) covers them as DDI and ODT.
+With `--known`, every list is sorted by publication start, newest first, and read down to publications 3 days older than the newest act of the archive; only the acts not in the archive are opened, recognised by type, protocol number and date as the list shows them. No page cap but a safety one (30 pages a type); no new act is not an error. Measured on 2026-09-29: 112 types in about 2.5 minutes, 91 new acts against an archive of 469; run again on the merged archive, 0 new.
+
+A nightly archive is published as a release asset, rebuilt every night by `.github/workflows/albo-palermo-archive.yml`: tonight's `dump` appended to the archive, sorted, identical lines dropped, so acts accumulate over time. The file is replaced each night, and past versions of it are not kept. The dump runs with `--known` on the previous archive, so each night adds the acts published since, whatever their number: an empty dump is accepted then, and keeps the archive as it is. The job stops without touching the archive if the dump fails, if a row has fields other than the eleven above, all strings, or if the archive would have fewer rows than the night before (`bin/albo-palermo-merge.sh`). Until 2026-09-29 the dump read a fixed 20 acts per type (40 for TD 2010 and 2012) in protocol order, so the archive has gaps before that date, mostly in Determinazioni Dirigenziali (on 28/09: 16 of 50; see issue #1); the permanent archive of [palermo-delibere](../palermo-delibere/) covers them as DDI and ODT.
 
 ```bash
 curl -sL https://github.com/aborruso/opencli/releases/download/albo-palermo-data/albo-palermo.jsonl | head -1 | jq .
@@ -116,6 +118,7 @@ What the two sides are for, measured on 387 acts (2026-09-26): the vector finds 
 ## Traps of this source
 
 - **At most two pages per type, 20 acts, by design.** Each act costs one request for its detail, sequential within a type because the session is stateful. The register lists newest first, so the last 20 are what a daily follow-up needs. `list` and `search` stop there; `dump` reads 4 pages for TD 2010 and 2012, and `--pages` sets the pages for every type, up to 10. All three say what they left out: the footer of `list` and `search` gives the total and the page count, and `dump` writes on stderr every type it cut. On 2026-09-22 seven types went past 20 acts. The biggest was Determinazioni Dirigenziali (TD 2010), with 855 acts on 86 pages.
+- **The list is sorted by protocol number, not by publication date.** An act protocolled weeks ago and published today sits deep in the list: on 2026-09-28, 34 of the 50 Determinazioni Dirigenziali published that day were between positions 46 and 833. The column arrow of "Data inizio pubblicazione" sorts on the server (`POST dbmanager/tabella-ordina.do?verso=desc&sort=ALB_DATINIPUB`, same session); the sort holds for the next pages and for the `row=` indexes. `dump` always sorts this way. Within one day the order is still by protocol, so acts already archived and new ones of the same day are interleaved: `--known` stops at a date, not at the first known act.
 - **Only acts currently in publication.** The register has no archive. An act that ends its publication period drops out of every command, `get` included.
 - **The session is the state.** `row=N` counts within the current page. The next page is a POST, and the filter is two POSTs on the same session. A `row` that does not fit the state answers HTTP 200 with "Servizio temporaneamente non disponibile", which the adapter turns into an error.
 - **A search with one match skips the list** and opens the act directly, and so does a document type with one act in publication. `list`, `search` and `dump` handle both shapes.

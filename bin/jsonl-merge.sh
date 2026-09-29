@@ -3,6 +3,8 @@
 # identical lines. Refuses, with a non-zero exit and no output file, when the
 # dump is empty, when a row does not have the expected fields, or when the
 # merged archive would have fewer rows than the previous one.
+# With ALLOW_EMPTY_DUMP=1 an empty dump is accepted when there is a previous
+# archive (a dump of only the new acts can have none): the archive is kept.
 #
 # Usage: jsonl-merge.sh <name> <keys as a JSON array> <previous.jsonl or ""> <today.jsonl> <merged.jsonl>
 # <keys> is the row shape: these keys, in this order, all strings.
@@ -25,9 +27,12 @@ rows() { if [[ -s $1 ]]; then wc -l < "$1"; else echo 0; fi; }
 
 [[ -f $today ]] || fail "no dump file $today"
 today_rows=$(rows "$today")
-(( today_rows > 0 )) || fail "tonight's dump is empty"
-jq -e . "$today" > /dev/null 2>&1 || fail "tonight's dump is not valid JSON Lines"
-bad=$(check_schema "$today"); [[ -z $bad ]] || fail "tonight's dump, line $bad: fields differ from $KEYS"
+if (( today_rows > 0 )); then
+    jq -e . "$today" > /dev/null 2>&1 || fail "tonight's dump is not valid JSON Lines"
+    bad=$(check_schema "$today"); [[ -z $bad ]] || fail "tonight's dump, line $bad: fields differ from $KEYS"
+elif [[ ${ALLOW_EMPTY_DUMP:-} != 1 || -z $prev ]]; then
+    fail "tonight's dump is empty"
+fi
 
 prev_rows=0
 if [[ -n $prev ]]; then

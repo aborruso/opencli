@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-09-29
+
+- **Albo `dump --known <archive>`, and every list sorted by publication** (issue #1). The Albo list is sorted by protocol number, so a fixed 20 or 40 rows per type missed acts published late: on 28/09, 34 of the 50 Determinazioni Dirigenziali published that day (list positions 46-833) were not in the archive, while no type ever reached 20 or 40 a day in the archive, since a run's rows spread over several days. Now `dump` sorts each list on the server by publication start, newest first (`tabella-ordina.do?verso=desc&sort=ALB_DATINIPUB`, same columns on every type checked), and with `--known` opens only the acts the archive lacks (key: type, protocol number and date, read from the list row), down to publications 3 days before the archive's newest, cap 30 pages a type. The stop is by date because within a day the order is still by protocol, and a first version that stopped at the first all-known page recovered none of the 34. Verified: TD 2010 alone 89 new in 24 s, all 34 recovered, no duplicate; all 112 types 91 new in 163 s; run again on the merged archive 0 new in 154 s. The nightly workflow passes the previous archive; `bin/jsonl-merge.sh` accepts an empty dump when `ALLOW_EMPTY_DUMP=1` and there is a previous archive (Albo only). Gaps older than the 3-day margin stay (e.g. 25/09: 132 on the Albo, 39 archived).
+
 ## 2026-09-28
 
 - **Scheduled runs are back, 6 hours late.** The renamed workflows fired on schedule on 27/09 (delibere 09:24, albo 09:30 UTC) and 28/09 (09:59, 10:08), for crons at 03:23 and 03:41. `created_at` equals `run_started_at` to the second on every scheduled run, so the delay is in when GitHub creates the schedule event, not in the runner queue. Today: albo 18 new acts (405), 18 embedded ($0.00003); delibere 2 new (290).

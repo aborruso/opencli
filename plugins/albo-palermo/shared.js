@@ -48,6 +48,12 @@ export const MAX_PAGES = 2;
 // 20). 4 pages, 40 acts, at Andrea's request.
 export const DUMP_PAGES = { 2010: 4, 2012: 4 };
 export const DUMP_PAGES_MAX = 10;
+// With `dump --known`, each list is read down to publications this many days
+// older than the newest act of the archive, opening only the acts it lacks;
+// the margin covers acts published with an earlier start date. The walk is
+// capped at KNOWN_PAGES_MAX pages per type.
+export const KNOWN_MARGIN_DAYS = 3;
+export const KNOWN_PAGES_MAX = 30;
 
 // The permanent link carries `ALBCOD`: the internal id `ALB_COD`, XORed digit
 // by digit with this fixed key and written in hex. 1800156607 ↔
@@ -307,6 +313,67 @@ export function checkPages(value) {
 }
 
 // ---------------------------------------------------------------- walk
+
+/**
+ * Sort the list of the session by publication start date, newest first, as
+ * the column arrow on the page does. The list opens sorted by protocol
+ * number, so an act protocolled weeks ago and published today would sit deep
+ * in it; sorted, the newest publications come first. The sort holds for the
+ * following pages and for the `row=` indexes. Returns the new first page.
+ */
+export function sortByPublication(session) {
+    return session.post('tabella-ordina.do?verso=desc&sort=ALB_DATINIPUB');
+}
+
+/**
+ * The rows of a list page, as the list shows them: row index, protocol
+ * number and date, publication start. Columns are the same for every type
+ * (N. Protocollo, Data Protocollo, Oggetto, Data inizio, Data fine).
+ */
+export function listRows(html) {
+    return html.split(/tabella-modifica\.do\?row=/).slice(1).map((chunk) => {
+        const row = Number(/^\d+/.exec(chunk)?.[0]);
+        const cells = [...chunk.slice(0, chunk.indexOf('</tr>')).matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((m) => text(m[1].replace(/<[^>]*>/g, '')));
+        return { row, number: cells[0] ?? '', date: isoDate(cells[1] ?? ''), published_from: isoDate(cells[3] ?? '') };
+    });
+}
+
+/** The key an act is recognised by, from a list row or an archive row: type, protocol number and date. */
+export function actKey(td, number, date) {
+    return number && date ? `${td}|${number}|${date}` : null;
+}
+
+/**
+ * Walk the list, already sorted by publication (newest first), opening the
+ * acts whose key is not in `known`, down to the first act published before
+ * `since` (YYYY-MM-DD). Within a day the list is still by protocol number,
+ * so known and new acts of the same day are interleaved: the stop is by
+ * date, not by the first known act. `maxPages` caps the walk.
+ */
+export async function collectNew(session, firstPage, td, known, since, maxPages) {
+    if (isDetail(firstPage)) {
+        const act = parseDetail(firstPage);
+        return { rows: known.has(actKey(td, act.number, act.date)) ? [] : [act], total: 1, pages: 1, read: 1, capped: false };
+    }
+    const info = listInfo(firstPage);
+    const rows = [];
+    let html = firstPage;
+    let read = 0;
+    let capped = false;
+    walk: for (let p = 1; p <= info.pages; p++) {
+        read = p;
+        for (const r of listRows(html)) {
+            if (r.published_from && r.published_from < since) break walk;
+            const key = actKey(td, r.number, r.date);
+            if (key && known.has(key)) continue;
+            rows.push(parseDetail(await session.get(`${BASE}/dbmanager/tabella-modifica.do?row=${r.row}`)));
+        }
+        if (p >= info.pages) break;
+        if (p === maxPages) { capped = true; break; }
+        html = await session.post('tabella-lista-piu.do');
+    }
+    return { rows, total: info.total, pages: info.pages, read, capped };
+}
 
 /**
  * Walk up to `pages` list pages from the one already loaded, opening the
