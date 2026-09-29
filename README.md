@@ -43,6 +43,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 | [Albo Pretorio del Comune di Palermo](https://albopretorio.comune.palermo.it/albopretorio/jsp/home.jsp?modo=info&info=servizi.jsp) — the acts of the city of Palermo in publication | — | [`plugins/albo-palermo/`](plugins/albo-palermo/) — `types`, `list`, `search`, `get`, `dump`, `attachments`, `similar` |
 | [Delibere e Ordinanze del Comune di Palermo](https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&info=servizi.jsp&SERCOD=60&SERCODROOT=60) — the permanent archive of the city's deliberations, determinations and ordinances | — | [`plugins/palermo-delibere/`](plugins/palermo-delibere/) — `sections`, `list`, `search`, `get`, `attachments`, `dump`, `from-albo` |
 | [EU Funding & Tenders Portal](https://ec.europa.eu/info/funding-tenders/opportunities/portal/) — EU calls, tenders and funded projects | — | [`plugins/eu-funding/`](plugins/eu-funding/) — `calls`, `topic`, `updates`, `faqs`, `faq`, `org`, `partners`, `projects`, `codes` |
+| [Registro Imprese](https://registroimprese.infocamere.it/web/guest/ricerca-libera-e-acquisto) — the free search of the Italian business register | — | [`plugins/registroimprese/`](plugins/registroimprese/) — `search` (browser), `suggest` |
 
 The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
 
@@ -53,6 +54,8 @@ The first two are complementary and cross-reference each other: law-tracker foll
 **albo-palermo has no sitemap either.** The portal is server-rendered HTML, and the adapter walks the same session the pages do: list, detail, next page, filter. The one thing a person gets from the page and not from a list row, the permanent link behind "Copia", is in every row the adapter returns.
 
 **palermo-delibere has no sitemap either**, for the same reason: it is the same SISPI application as the Albo, with the same records. The Albo shows an act while it is in publication; this portal keeps it afterwards, and `from-albo` turns an Albo link into the permanent one.
+
+**registroimprese has no sitemap either.** Its one page is the search form, guarded by reCAPTCHA Enterprise, and the adapter drives it in the browser; the detail is one click away and the adapter takes that click.
 
 **istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
 

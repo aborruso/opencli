@@ -31,6 +31,10 @@
     "palermo-delibere": {
       "path": "plugins/palermo-delibere",
       "description": "Delibere e Ordinanze del Comune di Palermo - the permanent archive of the online services portal: eight sections, permanent links, attachments, daily JSON Lines dump"
+    },
+    "registroimprese": {
+      "path": "plugins/registroimprese",
+      "description": "Registro Imprese - the free company search by name and province, with the free detail (address, PEC, ATECO); name suggestions without a browser"
     }
   }
 }

@@ -456,3 +456,55 @@ Source: https://servizionline.comune.palermo.it/portcitt/jsp/home.jsp?modo=info&
 ## Unresolved questions
 - whether to add the deliberations archive to the same index once it holds a few weeks
 - [x] keyword rank (FTS5/BM25) fused with the vector rank by RRF, `--mode`; done 2026-09-26
+
+---
+
+# registroimprese: free company search (2026-09-26)
+
+Goal: `opencli registroimprese search <name> [--province XX]` (list) and `get` (the detail one click away), over the free search of registroimprese.infocamere.it (`/web/guest/ricerca-libera-e-acquisto`).
+
+## What was verified (live, 2026-09-26)
+
+- **Suggester** (the autocomplete): `GET https://risuggester.infocamere.it/raceSuggWeb/suggester?lang=IT&app=RI&q=<text>`, JSON with three lists (`denom`, `attivita`, `declaratorie`, each with `numFound` and `suggestions[].term`). No cookie, no captcha. The F5 WAF rejects a bare `Mozilla/5.0` user agent ("Request Rejected"); a full Chrome UA passes. PUBLIC.
+- **Search** is a Liferay action POST (`javax.portlet.action=cerca`, `p_auth` from the page, fields `inputSearchField`, `filtroProvincia` = two-letter code or empty for all Italy, `soloNonCancellate=S`, `filtroScore=S`, `captchaResp`). It answers 302 to a `pageToken` URL whose page carries the results server-rendered in the `RiRisultatiRicercaImpreseGratuita` portlet. **Gated by reCAPTCHA Enterprise** (`grecaptcha.enterprise.execute`, action `submit`, score checked server side): without a token, or with a low score, the same page comes back with the portlet empty and no message. Tokens are single use. So the search cannot be a PUBLIC adapter.
+- **Two clicks.** In Andrea's recorded session (HAR) each search needed two submits: two identical POSTs (same cookies, same `p_auth`, both with a token), the first answers the empty page (214 KB), the second the results (242 KB). Reproduced twice in the same session. My automated runs: 2 of 6 searches got results, headless never. The adapter must resubmit when the portlet is empty, a few times.
+- **List row**: name, kind (`Sede Legale` / `Unità Locale`), city, legal form (generic), activity with its start date, status (`Registrata`), and the detail link `javax.portlet.action=visualizzaDettaglio&_..._id=<opaque id>` (session-bound). Pagination 20 per page (5–75), "Vedi tutti i risultati correlati" = the same search with `filtroScore=N`.
+- **Detail page** (GET of that link inside the session; it also works with curl and the session cookies): name, address, city and province, phone, PEC (in a hidden input `ddPec`, revealed by "MOSTRA" client side, no extra call), legal form, activity, ATECO code and label, status, kind of office. REA, tax code and full legal form are behind login and not in scope.
+- Browser bridge on this machine: daemon up, **extension not connected** (`opencli doctor`); the setup in `docs/notes.md` (Chrome in WSL + extension, Xvfb or X410) has to be brought up before the browser commands can run.
+
+## Design
+
+- Plugin `plugins/registroimprese/`, site `registroimprese`, domain `registroimprese.infocamere.it`.
+- `suggest <text>`: PUBLIC, no browser, one row per suggestion with `kind` (denom | attivita | declaratorie) and `term`.
+- `search <name> [--province XX] [--all] [--limit N]`: strategy UI, `browser: true`, through the bridge: open the page, fill name and province, submit, if the results portlet is empty resubmit (up to 3 times), parse rows; `--all` uses "Vedi tutti" (filtroScore=N). Row columns: `name, kind, city, legal_form, activity, status, id`.
+- `get <id>` or `search --detail`: the detail is bound to the session that ran the search, so `get` cannot take a bare id from a later run. Two options: (a) `search --detail` opens every row of the page and adds `address, province, phone, pec, ateco, ateco_label`; (b) `get <name>` = search + open the first (or the only) match. Both keep one browser session.
+- Provinces: the page's own `<select>` list (110 codes), validated in the adapter.
+- No sitemap for now; the adapter walks the pages.
+
+## Phases
+
+### Phase 0 — bridge
+- [x] Bring the extension up (`docs/notes.md`, Xvfb) → verify: `opencli doctor` says `Extension: connected`, and `opencli browser <s> open` on the search page returns `state`.
+
+### Phase 1 — suggest (PUBLIC)
+- [x] `suggest.js` → verify: `suggest infocam` returns the `name` row; `validate registroimprese` passes.
+
+### Phase 2 — search (browser)
+- [x] `search.js` with the resubmit loop and the row parser → verify: `search infocamere --province RM` gives the Rome row; `search infocamere --province PD` gives 2 rows; `--all` gives more rows than the default; a name with no match gives the empty-result error, not a silent empty list.
+
+### Phase 3 — detail
+- [x] `--detail` → verify: on Infocamere (RM) the row carries `Via Giovanni Battista Morgagni 13`, `RM`, `protocollo@pec.infocamere.it`, ATECO `63.10.2`.
+
+### Phase 4 — docs
+- [x] README of the plugin (with the captcha and two-clicks notes), root README table, `opencli-plugin.json`, LOG.
+
+## Decisions (2026-09-26)
+- `search --detail`, no `get`: ids are session-bound.
+- Resubmit cap 3, count in the footer.
+- `--all` as a flag; default like the site; the footer gives the site's count.
+
+## Review
+- `--activity` and the ATECO code in `suggest` added on 2026-09-26 at Andrea's request; pagination (`--page`) not done, see LOG.
+- Done as planned. Found by running: Node's `fetch` is rejected by the suggester's WAF, `node:https` passes; the no-match page has its own sentence, so it is not confused with a captcha rejection; the site's count ("Visualizzati da 1 a 2 di 2") can exceed the rows shown.
+- `--limit` above 20 verified once (50 rows); after ~30 searches the reCAPTCHA score of the test Chrome dropped and every submit came back empty, so the last checks (PD, `--province EN`, `--limit 75`) are pending. Visible Chrome via X410 passed 2 of 2 at the first submit an hour later, same profile: documented as the way to run this site.
+- Open: `search` in table mode is wide (13 columns); a run in the low-score phase returned 7 rows for `rossi --all --limit 50`, unexplained.

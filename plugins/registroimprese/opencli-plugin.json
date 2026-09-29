@@ -1,0 +1,6 @@
+{
+  "name": "registroimprese",
+  "version": "0.1.0",
+  "description": "Registro Imprese (registroimprese.infocamere.it) - the free company search by name and province, with the free detail (address, PEC, ATECO); name suggestions without a browser",
+  "opencli": ">=1.8.6"
+}

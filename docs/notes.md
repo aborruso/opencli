@@ -57,7 +57,7 @@ L'estensione **non è nel pacchetto npm** → va scaricata dalle Release GitHub 
 mkdir -p ~/.opencli
 # asset della release taggata come la CLI (verifica la versione su github.com/jackwener/OpenCLI/releases)
 curl -sfL -o /tmp/opencli-ext.zip \
-  "https://github.com/jackwener/OpenCLI/releases/download/v1.8.6/opencli-extension-v1.0.22.zip"
+  "https://github.com/jackwener/OpenCLI/releases/download/v1.8.8/opencli-extension-v1.0.24.zip"
 rm -rf ~/.opencli/extension && unzip -oq /tmp/opencli-ext.zip -d ~/.opencli/extension
 ls ~/.opencli/extension/manifest.json   # deve esistere
 ```
@@ -125,6 +125,7 @@ Conseguenza pratica: un agente che riprende a metà lavoro, o che apre la pagina
 - **Chrome su Windows non va bene**: la sua `localhost` non è quella di WSL dove gira il daemon. Caricare l'estensione nel **Chrome di WSL**.
 - **Un solo Chrome per profilo**: `opencli-bridge` e `opencli-bridge-login` usano lo stesso `--user-data-dir` → non avviarli insieme (lock). `opencli-bridge-stop` prima di cambiare modo.
 - **`OPENCLI_WINDOW=background` / `--window background`**: mette la finestra in secondo piano anche con un display presente (utile con X410, ridondante con Xvfb).
+- **Siti con reCAPTCHA Enterprise a punteggio (registroimprese)**: in Xvfb il primo invio di solito viene respinto e dopo qualche decina di ricerche il profilo resta bloccato per un po'; nel Chrome visibile via X410 (`opencli-bridge-login`), stesso profilo, le ricerche passano al primo invio. Per questi siti usare il ponte visibile, e poche ricerche per sessione (26/09/2026).
 - Chiudendo il ponte, `doctor` torna a `Extension: not connected` — normale. Gli adapter PUBLIC continuano a funzionare.
 
 ## Estendere (quando serve)
