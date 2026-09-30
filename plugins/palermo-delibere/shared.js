@@ -314,6 +314,49 @@ export async function collect(session, s, firstPage, pages) {
     return { rows, total: info.total, pages: info.pages };
 }
 
+/**
+ * The rows of a list page: row index, protocol number and date. The number is
+ * the first column in every section but OS, whose first column is the type
+ * of act; there `number` is empty and the act cannot be told from the list.
+ */
+export function listRows(html) {
+    return html.split(/tabella-modifica\.do\?row=/).slice(1).map((chunk) => {
+        const row = Number(/^\d+/.exec(chunk)?.[0]);
+        const cells = [...chunk.slice(0, chunk.indexOf('</tr>')).matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((m) => text(m[1].replace(/<[^>]*>/g, '')));
+        return { row, number: /^\d+$/.test(cells[0] ?? '') ? cells[0] : '', date: isoDate(cells[1] ?? '') };
+    });
+}
+
+/** The key an act is recognised by, from a list row or an archive row: section, protocol number and date. */
+export function actKey(code, number, date) {
+    return number && date ? `${code}|${number}|${date}` : null;
+}
+
+/**
+ * Like `collect`, but opening only the acts whose key is not in `known`.
+ * Rows without a key (OS) are always opened.
+ */
+export async function collectNew(session, s, firstPage, known, pages) {
+    if (isDetail(firstPage)) {
+        const act = parseDetail(firstPage, s);
+        return { rows: known.has(actKey(s.code, act.number, act.date)) ? [] : [act], total: 1, pages: 1 };
+    }
+    if (isEmptyResult(firstPage) || !rowIndexes(firstPage).length) return { rows: [], total: 0, pages: 0 };
+    const info = listInfo(firstPage);
+    const rows = [];
+    let html = firstPage;
+    for (let p = 1; p <= pages; p++) {
+        for (const r of listRows(html)) {
+            const key = actKey(s.code, r.number, r.date);
+            if (key && known.has(key)) continue;
+            rows.push(parseDetail(await session.get(`${BASE}/dbmanager/tabella-modifica.do?row=${r.row}`), s));
+        }
+        if (p >= info.pages || p === pages) break;
+        html = await session.post('tabella-lista-piu.do');
+    }
+    return { rows, total: info.total, pages: info.pages };
+}
+
 export function checkPages(value) {
     const n = Number(value);
     if (!Number.isInteger(n) || n < 1 || n > MAX_PAGES) throw new ArgumentError(`--pages must be 1 or ${MAX_PAGES}`);
@@ -332,14 +375,14 @@ export function formDate(value) {
  * daily rule: its list, its filter on the year of `date`, or its filter on
  * `date` itself.
  */
-export async function daily(s, date, pages) {
+export async function daily(s, date, pages, known) {
     if (!pages) pages = s.dailyPages || DAILY_PAGES_MAX;
     const session = new Session();
     let first;
     if (s.daily === 'list') first = await session.get(listUrl(s));
     else if (s.daily === 'year') first = (await runFilter(session, s, { ALB_DESANNOPROT: date.slice(0, 4) })).html;
     else first = (await runFilter(session, s, { ALB_DATPROT: formDate(date) })).html;
-    return collect(session, s, first, pages);
+    return known ? collectNew(session, s, first, known, pages) : collect(session, s, first, pages);
 }
 
 // ---------------------------------------------------------------- act

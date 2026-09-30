@@ -71,7 +71,9 @@ jobs:
           fi
 
       - name: Dump
-        run: opencli palermo-delibere dump --date "$DAY" > today.jsonl
+        # With an archive, only the acts it lacks, and DDI and ODT over the last
+        # 10 protocol days: acts are often loaded days after their date.
+        run: opencli palermo-delibere dump --date "$DAY" ${PREV:+--known "$PREV"} > today.jsonl
 
       - name: Merge and check
         run: bin/palermo-delibere-merge.sh "$PREV" today.jsonl "$ASSET"
@@ -80,6 +82,6 @@ jobs:
         run: |
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --latest=false --title "Delibere e Ordinanze del Comune di Palermo - archive" \
-              --notes "Deliberations, determinations and ordinances of the Comune di Palermo, from the permanent archive of its online services portal, one JSON object per line. Every morning \`opencli palermo-delibere dump\` (the newest acts of each section, 20 to 30 of them, or every act protocolled the previous day for the executive determinations) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each day: past versions of the file are not kept."
+              --notes "Deliberations, determinations and ordinances of the Comune di Palermo, from the permanent archive of its online services portal, one JSON object per line. Every morning \`opencli palermo-delibere dump --known\` (the acts the archive lacks: the newest of each section, and for the executive determinations and ordinances every act of the last 10 protocol days) is appended to the archive, which is then sorted and cleared of identical lines, so acts accumulate over time. The file is replaced each day: past versions of the file are not kept."
           fi
           gh release upload "$TAG" "$ASSET" --clobber
