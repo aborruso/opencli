@@ -204,12 +204,27 @@ function field(html, name) {
 }
 
 /**
+ * A size as the portal prints it, in one format. The server switches between
+ * Italian ("2.943,02") and English ("2,943.02") from one request to the next,
+ * with the same client and the same page (seen 26 and 30/09/2026), and the
+ * archive would keep both as different lines. Always Italian here.
+ */
+export function italianSize(value) {
+    const v = String(value).trim();
+    if (/^\d{1,3}(,\d{3})*\.\d+$/.test(v) || /^\d+\.\d+$/.test(v)) {
+        const [int, dec] = v.replace(/,/g, '').split('.');
+        return `${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`;
+    }
+    return v;
+}
+
+/**
  * The attachments of a detail page: `viewDocument?col=ALLEGATI&idx=N` is an
  * index into the detail last opened in the session, not a permanent URL.
  */
 export function attachmentLinks(html) {
     return [...html.matchAll(/viewDocument\?col=ALLEGATI&(?:amp;)?idx=(\d+)[^>]*>\s*<img src='[^']*\/([a-z_]+)\.gif'[\s\S]*?Kb&nbsp;([\d.,]+)\)<\/a>/g)]
-        .map((m) => ({ idx: Number(m[1]), kb: m[3], signed: m[2].endsWith('_signed') }));
+        .map((m) => ({ idx: Number(m[1]), kb: italianSize(m[3]), signed: m[2].endsWith('_signed') }));
 }
 
 /** The URL of one act, from its permanent link or from a bare ALBCOD plus a document type. */

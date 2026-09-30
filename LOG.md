@@ -1,5 +1,10 @@
 # LOG
 
+## 2026-09-30
+
+- **Attachment sizes normalised to the Italian format** in both adapters (`italianSize` in `shared.js`). The portal switches between "2.943,02 KB" and "2,943.02 KB" from one request to the next, same client, same page, whatever `Accept-Language` says (seen 26/09 locally and 30/09 on the runner, while other requests the same day gave commas). Tonight the delibere merge added 179 rows, all of them old acts in the other format: 507 rows for 368 acts. Both archives rewritten once with Italian sizes and deduplicated: delibere 507 to 368 (one row per permalink), Albo 694 unchanged in count. Backups of the two assets as they were kept locally. The Albo was spared because `--known` does not reopen known acts.
+- Nightly runs of 30/09, both scheduled, about 6.5 h late: Albo 134 new acts (694), no index step; delibere 29/09, DDI 32, ODT 7.
+
 ## 2026-09-29
 
 - **Semantic index switched off** at Andrea's request (`SEMANTIC_INDEX: 'off'` in the Albo workflow): no download, no embedding, no upload of `albo-palermo.sqlite`; the asset in the release stays as of 29/09. Scripts and `similar` untouched; set the switch to `on` to rebuild it incrementally.
