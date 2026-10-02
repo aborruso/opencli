@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-10-02
+
+- **Crons moved 2 hours earlier**: delibere daily `23 1`, albo nightly `41 1` (UTC), i.e. 03:23 and 03:41 in Rome in summer, 02:23 and 02:41 in winter. Scheduled runs of 30/09 and 01/10 started 6.5-7 h after their cron (09:50 and 10:18 UTC for `23 3`): with the same delay the new slots start around 08:00-08:30 UTC.
+
 ## 2026-09-30
 
 - **Delibere `dump --known` and a 10-day look-back for DDI and ODT** (issue #2). Acts reach the portal days after their protocol date (ODT of 28/09: 2 on the morning after, 28 two days later; DDI of 25/09: 63 then 72), and a dump of yesterday alone missed them for good. With `--known` the dump opens only the acts the archive lacks (key: section, protocol number and date from the list row; OS and DCO show the type instead of the number, so their rows are always opened and the merge drops repeats) and reads DDI and ODT for the last `--lookback` days (10). Test on the archive of 30/09: 281 acts in 134 s, 241 new, 609 rows for 609 permalinks, and DDI 22, 25, 28/09 and ODT 23, 24, 25, 28/09 now equal the portal. Workflow passes the previous archive; the delibere merge accepts an empty dump when an archive exists.

@@ -12,7 +12,7 @@ on:
   schedule:
     # Off the full hour and apart from the delibere daily: GitHub delays or
     # drops scheduled runs in busy slots.
-    - cron: '41 3 * * *'
+    - cron: '41 1 * * *'
   workflow_dispatch:
 
 permissions:
