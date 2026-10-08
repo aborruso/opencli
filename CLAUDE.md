@@ -25,6 +25,8 @@ Sono a mano - non mirrorati - anche `sitemaps/` (le sitemap OpenCLI di questo re
 
 Per aggiornare i `.md` verbatim: riscaricare dagli `url` in `docs/meta.yml`, poi rigenerare `sha256` e `bytes` per ogni file. Aggiornare anche `cli_version_al_fetch` e `ultimo_fetch`. **Non** toccare `notes.md`.
 
+Gli `url` puntano al **tag della release** (`v1.8.8`), non a `main`: il mirror deve descrivere la CLI installata. Al refresh si porta il tag alla versione di `opencli --version`. Su `main` upstream le sitemap sono state rimosse (PR #2539, 24/09/2026): dalla prima release che la include `sitemaps/` smette di funzionare, da verificare prima di aggiornare la CLI.
+
 ## Contesto d'uso di OpenCLI (per aiutare sulle note)
 
 Distinzione chiave che struttura le note — OpenCLI ha due "transport":
