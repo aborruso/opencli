@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-10-08
+
+- **ELI in eur-lex**: `meta` has an `eli` column (`cdm:resource_legal_eli`, e.g. `http://data.europa.eu/eli/reg/2024/1689/oj`; `null` for proposals), and `meta`/`get` accept an ELI, full URI or short `reg/2024/1689/oj`, resolved to CELEX by SPARQL on the `xsd:anyURI` literal (~0.3 s). Verified on reg, dir, reg_impl and a consolidated version; unknown ELI and garbage input give ARGUMENT errors. `search` unchanged.
+
 ## 2026-10-02
 
 - **Crons moved 2 hours earlier**: delibere daily `23 1`, albo nightly `41 1` (UTC), i.e. 03:23 and 03:41 in Rome in summer, 02:23 and 02:41 in winter. Scheduled runs of 30/09 and 01/10 started 6.5-7 h after their cron (09:50 and 10:18 UTC for `23 3`): with the same delay the new slots start around 08:00-08:30 UTC.

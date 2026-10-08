@@ -508,3 +508,26 @@ Goal: `opencli registroimprese search <name> [--province XX]` (list) and `get` (
 - Done as planned. Found by running: Node's `fetch` is rejected by the suggester's WAF, `node:https` passes; the no-match page has its own sentence, so it is not confused with a captcha rejection; the site's count ("Visualizzati da 1 a 2 di 2") can exceed the rows shown.
 - `--limit` above 20 verified once (50 rows); after ~30 searches the reCAPTCHA score of the test Chrome dropped and every submit came back empty, so the last checks (PD, `--province EN`, `--limit 75`) are pending. Visible Chrome via X410 passed 2 of 2 at the first submit an hour later, same profile: documented as the way to run this site.
 - Open: `search` in table mode is wide (13 columns); a run in the low-score phase returned 7 rows for `rossi --all --limit 50`, unexplained.
+
+---
+
+# Plan — ELI in the eur-lex adapter
+
+Status: done 2026-10-08.
+
+## Verified (2026-10-08, Cellar SPARQL)
+- Every adopted act carries `cdm:resource_legal_eli`, a literal typed `xsd:anyURI`: `32024R1689` → `http://data.europa.eu/eli/reg/2024/1689/oj`; consolidated `02024R1358-20240522` → `.../reg/2024/1358/2024-05-22`. Proposals (`52021PC0206`) have none.
+- Reverse lookup by that typed literal returns one CELEX, ~0.3 s (reg, dir, reg_impl, consolidated).
+
+## Phases
+- [x] 1. `meta` gets an `eli` column (null when absent) → verify: `meta 32024R1689` shows the ELI; `meta 52021PC0206` shows null.
+- [x] 2. `meta` and `get` accept an ELI (full URI or short `reg/2024/1689/oj`) instead of a CELEX → verify: `meta http://data.europa.eu/eli/reg/2024/1689/oj` and `get reg/2024/1358/2024-05-22 --chars 200` resolve; an unknown ELI gives a clear error; `opencli validate eur-lex` passes.
+- [x] 3. Docs: plugin README, sitemap README, `workflows/read-act.md`, LOG → verify: examples run as written.
+
+## Decisions
+- Output: full `data.europa.eu` URI only. Input: full URI or short form.
+- `search` gets no ELI column (not requested).
+
+## Review
+- Done as planned. Error text of `checkCelex` now names both forms ("invalid act … or an ELI like reg/2024/1689/oj").
+- An ELI with a language suffix (`.../oj/eng`) is not stripped: the lookup fails with the "no act with ELI" error.

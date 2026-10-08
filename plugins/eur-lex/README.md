@@ -15,8 +15,10 @@ opencli validate eur-lex          # expected: PASS, 3 commands
 | Command | What it does | Browser |
 |---|---|---|
 | `search <text>` | full-text search across EU law; `--exact` for a phrase, `--page` for more | yes |
-| `get <celex>` | full text of an act (plain text, XHTML, or a metadata notice) | no |
-| `meta <celex>` | title, date, act type, EuroVoc concepts | no |
+| `get <celex\|eli>` | full text of an act (plain text, XHTML, or a metadata notice) | no |
+| `meta <celex\|eli>` | title, date, act type, ELI, EuroVoc concepts | no |
 | `sparql <query>` | any SPARQL query against Cellar, results in long format | no |
+
+`get` and `meta` accept a CELEX number (`32024R1689`) or an [ELI](https://eur-lex.europa.eu/eli-register/what_is_eli.html), full (`http://data.europa.eu/eli/reg/2024/1689/oj`) or short (`reg/2024/1689/oj`).
 
 Examples with real output: [`../../sitemaps/eur-lex/README.md`](../../sitemaps/eur-lex/README.md).

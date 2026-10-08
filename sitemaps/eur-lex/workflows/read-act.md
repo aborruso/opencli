@@ -1,8 +1,8 @@
 ---
 schema_version: 1
 workflow_id: read-act
-intent: read an act, or hand its text to something else, given its CELEX number
-last_verified: 2026-08-28
+intent: read an act, or hand its text to something else, given its CELEX number or ELI
+last_verified: 2026-10-08
 source: local
 ---
 
@@ -10,16 +10,19 @@ source: local
 
 ## Goal
 
-Given a CELEX number, get the metadata, the full text, or the official PDF — without a browser.
+Given a CELEX number or an ELI, get the metadata, the full text, or the official PDF — without a browser.
 
 ## State signature
 
 The CELEX number is the whole state. `32024R1689` is the original act; `02024R1358-20240522` is a consolidated version, and Cellar treats it as a different work.
 
+An ELI is the same state in another form: `reg/2024/1689/oj` is `32024R1689`, `reg/2024/1358/2024-05-22` is `02024R1358-20240522`. The commands resolve it to CELEX through SPARQL (`cdm:resource_legal_eli`, a literal typed `xsd:anyURI`). Proposals have no ELI.
+
 ## Best path
 
 ```bash
-opencli eur-lex meta 32024R1689                 # title, date, type, EuroVoc
+opencli eur-lex meta 32024R1689                 # title, date, type, ELI, EuroVoc
+opencli eur-lex meta reg/2024/1689/oj           # same act, by ELI
 opencli eur-lex get 32024R1689 --chars 4000     # first 4000 characters
 opencli eur-lex get 32024R1689 -f json | jq -r '.[0].text' > act.txt
 opencli eur-lex get 32024R1689 --as xhtml       # raw XHTML, markup kept

@@ -1,7 +1,7 @@
-// Full text of an EU act, by CELEX number, straight from Cellar.
+// Full text of an EU act, by CELEX number or ELI, straight from Cellar.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
-import { checkCelex, cellarFetch, xhtmlToText, eurlexUrl } from './shared.js';
+import { resolveCelex, cellarFetch, xhtmlToText, eurlexUrl } from './shared.js';
 
 // Verified accept types. Bare application/xml, text/html and text/plain all 404;
 // application/zip answers 400. Do not widen this table by guessing.
@@ -16,20 +16,20 @@ cli({
     site: 'eur-lex',
     name: 'get',
     access: 'read',
-    description: 'Full text of an EU act by CELEX number',
+    description: 'Full text of an EU act by CELEX number or ELI',
     example: 'opencli eur-lex get 32024R1689 --chars 4000',
     domain: 'eur-lex.europa.eu',
     strategy: Strategy.PUBLIC,
     browser: false,
     args: [
-        { name: 'celex', type: 'string', positional: true, required: true, help: 'CELEX number, e.g. 32024R1689' },
+        { name: 'celex', type: 'string', positional: true, required: true, help: 'CELEX number (32024R1689) or ELI (reg/2024/1689/oj)' },
         { name: 'as', type: 'string', default: 'text', help: `Which representation to fetch: ${Object.keys(FORMATS).join(', ')}` },
         { name: 'lang', type: 'string', default: 'eng', help: 'Language of the expression, ISO 639-3 (eng, ita, fra…)' },
         { name: 'chars', type: 'int', default: 0, help: 'Truncate to this many characters; 0 keeps everything' },
     ],
     columns: ['celex', 'representation', 'lang', 'chars', 'truncated', 'url', 'text'],
     func: async (args) => {
-        const celex = checkCelex(args.celex);
+        const celex = await resolveCelex(args.celex);
         const format = String(args.as ?? 'text').toLowerCase();
         const accept = FORMATS[format];
         if (!accept) throw new ArgumentError(`invalid --as "${format}": expected one of ${Object.keys(FORMATS).join(', ')}`);

@@ -18,8 +18,26 @@ const UA = 'opencli-eur-lex/0.1';
 export function checkCelex(input) {
     const celex = String(input ?? '').trim().toUpperCase();
     if (!/^[0-9][0-9]{4}[A-Z]{1,2}[0-9]{4}(\(\d{2}\))?(-\d{8})?$/.test(celex)) {
-        throw new ArgumentError(`invalid CELEX "${input}". Expected something like 32024R1689 or 02024R1358-20240522`);
+        throw new ArgumentError(`invalid act "${input}". Expected a CELEX number like 32024R1689 or 02024R1358-20240522, or an ELI like reg/2024/1689/oj`);
     }
+    return celex;
+}
+
+/**
+ * A CELEX number or an ELI, resolved to a CELEX number. The ELI can be the full
+ * URI (http://data.europa.eu/eli/reg/2024/1689/oj) or its path (reg/2024/1689/oj).
+ * Cellar stores it as cdm:resource_legal_eli, a literal typed xsd:anyURI.
+ * Proposals have no ELI, only adopted acts and consolidated versions.
+ */
+export async function resolveCelex(input) {
+    const raw = String(input ?? '').trim();
+    const path = raw.replace(/^https?:\/\/data\.europa\.eu\/eli\//i, '').replace(/^eli\//i, '').replace(/\/+$/, '');
+    if (!/^[a-z_]+\/\d{4}\/[0-9a-z_\-\/]+$/i.test(path)) return checkCelex(raw);
+    const eli = `http://data.europa.eu/eli/${path.toLowerCase()}`;
+    const data = await sparql(`PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+SELECT ?c WHERE { ?w cdm:resource_legal_eli "${eli}"^^<http://www.w3.org/2001/XMLSchema#anyURI> ; cdm:resource_legal_id_celex ?c } LIMIT 1`);
+    const celex = data?.results?.bindings?.[0]?.c?.value;
+    if (!celex) throw new ArgumentError(`no act with ELI ${eli} in Cellar. Expected something like reg/2024/1689/oj`);
     return celex;
 }
 

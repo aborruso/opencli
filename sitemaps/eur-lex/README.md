@@ -48,12 +48,25 @@ bash ../../bin/sync-sitemaps.sh eur-lex
 ## Metadata of an act
 
 ```bash
-opencli eur-lex meta 32024R1689 -f json | jq -r '.[] | "\(.date)  \(.type)  \(.title[0:60])\n\(.eurovoc)"'
+opencli eur-lex meta 32024R1689 -f json | jq -r '.[] | "\(.date)  \(.type)  \(.title[0:60])\n\(.eli)\n\(.eurovoc)"'
 ```
 
 ```
-2024-06-13  REG  Regulation (EU) 2024/1689 of the European Parliament and the C
+2024-06-13  REG  Regulation (EU) 2024/1689 of the European Parliament and of 
+http://data.europa.eu/eli/reg/2024/1689/oj
 single market; new technology; harmonisation of standards; market approval; innovation; artificial intelligence; smart technology
+```
+
+`eli` is the [European Legislation Identifier](https://eur-lex.europa.eu/eli-register/what_is_eli.html) of the act, the EU-wide standard URI for legislation: readable (`reg/2024/1689/oj`) and shared with national registers that adopt ELI. Adopted acts and consolidated versions have one; proposals (`52021PC0206`) do not, and the column is `null`.
+
+`meta` and `get` take an ELI wherever they take a CELEX number, as a full URI or as its path:
+
+```bash
+opencli eur-lex meta reg/2016/679/oj -f json | jq -r '.[] | "\(.celex)  \(.eli)"'
+```
+
+```
+32016R0679  http://data.europa.eu/eli/reg/2016/679/oj
 ```
 
 ## Full text of an act
