@@ -20,7 +20,7 @@ curl -s -o /dev/null -w '%{http_code} %{size_download}\n' \
 So the work is split:
 
 - **`opencli eur-lex search`** drives the site's own search page in your Chrome through the Browser Bridge. It is the only command here that needs a browser, because EUR-Lex full-text search exists nowhere else.
-- **`get`, `meta`, `sparql`** need no browser: they go to `publications.europa.eu` (Cellar REST and SPARQL), which is not challenged.
+- **`get`, `meta`, `transposition`, `sparql`** need no browser: they go to `publications.europa.eu` (Cellar REST and SPARQL), which is not challenged.
 
 No attempt is made to get around the WAF.
 
@@ -68,6 +68,44 @@ opencli eur-lex meta reg/2016/679/oj -f json | jq -r '.[] | "\(.celex)  \(.eli)"
 ```
 32016R0679  http://data.europa.eu/eli/reg/2016/679/oj
 ```
+
+`meta` also carries the legal dates: `in_force` (true/false), `entry_into_force`, `transposition` (the deadline for Member States, directives only) and `end_of_validity`, `null` when the act has no end date. Acts that apply in stages have several entry-into-force dates, joined with `; ` (the AI Act has five).
+
+```bash
+opencli eur-lex meta 32019L1024 -f json | jq -r '.[] | "in_force=\(.in_force) entry_into_force=\(.entry_into_force) transposition=\(.transposition) end_of_validity=\(.end_of_validity)"'
+```
+
+```
+in_force=true entry_into_force=2019-07-16 transposition=2021-07-17 end_of_validity=null
+```
+
+## National transposition of a directive
+
+The measures each Member State notified to transpose a directive, from Cellar. `--country` takes an ISO 3166 alpha-3 code.
+
+```bash
+opencli eur-lex transposition dir/2019/1024/oj --country ITA -f json | jq -r '.[] | [.date, .type, .title[0:70]] | @tsv'
+```
+
+```
+2021-11-30	Decreto legislativo	Attuazione della direttiva (UE) 2019/1024 del Parlamento europeo e del
+```
+
+Without `--country` you get every measure, one row each: 333 for directive 2016/680, 842 for the services directive 2006/123. Count them by country:
+
+```bash
+opencli eur-lex transposition 32016L0680 -f json | jq -r 'group_by(.country) | map("\(.[0].country)\t\(length)") | .[]' | sort -k2 -nr | head -5
+```
+
+```
+CZE	73
+HRV	62
+SVN	52
+DEU	40
+FIN	24
+```
+
+A measure often transposes several directives, so the count reflects how each country spreads a directive across its laws, not how well it transposed it. Some countries publish a `link` to the national text or a national `eli` (60 and 3 of the 333 for 2016/680); Italy, so far, neither. Regulations apply directly and return `EMPTY_RESULT`.
 
 ## Full text of an act
 

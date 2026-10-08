@@ -2,6 +2,8 @@
 
 ## 2026-10-08
 
+- **eur-lex `transposition`**: the national measures that transpose a directive, from Cellar (`measure_national_implementing_implements_resource_legal`), `--country` ISO alpha-3. A measure has one CELEX per directive it transposes, so a plain join gave 3764 rows for 2016/680; filtered on `7`+number it gives 333 (28 countries; ITA: D.Lgs. 51/2018, 2018-05-24). 2019/1024 ITA: D.Lgs. of 2021-11-30. Regulations: EMPTY_RESULT. National ELI on 3 measures, national link on 60, none for Italy.
+- **eur-lex `meta` legal dates**: `in_force`, `entry_into_force` (all dates, `; `-joined: the AI Act has five), `transposition` (directives), `end_of_validity` (Cellar's 9999-12-31 shown as null). Separate SPARQL query, so the multi-valued dates do not multiply the head row.
 - **ELI in eur-lex**: `meta` has an `eli` column (`cdm:resource_legal_eli`, e.g. `http://data.europa.eu/eli/reg/2024/1689/oj`; `null` for proposals), and `meta`/`get` accept an ELI, full URI or short `reg/2024/1689/oj`, resolved to CELEX by SPARQL on the `xsd:anyURI` literal (~0.3 s). Verified on reg, dir, reg_impl and a consolidated version; unknown ELI and garbage input give ARGUMENT errors. `search` unchanged.
 
 ## 2026-10-02

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
 site: eur-lex.europa.eu
-last_verified: 2026-08-28
+last_verified: 2026-10-08
 source: local
 login_required: false
 auth_strategy: NONE
@@ -18,7 +18,7 @@ The official repository of EU law: treaties, regulations, directives, decisions,
 `eur-lex.europa.eu` sits behind an **AWS WAF**: to a non-browser HTTP client it answers `HTTP 202` with a JavaScript challenge and an empty body. So:
 
 - **Searching full text → needs a real browser.** `opencli eur-lex search` wraps it: the command drives the site's own search page in your Chrome, so it needs the Browser Bridge connected. It is the only command here that does.
-- **Retrieving an act and its metadata → no browser.** `get`, `meta` and `sparql` go to `publications.europa.eu` (Cellar REST and SPARQL), the Publications Office's official machine-readable interfaces, which are not challenged.
+- **Retrieving an act and its metadata → no browser.** `get`, `meta`, `transposition` and `sparql` go to `publications.europa.eu` (Cellar REST and SPARQL), the Publications Office's official machine-readable interfaces, which are not challenged.
 
 Never try to get around the WAF. The browser is the sanctioned way through the front door; Cellar is the sanctioned back door for data.
 
@@ -35,10 +35,11 @@ Never try to get around the WAF. The browser is the sanctioned way through the f
 
 - Find the acts that mention a subject → `workflows/find-legislation.md`
 - Read an act, or feed it to something else → `workflows/read-act.md`
+- Find how Member States transposed a directive → `workflows/transposition.md`
 
 ## Available commands
 
-`opencli eur-lex search | get | meta | sparql` — plugin at `~/git/idee/opencli/plugins/eur-lex`. Only `search` is `browser:true`; the other three are `browser:false` and hit `publications.europa.eu`.
+`opencli eur-lex search | get | meta | transposition | sparql` — plugin at `~/git/idee/opencli/plugins/eur-lex`. Only `search` is `browser:true`; the other four are `browser:false` and hit `publications.europa.eu`.
 
 ## Related sitemap
 

@@ -531,3 +531,23 @@ Status: done 2026-10-08.
 ## Review
 - Done as planned. Error text of `checkCelex` now names both forms ("invalid act … or an ELI like reg/2024/1689/oj").
 - An ELI with a language suffix (`.../oj/eng`) is not stripped: the lookup fails with the "no act with ELI" error.
+
+---
+
+# Plan — transposition command and legal dates in eur-lex meta
+
+Status: done 2026-10-08.
+
+## Verified (2026-10-08, Cellar SPARQL)
+- National implementing measures point at the directive with `cdm:measure_national_implementing_implements_resource_legal`; country in `..._implemented_by_country` (authority URI, ISO 3166 alpha-3). 2016/680: 333 measures, 28 countries, ITA 1 (`72016L0680ITA_259163`, D.Lgs. 51/2018). 2006/123: 842. Regulations: 0.
+- Per measure, title/date/type/country single-valued; national link on 60 of 333, national ELI on 3 (none for ITA).
+- `resource_legal_date_entry-into-force` is multi-valued for staged acts (AI Act: 5 dates); `directive_date_transposition` only on directives; `date_end-of-validity` uses 9999-12-31 for "no end"; `resource_legal_in-force` true/false.
+
+## Phases
+- [x] 1. `meta` adds `in_force`, `entry_into_force` (all dates, `; `-joined), `transposition`, `end_of_validity` (null for 9999-12-31) → verify: 2016/680 gives true, 2016-05-05, 2018-05-06, null; 95/46 gives false and 2018-05-24; AI Act lists 5 dates.
+- [x] 2. `transposition <celex|eli> [--country ITA]` → verify: `transposition dir/2016/680/oj --country ITA` gives the D.Lgs.; without filter 333 rows; a regulation gives EMPTY_RESULT with a hint; bad country gives ARGUMENT; `validate` passes.
+- [x] 3. Docs: plugin README, root README command list, sitemap README + a workflow, LOG.
+
+## Review
+- Done. Found by running: a measure carries one CELEX per directive it transposes, so the first version returned 3764 rows for 2016/680; filtered on `7`+number it returns 333, one per measure. New workflow `sitemaps/eur-lex/workflows/transposition.md`.
+- Open: Italian measures have no national link or ELI in Cellar; a Normattiva URL would have to be built from date and title, not attempted.
