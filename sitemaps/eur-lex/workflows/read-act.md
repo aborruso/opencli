@@ -31,7 +31,7 @@ opencli eur-lex get 32024R1689 --lang ita       # the Italian expression
 
 `--as` accepts `text`, `xhtml`, `notice` (a ~5 KB metadata notice) and `branch` (~1.5 MB). Language codes are ISO 639-3: `eng`, `ita`, `fra`.
 
-For anything the three commands do not cover, query the graph directly:
+For anything the commands do not cover, query the graph directly:
 
 ```bash
 opencli eur-lex sparql 'PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>

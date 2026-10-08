@@ -34,7 +34,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 | Site | Start here | Commands |
 |---|---|---|
 | law-tracker.europa.eu | [`sitemaps/law-tracker/SITE.md`](sitemaps/law-tracker/SITE.md) | `opencli law-tracker proposals\|events\|search\|timeline\|topics` |
-| eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|sparql` (only `search` needs a browser) |
+| eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|transposition\|sparql` (only `search` needs a browser) |
 | esploradati.istat.it | [`plugins/istatdata/README.md`](plugins/istatdata/README.md) — no sitemap | `opencli istatdata ask\|dataset` (no browser) |
 | koboyo.com | [`plugins/koboyo/README.md`](plugins/koboyo/README.md) — no sitemap | `opencli koboyo search\|get\|groups` (no browser) |
 | ec.europa.eu/info/funding-tenders | [`plugins/eu-funding/README.md`](plugins/eu-funding/README.md) — no sitemap | `opencli eu-funding calls\|topic\|updates\|faqs\|faq\|org\|partners\|projects\|codes` (no browser) |
@@ -50,7 +50,7 @@ A sitemap is a hint. **Live browser state is the truth.** When they disagree, tr
 ## What these sites are, and how they relate
 
 - **law-tracker** follows the *legislative process*: which stage a file is at, what happened when. Its search matches **procedure titles only**, not the text of the acts.
-- **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names. `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so `opencli eur-lex search` drives a real browser; `get`, `meta` and `sparql` need none.
+- **eur-lex** holds the *text of the law*. Its full-text search is the one that finds a subject no title names. `eur-lex.europa.eu` is behind an AWS WAF and answers `HTTP 202` with an empty body to any non-browser client, so `opencli eur-lex search` drives a real browser; `get`, `meta`, `transposition` and `sparql` need none. `get`, `meta` and `transposition` take a CELEX number or an ELI; `transposition` lists the national measures that transpose a directive (`--country ITA`).
 
 **istatdata** is unrelated to the other two: Italian official statistics, not EU law. Its one thing worth knowing is that `ask` is a *dataset finder, not an oracle* — ask it for the average income in a town and it returns the table that holds the figure, never the figure. Getting the number out means downloading the `data` URL, which pulls the whole dataflow unless you narrow it.
 

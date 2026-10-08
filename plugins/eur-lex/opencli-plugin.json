@@ -1,6 +1,6 @@
 {
   "name": "eur-lex",
   "version": "0.1.0",
-  "description": "EUR-Lex / Cellar — EU law: full-text search (needs the browser), plus text and metadata by CELEX number (no browser)",
+  "description": "EUR-Lex / Cellar — EU law: full-text search (needs the browser), plus text, metadata and national transposition by CELEX number or ELI (no browser)",
   "opencli": ">=1.8.6"
 }
