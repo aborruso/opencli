@@ -20,15 +20,15 @@ Every command here is `access: read`. Nothing writes to any site. The only comma
 
 ## Try it
 
-Needs Node ≥ 20.
+Needs Node ≥ 20.18.1.
 
 ```bash
-npm install -g @jackwener/opencli                       # the CLI itself
+npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, pinned: see below
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 opencli list                                            # what you can now run
 ```
 
-That is enough for every command but one. Single-site install, sitemap linking and the browser setup are under [Install](#install).
+That is enough for every command but one. Why the version is pinned, single-site install, sitemap linking and the browser setup are under [Install](#install).
 
 Each adapter has its own README with its commands, its examples and the traps of that particular source. Start from the table below.
 
@@ -72,11 +72,13 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli                       # the CLI itself
+npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, pinned: see below
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
 ```
+
+> **OpenCLI is pinned to 1.8.8 on purpose.** Upstream `main` removed site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539), merged 2026-09-24); 1.8.8, the current release, came out the day before, so it is the last one that reads them. The PR leaves adapter and plugin commands untouched, but from the next release `opencli browser` will no longer pick up the sitemaps in `sitemaps/`: they remain readable as Markdown, nothing more. Install a later version only if you do not need them.
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.
 
@@ -129,7 +131,7 @@ sitemaps/<site>/
   pitfalls.md             # durable failure modes
 ```
 
-OpenCLI only looks for sitemaps in `~/.opencli/sites/<site>/sitemap/` (and inside the npm package). Link this repo's sitemaps into place with:
+OpenCLI, up to 1.8.8, looks for sitemaps only in `~/.opencli/sites/<site>/sitemap/` (and inside the npm package); later releases do not read them at all (see [Install](#install)). Link this repo's sitemaps into place with:
 
 ```bash
 bash bin/sync-sitemaps.sh

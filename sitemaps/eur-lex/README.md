@@ -29,7 +29,7 @@ No attempt is made to get around the WAF.
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli
+npm install -g @jackwener/opencli@1.8.8   # last release that reads sitemaps
 opencli plugin install github:aborruso/opencli/eur-lex
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 opencli validate eur-lex

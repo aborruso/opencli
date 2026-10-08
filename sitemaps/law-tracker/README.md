@@ -12,7 +12,7 @@ The European Commission's portal for following EU legislative procedures: propos
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli
+npm install -g @jackwener/opencli@1.8.8   # last release that reads sitemaps
 opencli plugin install github:aborruso/opencli/law-tracker
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh law-tracker
 opencli validate law-tracker

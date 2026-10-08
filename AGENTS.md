@@ -10,7 +10,7 @@ This repo ships two things for two different consumers:
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli                       # the CLI itself, Node >= 20
+npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, Node >= 20.18.1; pinned: later releases drop sitemaps (upstream PR #2539)
 opencli plugin install github:aborruso/opencli          # every adapter, in one shot
 bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|koboyo|eu-funding'  # check
