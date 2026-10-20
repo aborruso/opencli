@@ -671,4 +671,4 @@ Cause: `readDetail()` (`plugins/registroimprese/search.js:137`) returned `null` 
 - [x] Control `infocamere --province RM --detail` unchanged (Morgagni 13, RM, protocollo@pec.infocamere.it, 63.10.2); `adapter check` clean.
 - [x] README (`address` empty for a foreign company), LOG.
 - [~] Superseded: null row + warning for a detail that truly does not load. Not needed for #3; a page without "Nome impresa" still fails, as before.
-- [ ] Commit, close #3 (waiting for Andrea).
+- [x] Commit, close #3 → done 2026-10-20.
