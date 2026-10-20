@@ -153,10 +153,11 @@ Everything under `docs/` except `notes.md` is a verbatim mirror of the [OpenCLI]
 The agent skills this repo is written against (`opencli-usage`, `opencli-browser`, `opencli-adapter-author`, `opencli-autofix`; OpenCLI 2 dropped `opencli-browser-sitemap` and `opencli-sitemap-author`) are not redistributed here. Install them separately:
 
 ```bash
-npx skills add jackwener/opencli
+npx skills add https://github.com/jackwener/OpenCLI/tree/v2.0.1/skills \
+  --skill opencli-adapter-author opencli-autofix opencli-browser opencli-usage -a claude-code
 ```
 
-`skills-lock.json` records which ones, and at which version, this repo was written against.
+`skills-lock.json` records which ones, and at which version (`ref: v2.0.1`), this repo was written against. Without the `tree/v2.0.1` URL, `skills add` takes the upstream default branch, which can be ahead of the installed CLI.
 
 ## Editing rules
 
