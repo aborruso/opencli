@@ -1,7 +1,7 @@
 // The datasets of one atlas, from its catalog; with --tree, its theme tree
 // with the number of datasets under each theme.
 import { cli, Strategy } from '@jackwener/opencli/registry';
-import { EmptyResultError } from '@jackwener/opencli/errors';
+import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
 import {
     DEFAULT_ATLAS, checkLang, resolveAtlas, fetchCatalog, buildIndex, tableUrl, categoryPath,
 } from './shared.js';
@@ -17,7 +17,7 @@ cli({
     browser: false,
     args: [
         { name: 'atlas', type: 'string', default: DEFAULT_ATLAS, help: 'Atlas code or id, see `opencli aster atlases`' },
-        { name: 'grep', type: 'string', help: 'Keep datasets whose id, title or theme path contains this text (case-insensitive)' },
+        { name: 'grep', type: 'string', help: 'Keep datasets whose id, title or theme path holds every word, in any order; accents, case and the final vowel are ignored (decesso finds Decessi). Title matches first' },
         { name: 'tree', type: 'boolean', default: false, help: 'List the themes instead of the datasets: one row per theme, with how many datasets it holds' },
         { name: 'lang', type: 'string', default: 'it', help: 'Language of titles and themes: it or en' },
     ],
@@ -27,13 +27,21 @@ cli({
         const lang = checkLang(args.lang);
         const atlas = await resolveAtlas(args.atlas, lang);
         const index = buildIndex(await fetchCatalog(atlas.nodeId, lang));
-        const needle = args.grep ? String(args.grep).toLowerCase() : null;
+        const terms = args.grep ? stems(args.grep) : null;
+        if (terms && terms.length === 0) throw new ArgumentError(`--grep "${args.grep}" has no word to search`);
 
         const rows = [];
         for (const [id, meta] of index) {
             const category = categoryPath(meta.categoryLabels);
-            if (needle && ![id, meta.title, category].some((v) => v && v.toLowerCase().includes(needle))) continue;
+            let inTitle = 0;
+            if (terms) {
+                const idWords = stems(id), titleWords = stems(meta.title), categoryWords = stems(category);
+                const has = (words, t) => words.some((w) => w.startsWith(t));
+                if (!terms.every((t) => has(idWords, t) || has(titleWords, t) || has(categoryWords, t))) continue;
+                inTitle = terms.filter((t) => has(titleWords, t)).length;
+            }
             rows.push({
+                inTitle,
                 id,
                 title: meta.title || null,
                 category,
@@ -44,12 +52,31 @@ cli({
         if (rows.length === 0) {
             throw new EmptyResultError(
                 `aster datasets --atlas ${atlas.code}`,
-                needle ? `no dataset matches "${args.grep}": try a shorter word, or the other language with --lang` : 'the atlas catalog is empty',
+                terms ? `no dataset matches "${args.grep}": try a shorter word, or the other language with --lang` : 'the atlas catalog is empty',
             );
         }
+        // Datasets with more of the words in their title first; the sort is
+        // stable, so the catalog order holds within each group.
+        rows.sort((a, b) => b.inTitle - a.inTitle);
+        for (const row of rows) delete row.inTitle;
         return args.tree ? themeTree(rows) : rows;
     },
 });
+
+/**
+ * The words of a text, for --grep: lower case, no accents, split on anything
+ * that is not a letter or a digit, final vowel dropped from words longer than
+ * three letters, so singular and plural meet (decesso, decessi -> decess). A
+ * query word matches a word of the dataset that starts with it, in any order.
+ */
+function stems(text) {
+    return String(text ?? '')
+        .normalize('NFD').replace(/\p{M}/gu, '')
+        .toLowerCase()
+        .split(/[^\p{L}\p{N}]+/u)
+        .filter(Boolean)
+        .map((w) => (w.length > 3 && /[aeiou]$/.test(w) ? w.slice(0, -1) : w));
+}
 
 /**
  * One row per theme, in tree order, counting each dataset once under its

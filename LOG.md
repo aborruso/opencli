@@ -2,6 +2,7 @@
 
 ## 2026-10-20
 
+- **aster `datasets --grep` by words**: every query word, any order, accents/case/final vowel ignored, prefix match, title matches first. `reddito comuni`, `comuni reddito`, `decesso` now hit (were 0); 12 queries that worked before lose no result (one more on `ambiente urbano`). No BM25: titles are 10-15 words and the catalog has no descriptions or keywords, so ranking by term weight would change little.
 - **OpenCLI 2.0.2**: one commit over 2.0.1, release pipeline only (no CLI code, extension still 1.0.26). Installed globally: `adapter check` clean on all 10 plugins, aster/law-tracker/eur-lex/istatdata/albo-palermo run live; aster installs from `github:aborruso/opencli/aster` in an empty HOME. Install snippets, nightly workflows, skills-lock and mirror URLs moved to v2.0.2; the 7 mirror files are byte-identical at both tags (sha256 unchanged).
 - **#9 opened**: the hub ignores `--last` on large requests (two indicators × all municipalities of `30_1008` → 2012-2023 instead of 2023); `--from` holds.
 - **aster `datasets --tree`**: the theme tree of an atlas, one row per theme with its dataset count (AST: 117 themes, top level sums to 279). For users who do not know what is inside. `columns` dropped from `datasets`, since the two modes return different keys.

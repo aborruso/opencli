@@ -101,6 +101,7 @@ On 2026-10-20 the 18 values of Sicilia and Piemonte that `data` returns with the
 
 ## What to know before using it
 
+- **`--grep` matches words, not a phrase.** Every word of the query must be in the id, title or theme path, in any order; accents and case are ignored, and so is the final vowel, so singular and plural meet: `decesso` finds `Decessi`, `reddito comuni` finds "Reddito delle persone fisiche (Irpef) - comuni". A word matches the start of a word (`comun` also matches `comunitari`). Datasets with the words in the title come first. Indicators inside a dataset are not searched: life expectancy is in `Decessi`, and `--grep "speranza vita"` finds nothing. Browse with `--tree` for those.
 - **`data` starts from the web table's own filter**, the one `dataset` shows in `default`. `--filter` changes only the dimensions it names: `DIM=a+b` for those codes, `DIM=*` for every value. A dimension with no default takes every value. Codes come from `values`.
 - **Time:** `--last N` for the last N periods, `--from`/`--to` with `YYYY` or `YYYY-MM-DD`; the time dimension is not accepted in `--filter`. The hub takes full dates only, so a bare year is turned into the first or last day of that year.
 - **A request that is too large fails rather than coming back short.** The hub cuts the answer at 500,000 values and says so with HTTP 206; the adapter reports that as an error and asks for a narrower filter, instead of printing a partial table as if it were whole.
