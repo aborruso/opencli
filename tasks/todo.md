@@ -551,3 +551,61 @@ Status: done 2026-10-08.
 ## Review
 - Done. Found by running: a measure carries one CELEX per directive it transposes, so the first version returned 3764 rows for 2016/680; filtered on `7`+number it returns 333, one per measure. New workflow `sitemaps/eur-lex/workflows/transposition.md`.
 - Open: Italian measures have no national link or ELI in Cellar; a Normattiva URL would have to be built from date and title, not attempted.
+
+---
+
+# Plan — aster (ISTAT Statistical Atlas of the Territory)
+
+Status: done 2026-10-20 (Phases 0-4). Not committed. Written 2026-10-20.
+
+## Verified (live, 2026-10-20, curl + headless browser HAR)
+
+- `aster.istat.it` runs the same Data Browser product as IstatData (`plugins/istatdata`), with its own hub at `https://aster.istat.it/api/core/` (from `config/config.json`). No auth, no cookie, no browser needed: every call below answered from curl.
+- `GET api/core/nodes`: 7 nodes, one per atlas: 1 AST, 3 ATLANTE_COMUNI, 7 MUSEI, 5 ASTI, 8 PERIFERIE, 9 CENS_POP, 2 IMPORT_DATA (temporary datasets).
+- `GET api/core/nodes/{n}/catalog`: `categoryGroups`, `datasetMap`, `datasetUncategorized`. 691 node/dataset pairs, 313 distinct dataflows, all agency `IT1`.
+- `GET api/core/nodes/{n}/datasets/{agency,id,version}/structure`: dimensions with codelist refs, `territorialDimension`, `timeDimension`.
+- `POST api/core/nodes/{n}/datasets/{id}/data`, body = JSON array of `{id, filterValues, type: CodeValues|TimePeriod, period}`, answers **JSON-stat**.
+- No public SDMX REST: `/rest/*`, `/SDMXWS/rest/*` redirect to `#/error`. So this cannot be an opensdmx provider.
+- Not a view of the ISTAT SDMX endpoint: only 113 of 313 dataflow ids exist on `esploradati.istat.it/SDMXWS`, and same id ≠ same structure (`26_29`: aster has `TERRITORIO` on `CL_AST_ITTER` and no `FREQ`; ISTAT has `REF_AREA` on `CL_ITTER107`).
+- Extra services: `api/geoglossary/geometry/{n}?format=geojson&geoLevel=&year=&codelistId=` (POST), `api/news`, `api/indicator`, `api/optimizeddata`. Not in scope for v1.
+
+## Design
+
+New sub-plugin `plugins/aster`, site `aster`, `Strategy.PUBLIC`, `browser: false`, all `access: read`. Same shape as `istatdata` (hub fetch with the HTTP-200-with-errorCode check). Commands:
+
+- `opencli aster atlases` — the nodes: id, code, name, dataset count.
+- `opencli aster datasets [--atlas AST] [--grep text] [--lang it|en]` — catalog rows: id, title, category path, atlas, browser URL.
+- `opencli aster dataset <id> [--atlas AST]` — structure: one row per dimension, codelist, territorial/time flags, default filter from `template.criteria`; number of values needs one `column/{DIM}/partial/values` call per dimension (serial), or a separate `values <id> <DIM>` command.
+- `opencli aster data <id> [--atlas AST] --filter DIM=v1+v2 ... [--last N]` — POST data, JSON-stat flattened to long rows with codes **and** labels. Omitted dims = all values; `--last N` → `TimePeriod` `period:N`; `--from/--to` → `TimeRange` with ISO dates; HTTP 206 → truncation error.
+
+`--atlas` takes the code (AST) or the node id; default AST.
+
+## Phases
+
+### Phase 0 — contracts
+- [x] Capture structure + data contracts for 2 datasets on 2 atlases → done 2026-10-20, files in `tmp/aster/`: `structure.json` (AST, `IT1,26_29,1.0`), `structure.n3.json` (ATLANTE_COMUNI, `IT1,101_1077,1.0`), `cat1.json`, `cat3.json` (73 datasets), `data.*.json`. Corrections to the plan: `structure` has **no value counts** — it gives `criteria[]` (`id`, `label`, `extra.DataStructureRef` = codelist `IT1+CL_AST_ITTER+1.0`), `territorialDimension`, `timeDimension`, `freqDimension`, `maxTableCells` (1000000) and `template.criteria` (the default filter the web view uses, same shape as the data body). Values come from `GET nodes/{n}/datasets/{id}/column/{DIM}/partial/values` → `{criteria:[{id,label,values:[{id,name,isDefault,isSelectable}]}], obsCount}` (POST → 405). Bundle also lists `DimensionValues`, `PartialCodelists`, `NotEmptyCombinations`, `download`: not probed.
+- [x] Empty `filterValues` and time filters → done 2026-10-20 (26_29, node 1): `filterValues: []` on a CodeValues dim → HTTP 200 with an **empty** JSON-stat (`size: []`), not "all"; dim **omitted** → all values (SEX 3, same as baseline). Time: `{type:"TimePeriod", filterValues:[], period:N}` = last N periods (N=2 → 2 years); `{type:"TimeRange", from:"2020-01-01", to:"2022-12-31"}` → 2020..2022; `from:"2020"` → HTTP 400; `TimePeriod` with `filterValues:["2020","2022"]` → empty. Body `[]` → **HTTP 206**, JSON-stat cut at 500000 values (sparse `value` object): 206 must be reported as truncation, not as success.
+- [x] Language → done 2026-10-20: header `UserLang: it|en` (as the web app sends). Without it the hub answers in **English**; `Accept-Language` is ignored. Adapter: default `--lang it`, header always sent.
+
+### Phase 1 — atlases + datasets
+- [x] `shared.js` (hub fetch, atlas resolution, catalog index), `atlases.js`, `datasets.js` → done 2026-10-20, installed with `opencli plugin install file://…/plugins/aster`. `atlases` lists 7 rows (Italian names with `UserLang: it`). `datasets --atlas AST` returns **279**, not 280: the 280th, `IT1,PROVA_IMPORT_POP,1.0`, is a test dataset the catalog lists in English only. `--atlas 3`, `--grep`, unknown atlas (ARGUMENT, lists the codes), no match (EMPTY_RESULT), `--lang de` (ARGUMENT) checked. `validate aster` PASS; `convention-audit` scans 0 files on plugins (known, see LOG 2026), the seven rules checked by hand.
+  - Plan changes: `atlases` has no dataset count (it would cost one catalog call per atlas); columns `id, code, name, default`. The theme path leaves out the category group label (one per atlas, and on AST it reads "Albero dei temi - Atlante Statistico dei Comuni").
+  - Table link: the IstatData form `#/{lang}/{atlas}/categories/{groupId}/…/{id}` gives "La pagina richiesta non è disponibile" on aster (headless Chrome, 2026-10-20). Without the group id it works, and so does the short `#/{lang}/{atlas}/{id}`, which is what the adapter uses: verified opening `IT1,101_1039,1.0` (ATLANTE_COMUNI) and `IT1,DF_DCAT_CENSAGRIC2020_SURF_ALL,1.0` (AST), both load `structure` + `data`.
+
+### Phase 2 — dataset (structure)
+- [x] `dataset.js` → done 2026-10-20: `26_29` shows 9 dimensions, `TERRITORIO` role `territory`, `TIME_PERIOD` `time`, default filter from `template.criteria` (`DEATHRATE+LIFEEXP0+MEANAGEDH`, `last 1`; codes spelled out up to 20, always counted in `default_count`). One call (+ `nodes` for the atlas). A dimension missing from `template.criteria` has empty default: on `101_1039` (ATLANTE_COMUNI) only TERRITORIO has one (5495 codes). Unknown id → hub HTTP 500, reported as COMMAND_EXEC with the hint that an unknown id also gives 500; malformed id → ARGUMENT.
+- [x] `values.js` (new, instead of value counts in `dataset`: one call per dimension, TIME_PERIOD took 10 s once) → done 2026-10-20: `values <id> <DIM>` lists code, name, parent, selectable from `column/{DIM}/partial/values`, after checking the dimension against the structure (unknown dim → ARGUMENT listing the dims; the hub would answer `{}`). SEX on 26_29: 1, 2, 9. TERRITORIO on 101_1039: 5633 rows, 5495 selectable (= the municipalities; IT, macro-areas and regions come as non-selectable parents). TIME_PERIOD comes as two non-selectable rows, start and end (`2011-01-01`, `2024-12-31`). `validate aster` PASS (4 commands).
+
+### Phase 3 — data
+- [x] `data.js`, JSON-stat → rows → done 2026-10-20. Starts from the web table's filter (`template.criteria`); `--filter "DIM=a+b DIM2=c"` (space or `;`) overrides a dimension, `DIM=*` drops it (= every value); `--last N` → `TimePeriod` `period:N`; `--from/--to` (YYYY or YYYY-MM-DD) → `TimeRange` with full dates. No declared `columns`: one code column and one `_label` column per dimension (lower-cased), then `value`; opencli takes the columns from the first row, every row has the same keys. Checks: Decessi default = **198 rows** (22 × 3 × 3, 2024); the 9 values of Sicilia and the 9 of Piemonte **match the web table** (accessible version `?accessible=true`, headless Chrome: the normal table is not in the DOM). `--from 2020 --to 2024`, `--last 2`, two regions: right rows. Errors: HTTP 206 → COMMAND_EXEC "truncated, narrow it" (all dims `*` from 2011); unknown code → EMPTY_RESULT; unknown dim, `--last` with `--from`, TIME_PERIOD in `--filter` (always: time goes through `--last`/`--from`/`--to`, a code filter on it was never tested on the hub), bad date → ARGUMENT. The 206 hint about `--filter` is added in `fetchData`, `hubFetch` keeps a generic message.
+  - Found while testing: the data endpoint answers **HTTP 204, empty body** when the filter matches nothing (Palermo `082053` on `101_1039`, not among the municipalities with data). `hubFetch` returns `null` on 204, `data` turns it into EMPTY_RESULT. Agliè `001001`: 26 rows on a 1×1×5×6 cube, missing cells skipped.
+
+### Phase 4 — docs + gate
+- [x] `plugins/aster/README.md` with real output, row in `AGENTS.md`, entry in `opencli-plugin.json`, `LOG.md` → done 2026-10-20. README output captured live the same day; AGENTS.md: table row, a paragraph in "What these sites are", `aster` in the check grep; root README: source count, example line, table row, no-sitemap note, local install line. Examples in README and AGENTS run. `validate aster` PASS (5 commands); `convention-audit` scans no plugin file (known), rules checked by hand: declared columns = emitted keys on 4 commands, `data` declares none on purpose (dynamic dimensions, lower-cased snake keys), `access: read` everywhere, no clamp, empty → EMPTY_RESULT, no sentinel, nothing writes.
+
+## Decisions (user, 2026-10-20)
+
+- Site name: `aster`.
+- `data` is in v1.
+- Geometries (geojson): later, not in v1 (noted in `docs/future-ideas.md`).
+- Hub calls: serial only, no fixed pause.

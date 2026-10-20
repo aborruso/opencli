@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-10-20
+
+- **aster Phase 4**: `plugins/aster/README.md` with live output, `aster` registered in the root `opencli-plugin.json`, row and paragraph in `AGENTS.md`, root README updated (now nine sources). `validate aster` PASS, 5 commands.
+- **aster Phase 3**: `data <id>` - JSON-stat to one row per observation, code + label per dimension. Starts from the web table's default filter; `--filter DIM=a+b` / `DIM=*`, `--last N`, `--from/--to`. Decessi 2024: 198 rows, Sicilia and Piemonte (18 values) match the accessible web table. HTTP 206 (truncated) is an error; HTTP 204 (no observation, e.g. a municipality without data) is EMPTY_RESULT.
+- **aster Phase 2**: `dataset <id>` (dimensions, codelist, role, default filter of the web table, one call) and `values <id> <DIM>` (codes with data, parent, selectable). Value counts left out of `dataset`: one call per dimension, up to 10 s each. Unknown id: the hub answers HTTP 500, and the error says so.
+- **aster Phase 1**: new sub-plugin `plugins/aster` (not yet in the root `opencli-plugin.json`, Phase 4), `atlases` (7) and `datasets` (`--atlas`, `--grep`, `--lang`, default `it`; AST 279 in Italian, 280 in English because of a test dataset). Table links use the short `#/{lang}/{atlas}/{id}`: the IstatData form with the category group id is "page not available" on aster. `validate` PASS, convention rules checked by hand (the audit scans no plugin file).
+- **aster Phase 0 (contracts)**: aster.istat.it hub probed serially from curl, results in `tasks/todo.md` and `tmp/aster/`. Language via `UserLang` header (default English without it); empty `filterValues` = no data, omitted dim = all; last N via `TimePeriod` `period`, ranges via `TimeRange` with ISO dates; unfiltered request → HTTP 206 truncated at 500000 values. Dimension values from `column/{DIM}/partial/values`, not from `structure`.
+
 ## 2026-10-08
 
 - **OpenCLI pinned to 1.8.8 in every install snippet** (README twice, AGENTS.md, eur-lex and law-tracker sitemap READMEs), with a warning in the README Install section: the next release drops sitemaps (PR #2539). Node floor in the README raised to 20.18.1, as 1.8.8 declares.

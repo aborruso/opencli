@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-aster",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ASTER (aster.istat.it) - ISTAT Statistical Atlas of the Territory: atlases, datasets, structure and data, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.8.6"
+  }
+}

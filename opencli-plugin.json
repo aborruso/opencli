@@ -35,6 +35,10 @@
     "registroimprese": {
       "path": "plugins/registroimprese",
       "description": "Registro Imprese - the free company search by name and province, with the free detail (address, PEC, ATECO); name suggestions without a browser"
+    },
+    "aster": {
+      "path": "plugins/aster",
+      "description": "ASTER - the ISTAT Statistical Atlas of the Territory: atlases, datasets, a dataset's dimensions and codes, and its data as rows"
     }
   }
 }

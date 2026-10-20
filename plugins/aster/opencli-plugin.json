@@ -1,0 +1,6 @@
+{
+  "name": "aster",
+  "version": "0.1.0",
+  "description": "ASTER (aster.istat.it) - the ISTAT Statistical Atlas of the Territory: its atlases, their datasets, a dataset's structure and its data as rows. Public hub of the Data Browser, no browser",
+  "opencli": ">=1.8.6"
+}
