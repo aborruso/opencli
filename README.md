@@ -24,7 +24,7 @@ Every command here is `access: read`. Nothing writes to any site. The only comma
 Needs Node ≥ 20.18.1.
 
 ```bash
-npm install -g @jackwener/opencli@2.0.1                 # the CLI itself
+npm install -g @jackwener/opencli@2.0.2                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 opencli list                                            # what you can now run
 ```
@@ -76,12 +76,12 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli@2.0.1                 # the CLI itself
+npm install -g @jackwener/opencli@2.0.2                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
 ```
 
-> **Written for OpenCLI 2.** Two things changed from 1.8: `-f json` (and the default output, which is now JSON) wraps the rows as `{"ok": true, "data": [...]}`, so the `jq` examples read `.data[]`; and OpenCLI no longer reads site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539)). The folders in `sitemaps/` stay as Markdown notes that an agent reads itself before driving the browser; [`AGENTS.md`](AGENTS.md) says when. Checked on 2.0.1 on 2026-10-20: every plugin installs, `opencli adapter check` passes on all of them.
+> **Written for OpenCLI 2.** Two things changed from 1.8: `-f json` (and the default output, which is now JSON) wraps the rows as `{"ok": true, "data": [...]}`, so the `jq` examples read `.data[]`; and OpenCLI no longer reads site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539)). The folders in `sitemaps/` stay as Markdown notes that an agent reads itself before driving the browser; [`AGENTS.md`](AGENTS.md) says when. Checked on 2.0.2 on 2026-10-20: every plugin installs, `opencli adapter check` passes on all of them.
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.
 
@@ -153,11 +153,11 @@ Everything under `docs/` except `notes.md` is a verbatim mirror of the [OpenCLI]
 The agent skills this repo is written against (`opencli-usage`, `opencli-browser`, `opencli-adapter-author`, `opencli-autofix`; OpenCLI 2 dropped `opencli-browser-sitemap` and `opencli-sitemap-author`) are not redistributed here. Install them separately:
 
 ```bash
-npx skills add https://github.com/jackwener/OpenCLI/tree/v2.0.1/skills \
+npx skills add https://github.com/jackwener/OpenCLI/tree/v2.0.2/skills \
   --skill opencli-adapter-author opencli-autofix opencli-browser opencli-usage -a claude-code
 ```
 
-`skills-lock.json` records which ones, and at which version (`ref: v2.0.1`), this repo was written against. Without the `tree/v2.0.1` URL, `skills add` takes the upstream default branch, which can be ahead of the installed CLI.
+`skills-lock.json` records which ones, and at which version (`ref: v2.0.2`), this repo was written against. Without the `tree/v2.0.2` URL, `skills add` takes the upstream default branch, which can be ahead of the installed CLI.
 
 ## Editing rules
 

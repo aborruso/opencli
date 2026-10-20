@@ -1,4 +1,5 @@
-// The datasets of one atlas, from its catalog.
+// The datasets of one atlas, from its catalog; with --tree, its theme tree
+// with the number of datasets under each theme.
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { EmptyResultError } from '@jackwener/opencli/errors';
 import {
@@ -17,9 +18,11 @@ cli({
     args: [
         { name: 'atlas', type: 'string', default: DEFAULT_ATLAS, help: 'Atlas code or id, see `opencli aster atlases`' },
         { name: 'grep', type: 'string', help: 'Keep datasets whose id, title or theme path contains this text (case-insensitive)' },
+        { name: 'tree', type: 'boolean', default: false, help: 'List the themes instead of the datasets: one row per theme, with how many datasets it holds' },
         { name: 'lang', type: 'string', default: 'it', help: 'Language of titles and themes: it or en' },
     ],
-    columns: ['id', 'title', 'category', 'atlas', 'table'],
+    // No `columns`: without --tree the rows are id, title, category, atlas,
+    // table; with --tree they are level, theme, datasets, category.
     func: async (args) => {
         const lang = checkLang(args.lang);
         const atlas = await resolveAtlas(args.atlas, lang);
@@ -44,6 +47,33 @@ cli({
                 needle ? `no dataset matches "${args.grep}": try a shorter word, or the other language with --lang` : 'the atlas catalog is empty',
             );
         }
-        return rows;
+        return args.tree ? themeTree(rows) : rows;
     },
 });
+
+/**
+ * One row per theme, in tree order, counting each dataset once under its
+ * theme path and every theme above it, so the counts match `datasets --grep`
+ * on the same path.
+ */
+function themeTree(rows) {
+    const themes = new Map();
+    for (const { category } of rows) {
+        const labels = category.split(' > ');
+        for (let i = 1; i <= labels.length; i++) {
+            const path = labels.slice(0, i).join(' > ');
+            if (!themes.has(path)) themes.set(path, { level: i, theme: labels[i - 1], datasets: 0, category: path });
+            themes.get(path).datasets++;
+        }
+    }
+    // Compare label by label, so a theme is followed by its own subthemes.
+    const byPath = (a, b) => {
+        const x = a.category.split(' > '), y = b.category.split(' > ');
+        for (let i = 0; i < Math.min(x.length, y.length); i++) {
+            const c = x[i].localeCompare(y[i], 'it');
+            if (c) return c;
+        }
+        return x.length - y.length;
+    };
+    return [...themes.values()].sort(byPath);
+}

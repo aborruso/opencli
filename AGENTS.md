@@ -10,7 +10,7 @@ This repo ships two things for two different consumers:
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli@2.0.1                 # the CLI itself, Node >= 20.18.1
+npm install -g @jackwener/opencli@2.0.2                 # the CLI itself, Node >= 20.18.1
 opencli plugin install github:aborruso/opencli          # every adapter, in one shot
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding'  # check
 ```

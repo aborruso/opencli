@@ -29,7 +29,7 @@ No attempt is made to get around the WAF.
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli@2.0.1
+npm install -g @jackwener/opencli@2.0.2
 opencli plugin install github:aborruso/opencli/eur-lex
 opencli adapter check eur-lex
 opencli doctor            # only needed for `search`, which drives a real browser

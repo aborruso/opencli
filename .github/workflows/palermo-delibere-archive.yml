@@ -49,7 +49,7 @@ jobs:
 
       - name: Install opencli and the adapter
         run: |
-          npm install -g @jackwener/opencli@2.0.1
+          npm install -g @jackwener/opencli@2.0.2
           opencli plugin install "file://$PWD/plugins/palermo-delibere"
           opencli adapter check palermo-delibere
 

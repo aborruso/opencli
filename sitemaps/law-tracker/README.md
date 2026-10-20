@@ -12,7 +12,7 @@ The European Commission's portal for following EU legislative procedures: propos
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli@2.0.1
+npm install -g @jackwener/opencli@2.0.2
 opencli plugin install github:aborruso/opencli/law-tracker
 opencli adapter check law-tracker
 ```

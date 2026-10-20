@@ -15,7 +15,7 @@ opencli adapter check aster          # expected: "ok": true, 5 commands
 | Command | What it does | Browser |
 |---|---|---|
 | `atlases` | the atlases, with the code to pass as `--atlas` | no |
-| `datasets` | the datasets of one atlas: id, title, theme path, link to the table; `--grep` | no |
+| `datasets` | the datasets of one atlas: id, title, theme path, link to the table; `--grep`; `--tree` for the themes | no |
 | `dataset <id>` | the dimensions of a dataset: label, codelist, role, default filter of the web table | no |
 | `values <id> <DIM>` | the codes of one dimension that have data, with label and parent | no |
 | `data <id>` | the data, one row per observation; `--filter`, `--last`, `--from`/`--to` | no |
@@ -44,6 +44,23 @@ In practice: for a figure that is on SDMX, prefer opensdmx, which has the newer 
 Limits: values compared on 3 datasets of 313, about 140 matched by theme only, SDMX titles in English and ASTER titles in Italian, so some of the ~30 "only on ASTER" may be on SDMX under names not tried.
 
 ## Examples
+
+Not sure what is in there? Start from the themes. `--tree` lists the theme tree of an atlas, one row per theme, with how many datasets it holds:
+
+```bash
+opencli aster datasets --tree -f table
+opencli aster datasets --tree --atlas PERIFERIE -f table
+```
+
+On 2026-10-20 AST had 117 themes, 16 at the top level (`Popolazione e famiglie` 37 datasets, `Offerta di lavoro` 26, ...). A dataset is counted once, under its theme and every theme above it, so the top-level counts add up to the 279 datasets of the atlas, and the count of a theme is the number of rows of `datasets` whose `category` starts with its path. `--tree` combines with `--grep`: the themes of the datasets that match.
+
+| level | theme | datasets | category |
+|---|---|---|---|
+| 1 | Agricoltura | 20 | Agricoltura |
+| 2 | Agriturismo | 2 | Agricoltura > Agriturismo |
+| 2 | Censimento dell'Agricoltura 2020 | 9 | Agricoltura > Censimento dell'Agricoltura 2020 |
+
+Then the datasets of one theme, with `--grep` on its name.
 
 From a topic to a figure, in four steps:
 

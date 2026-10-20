@@ -3,28 +3,28 @@
   "skills": {
     "opencli-adapter-author": {
       "source": "jackwener/OpenCLI",
-      "ref": "v2.0.1",
+      "ref": "v2.0.2",
       "sourceType": "github",
       "skillPath": "skills/opencli-adapter-author/SKILL.md",
       "computedHash": "1bec8fba8b84e464b97212fd2d22b4b74b343cc23a6dc81a57f17f686ec23c8c"
     },
     "opencli-autofix": {
       "source": "jackwener/OpenCLI",
-      "ref": "v2.0.1",
+      "ref": "v2.0.2",
       "sourceType": "github",
       "skillPath": "skills/opencli-autofix/SKILL.md",
       "computedHash": "0d49318a7956914535f6c52bc674df79b720226469b28ec854be9e1302165b2f"
     },
     "opencli-browser": {
       "source": "jackwener/OpenCLI",
-      "ref": "v2.0.1",
+      "ref": "v2.0.2",
       "sourceType": "github",
       "skillPath": "skills/opencli-browser/SKILL.md",
       "computedHash": "f068262dfac56a4e075a13c47ffe805ed10b8a1658227dbe55dae1ea1aa27568"
     },
     "opencli-usage": {
       "source": "jackwener/OpenCLI",
-      "ref": "v2.0.1",
+      "ref": "v2.0.2",
       "sourceType": "github",
       "skillPath": "skills/opencli-usage/SKILL.md",
       "computedHash": "ca4e6d595b36eb88601828bdb1eb5d729ef68b229df65bb37cb52909ab30e2a3"

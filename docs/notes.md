@@ -57,7 +57,7 @@ L'estensione **non è nel pacchetto npm** → va scaricata dalle Release GitHub 
 mkdir -p ~/.opencli
 # asset della release taggata come la CLI (verifica la versione su github.com/jackwener/OpenCLI/releases)
 curl -sfL -o /tmp/opencli-ext.zip \
-  "https://github.com/jackwener/OpenCLI/releases/download/v2.0.1/opencli-extension-v1.0.26.zip"
+  "https://github.com/jackwener/OpenCLI/releases/download/v2.0.2/opencli-extension-v1.0.26.zip"
 rm -rf ~/.opencli/extension && unzip -oq /tmp/opencli-ext.zip -d ~/.opencli/extension
 ls ~/.opencli/extension/manifest.json   # deve esistere
 ```
