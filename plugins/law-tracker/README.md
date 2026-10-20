@@ -5,7 +5,7 @@ Five commands over the public JSON API of [EU Law Tracker](https://law-tracker.e
 ```bash
 opencli plugin install github:aborruso/opencli/law-tracker   # from the published repo
 opencli plugin install "file://$PWD"                     # from a local clone
-opencli validate law-tracker      # expected: PASS, 5 commands
+opencli adapter check law-tracker      # expected: "ok": true, 5 commands
 ```
 
 | Command | What it does |

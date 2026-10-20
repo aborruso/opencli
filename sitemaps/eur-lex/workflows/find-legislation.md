@@ -40,7 +40,7 @@ opencli eur-lex get 32024R1689      # full text, no browser, no WAF
 Grepping the text you just pulled is often faster than refining the search:
 
 ```bash
-opencli eur-lex get 32024R1689 -f json | jq -r '.[0].text' > aiact.txt
+opencli eur-lex get 32024R1689 -f json | jq -r '.data[0].text' > aiact.txt
 grep -c -i "biometric identification" aiact.txt
 ```
 
@@ -52,7 +52,7 @@ on_adapter_fail:
   - the command raises COMMAND_EXECUTION when the page it lands on is not the
     results page (challenge, outage, redirect); it does NOT return an empty list
   - drive the same URL by hand, then action:list_results in pages/results.md:
-      opencli browser <sess> open 'https://eur-lex.europa.eu/search.html?scope=EURLEX&text=%22facial+recognition%22&lang=en&type=quick'
+      opencli browser open 'https://eur-lex.europa.eu/search.html?scope=EURLEX&text=%22facial+recognition%22&lang=en&type=quick' --session <sess>
 
 on_browser_unavailable:
   - the Browser Bridge is not connected: opencli doctor says "Extension: not connected"

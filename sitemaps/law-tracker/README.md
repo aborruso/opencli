@@ -12,22 +12,20 @@ The European Commission's portal for following EU legislative procedures: propos
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli@1.8.8   # last release that reads sitemaps
+npm install -g @jackwener/opencli@2.0.1
 opencli plugin install github:aborruso/opencli/law-tracker
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh law-tracker
-opencli validate law-tracker
+opencli adapter check law-tracker
 ```
 
-Both sites at once: drop the `/law-tracker` and run the sync script with no arguments.
+Both sites at once: drop the `/law-tracker`. OpenCLI 2 does not load this sitemap: read it from the repo, starting from `SITE.md`.
 
 From a local clone of this repo:
 
 ```bash
 opencli plugin install "file://$(pwd)/../../plugins/law-tracker"
-bash ../../bin/sync-sitemaps.sh law-tracker
 ```
 
-Output formats on every command: `-f table` (default), `json`, `csv`, `yaml`, `md`.
+Output formats on every command: `-f json` (default in OpenCLI 2, rows under `.data`), `table`, `csv`, `yaml`, `md`, `plain`.
 
 ## What's new
 
@@ -42,7 +40,7 @@ reference,initiationDate,title,url
 ```
 
 ```bash
-opencli law-tracker events --limit 5 -f json | jq -r '.[] | [.initiationDate,.reference,.event] | @tsv'
+opencli law-tracker events --limit 5 -f json | jq -r '.data[] | [.initiationDate,.reference,.event] | @tsv'
 ```
 
 ```
@@ -58,7 +56,7 @@ Both feeds paginate with `--limit` and `--offset`.
 The 21 tiles behind "Browse by topic" on the homepage are the top-level EuroVoc domains. Their codes are what the search filter wants:
 
 ```bash
-opencli law-tracker topics eurovoc -f json | jq -r '.[] | "\(.code)\t\(.label)"'
+opencli law-tracker topics eurovoc -f json | jq -r '.data[] | "\(.code)\t\(.label)"'
 ```
 
 ```
@@ -157,7 +155,7 @@ opencli law-tracker search --eurovoc "12,DOM" --status ong --size 5 -f json \
   | jq -r '.[] | "\(.reference)\t\(.url)"'
 
 # the latest event on a procedure
-opencli law-tracker timeline 2021_106 -f json | jq -r '.[-1] | "\(.date)  \(.stage)  \(.event)"'
+opencli law-tracker timeline 2021_106 -f json | jq -r '.data[-1] | "\(.date)  \(.stage)  \(.event)"'
 
 # everything recent into a spreadsheet
 opencli law-tracker proposals --limit 50 -f csv > proposals.csv
@@ -168,7 +166,7 @@ opencli law-tracker proposals --limit 50 -f csv > proposals.csv
 The adapter covers reading. The browser is for what it does not return — the facet counts in the results sidebar, visual exploration, the XML export. Result pages are deep-linkable, so navigate straight to the URL instead of filling forms:
 
 ```bash
-opencli browser lt open 'https://law-tracker.europa.eu/results?quickSearch=climate&sort=REL&page=0&pageSize=10&lang=en'
+opencli browser open 'https://law-tracker.europa.eu/results?quickSearch=climate&sort=REL&page=0&pageSize=10&lang=en' --session lt
 ```
 
 ```json
@@ -179,7 +177,7 @@ opencli browser lt open 'https://law-tracker.europa.eu/results?quickSearch=clima
 }
 ```
 
-`available: true` is the sitemap being picked up. From there, `workflows/` say which path to take.
+`available: true` was OpenCLI 1.8.8 picking the sitemap up (output above captured with 1.8.8). OpenCLI 2 prints no `sitemap` block: open `SITE.md` yourself. From there, `workflows/` say which path to take.
 
 ## Traps
 

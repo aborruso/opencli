@@ -7,7 +7,7 @@ The APIs are the Commission's corporate search, and they speak in codes: a call 
 ```bash
 opencli plugin install github:aborruso/opencli/eu-funding   # from the published repo
 opencli plugin install "file://$PWD"                        # from a local clone
-opencli validate eu-funding          # expected: PASS, 9 commands
+opencli adapter check eu-funding          # expected: "ok": true, 9 commands
 ```
 
 | Command | What it does | API service |

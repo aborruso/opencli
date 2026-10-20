@@ -4,34 +4,34 @@ nome: OpenCLI
 categoria: tooling
 licenza: Apache-2.0
 repo: https://github.com/jackwener/OpenCLI
-cli_version_al_fetch: 1.8.8
-ultimo_fetch: 2026-10-08T13:49:12Z
+cli_version_al_fetch: 2.0.1
+ultimo_fetch: 2026-10-20T12:43:30Z
 files:
   - filename: README.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/README.md
-    sha256: 7f3848c49c92ef2122868ffed5c601958a27ea5c7f8dbc71748244bcbc1a19d4
-    bytes: 19612
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/README.md
+    sha256: 3628d0bd2a78213a742b13588db7012802529f01c5edf48ebee9165b2d452108
+    bytes: 22613
   - filename: SKILL-opencli-browser.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/skills/opencli-browser/SKILL.md
-    sha256: ca08a2371a2ef0a89b5c366acfb64822c048dd06c81cb84134d735e93e75e69c
-    bytes: 29861
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/skills/opencli-browser/SKILL.md
+    sha256: f9cce45ae035730cb51a44a1d8f51dc218dd5db6394fa79bdf4646c01611c815
+    bytes: 4545
   - filename: SKILL-opencli-usage.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/skills/opencli-usage/SKILL.md
-    sha256: c15f0840b208f89b703ae9d9084137ccbd45d42740781bb45ff884ab71f75430
-    bytes: 10599
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/skills/opencli-usage/SKILL.md
+    sha256: cb7d9baabcc85afabbd34038c77be6f2ec4365e30cc649f5923d67e033f06e88
+    bytes: 2648
   - filename: SKILL-opencli-adapter-author.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/skills/opencli-adapter-author/SKILL.md
-    sha256: f1acca32328f8c4d1410451def908848dc229abcaacee487911f14aa51047606
-    bytes: 20657
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/skills/opencli-adapter-author/SKILL.md
+    sha256: 3aa9ac7f6a43b2dcf3be341eba5a214b539acb452431a8b864815779372b3f41
+    bytes: 4085
   - filename: guide-extending-opencli.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/docs/guide/extending-opencli.md
-    sha256: 8265261eca0bd01d0461c4f73215303fc8823ce3a0142093a4f43019cfa1f792
-    bytes: 5383
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/docs/guide/extending-opencli.md
+    sha256: ea7dd80a917fb2238ba95cc57042524886e7ee7c20024401a97f4d2d1a117112
+    bytes: 4858
   - filename: guide-exit-codes.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/docs/guide/exit-codes.md
-    sha256: 271004fba3f6218545fb9b8f2693b745a7f5216db6f58a24705db774164cd49f
-    bytes: 968
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/docs/guide/exit-codes.md
+    sha256: 18abf715c072cb018cbdc4b60487d33c4c24e3e88c1ef92e4dcef7f1bb5534e0
+    bytes: 971
   - filename: guide-plugins.md
-    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v1.8.8/docs/guide/plugins.md
-    sha256: 52efadd6402f0871698c3c05b1ce5fb05d06a97799cdc631b910564714f83490
-    bytes: 7105
+    url: https://raw.githubusercontent.com/jackwener/OpenCLI/v2.0.1/docs/guide/plugins.md
+    sha256: 2194ad99131ec7fea314006800e250e085f502105c93819288ec52609626e587
+    bytes: 8666

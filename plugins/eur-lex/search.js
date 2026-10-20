@@ -47,10 +47,19 @@ cli({
         const url = `${BASE}?scope=EURLEX&text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}&type=quick`
             + (pageNum > 1 ? `&page=${pageNum}` : '');
         await page.goto(url);
+        // The search URL redirects (scope=EURLEX&text=... -> text=...). OpenCLI 2
+        // hands the page back after at most 1 s of DOM stability, which can fall
+        // inside the redirect, before the new document has a body: wait for the
+        // results page itself. An evaluate during the navigation can throw.
+        for (let i = 0; i < 30; i++) {
+            const ready = await page.evaluate(`(() => !!document.body && document.readyState === 'complete' && /Search results/i.test(document.title))()`).catch(() => false);
+            if (ready) break;
+            await page.sleep(0.5);
+        }
 
         const found = await page.evaluate(`(() => {
       const rows = [...document.querySelectorAll('.SearchResult')];
-      const totalMatch = document.body.innerText.match(/Results\\s+\\d+\\s*-\\s*\\d+\\s+of\\s+([\\d\\s.,]+)/);
+      const totalMatch = (document.body ? document.body.innerText : '').match(/Results\\s+\\d+\\s*-\\s*\\d+\\s+of\\s+([\\d\\s.,]+)/);
       // Read the dt/dd metadata by label: the labels are localised and their
       // order is not guaranteed, so never take them by position.
       const byLabel = (row) => {
@@ -87,7 +96,7 @@ cli({
             // Typically the WAF challenge, an outage, or a redirect.
             throw new CommandExecutionError(
                 'EUR-Lex did not return its results page',
-                'The browser may not have completed the site\'s challenge. Retry, or open the URL manually with "opencli browser <session> open".',
+                'The browser may not have completed the site\'s challenge. Retry, or open the URL manually with "opencli browser open <url> --session <name>".',
             );
         }
         if (found.rows.length === 0) {

@@ -51,6 +51,10 @@ cli({
         { name: 'types', type: 'string', positional: true, required: false, help: 'Comma-separated TD codes or exact type names, e.g. "Avviso Pubblico,2024"; omit for every type' },
         { name: 'pages', type: 'int', default: 0, help: `List pages to read in every type, 1 to ${DUMP_PAGES_MAX}; default: ${MAX_PAGES}, ${Object.entries(DUMP_PAGES).map(([td, n]) => `${n} for TD ${td}`).join(' and ')}. Ignored with --known` },
         { name: 'known', type: 'string', default: '', help: `An archive of earlier dumps (JSON Lines): print only the acts not in it, reading each list down to publications ${KNOWN_MARGIN_DAYS} days older than its newest act (at most ${KNOWN_PAGES_MAX} pages). No new act is not an error` },
+        // OpenCLI 2 prints its own result envelope after a command unless the
+        // command declares `stdout`: without this, the JSON Lines would end with
+        // {"ok":true,"data":null}. OpenCLI 1.8 ignores it.
+        { name: 'stdout', type: 'boolean', default: true, help: 'The rows go to stdout as JSON Lines; keep the default' },
     ],
     defaultFormat: 'json',
     columns: COLUMNS,

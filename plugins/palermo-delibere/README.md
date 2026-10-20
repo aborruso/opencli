@@ -7,7 +7,7 @@ It is the same SISPI application as the [Albo Pretorio](../albo-palermo/), and i
 ```bash
 opencli plugin install github:aborruso/opencli/palermo-delibere   # from the published repo
 opencli plugin install "file://$PWD"                              # from a local clone
-opencli validate palermo-delibere      # expected: PASS, 7 commands
+opencli adapter check palermo-delibere      # expected: "ok": true, 7 commands
 ```
 
 | Command | What it does | Browser |

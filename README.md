@@ -24,12 +24,12 @@ Every command here is `access: read`. Nothing writes to any site. The only comma
 Needs Node ≥ 20.18.1.
 
 ```bash
-npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, pinned: see below
+npm install -g @jackwener/opencli@2.0.1                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
 opencli list                                            # what you can now run
 ```
 
-That is enough for every command but one. Why the version is pinned, single-site install, sitemap linking and the browser setup are under [Install](#install).
+That is enough for every command but two. Single-site install, the JSON output and the browser setup are under [Install](#install).
 
 Each adapter has its own README with its commands, its examples and the traps of that particular source. Start from the table below.
 
@@ -76,34 +76,26 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, pinned: see below
+npm install -g @jackwener/opencli@2.0.1                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
 ```
 
-> **OpenCLI is pinned to 1.8.8 on purpose.** Upstream `main` removed site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539), merged 2026-09-24); 1.8.8, the current release, came out the day before, so it is the last one that reads them. The PR leaves adapter and plugin commands untouched, but from the next release `opencli browser` will no longer pick up the sitemaps in `sitemaps/`: they remain readable as Markdown, nothing more. Install a later version only if you do not need them.
+> **Written for OpenCLI 2.** Two things changed from 1.8: `-f json` (and the default output, which is now JSON) wraps the rows as `{"ok": true, "data": [...]}`, so the `jq` examples read `.data[]`; and OpenCLI no longer reads site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539)). The folders in `sitemaps/` stay as Markdown notes that an agent reads itself before driving the browser; [`AGENTS.md`](AGENTS.md) says when. Checked on 2.0.1 on 2026-10-20: every plugin installs, `opencli adapter check` passes on all of them.
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin declared in the root `opencli-plugin.json` into `~/.opencli/plugins/`.
 
-The sitemaps come with the clone but OpenCLI does not link them itself — there is no install mechanism for sitemaps, which is what `bin/sync-sitemaps.sh` is for.
-
 ### Installing one site only
 
-Append the sub-plugin name, then sync only that sitemap:
+Append the sub-plugin name:
 
 ```bash
 opencli plugin install github:aborruso/opencli/eur-lex
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
 ```
-
-Sync the sitemap for a site whose adapter you did not install and an agent will follow it to commands that do not exist — the clone carries every sitemap regardless of which adapter you picked, so name the ones you want. With no arguments the script links them all.
-
-Verified end to end on 2026-08-28: `Installed 2 plugin(s) from monorepo: eur-lex, law-tracker`, then the sync script links both sitemaps and `opencli browser <sess> open` reports `sitemap.available: true`. A site with no sitemap, such as `istatdata`, `koboyo`, `eu-funding`, `albo-palermo` or `palermo-delibere`, simply has nothing for the script to link.
 
 ### Working on this repo instead of using it
 
-The install above points OpenCLI at the clone under `~/.opencli/monorepos/`. To edit the adapters and sitemaps in your own working copy and see the changes live, install from the working copy instead:
+The install above points OpenCLI at the clone under `~/.opencli/monorepos/`. To edit the adapters in your own working copy and see the changes live, install from the working copy instead:
 
 ```bash
 opencli plugin install "file://$PWD/plugins/law-tracker"
@@ -113,7 +105,6 @@ opencli plugin install "file://$PWD/plugins/aster"
 opencli plugin install "file://$PWD/plugins/koboyo"
 opencli plugin install "file://$PWD/plugins/eu-funding"
 opencli plugin install "file://$PWD/plugins/albo-palermo"
-bash bin/sync-sitemaps.sh
 ```
 
 ```bash
@@ -136,19 +127,7 @@ sitemaps/<site>/
   pitfalls.md             # durable failure modes
 ```
 
-OpenCLI, up to 1.8.8, looks for sitemaps only in `~/.opencli/sites/<site>/sitemap/` (and inside the npm package); later releases do not read them at all (see [Install](#install)). Link this repo's sitemaps into place with:
-
-```bash
-bash bin/sync-sitemaps.sh
-```
-
-The script symlinks **only** the `sitemap` subfolder, never `sites/<site>` itself — that folder already holds `endpoints.json`, `notes.md` and `verify/`. `sitemaps/aliases.txt` handles the case where OpenCLI resolves a host to a different site name; read the warning in that file before adding one.
-
-Verify a sitemap is found:
-
-```bash
-opencli browser <session> open <url>     # look for "sitemap": { "available": true }
-```
+OpenCLI 2 does not load sitemaps any more: nothing announces them when a page opens. Read them directly, starting from `sitemaps/<site>/SITE.md`, before driving the browser on that site. Up to 1.8.8 OpenCLI picked them up from `~/.opencli/sites/<site>/sitemap/`; that mechanism, and the `bin/sync-sitemaps.sh` that linked them there, are gone.
 
 ## Plugins
 
@@ -156,7 +135,7 @@ Adapters live in `plugins/<site>/` and are installed once:
 
 ```bash
 opencli plugin install "file://$PWD/plugins/<site>"
-opencli validate <site>
+opencli adapter check <site>
 ```
 
 ## Why one repository
@@ -171,7 +150,7 @@ MIT, see [`LICENSE`](LICENSE) — for what is written here: the sitemaps, the ad
 
 Everything under `docs/` except `notes.md` is a verbatim mirror of the [OpenCLI](https://github.com/jackwener/OpenCLI) documentation, which is Apache-2.0 and belongs to its authors. `docs/meta.yml` records the source URL and the sha256 of every mirrored file.
 
-The agent skills this repo is written against (`opencli-usage`, `opencli-browser`, `opencli-browser-sitemap`, `opencli-sitemap-author`, `opencli-adapter-author`, `opencli-autofix`) are not redistributed here. Install them separately:
+The agent skills this repo is written against (`opencli-usage`, `opencli-browser`, `opencli-adapter-author`, `opencli-autofix`; OpenCLI 2 dropped `opencli-browser-sitemap` and `opencli-sitemap-author`) are not redistributed here. Install them separately:
 
 ```bash
 npx skills add jackwener/opencli

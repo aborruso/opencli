@@ -10,22 +10,14 @@ This repo ships two things for two different consumers:
 ## Install
 
 ```bash
-npm install -g @jackwener/opencli@1.8.8                 # the CLI itself, Node >= 20.18.1; pinned: later releases drop sitemaps (upstream PR #2539)
+npm install -g @jackwener/opencli@2.0.1                 # the CLI itself, Node >= 20.18.1
 opencli plugin install github:aborruso/opencli          # every adapter, in one shot
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh  # link the sitemaps into place
 opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding'  # check
 ```
 
-The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. The sitemaps travel with the clone but OpenCLI does not link them itself — that is what the sync script is for. It only ever creates `~/.opencli/sites/<site>/sitemap` symlinks and refuses to overwrite a real directory.
+The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. To install a single site, name the sub-plugin: `opencli plugin install github:aborruso/opencli/eur-lex`.
 
-To install a single site, name the sub-plugin and sync only its sitemap:
-
-```bash
-opencli plugin install github:aborruso/opencli/eur-lex
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
-```
-
-The clone carries every sitemap whichever adapter you install, so name the ones you want. A sitemap whose adapter is not installed will send you after commands that do not exist.
+**JSON output is wrapped** in OpenCLI 2: `-f json`, and the default output when no `-f` is given, print `{"ok": true, "data": [...]}`. Read the rows with `jq '.data[]'`. A failure prints `{"ok": false, "error": {...}}`, with a non-zero exit code.
 
 ## Read this before using the commands
 
@@ -42,9 +34,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 
 ## How to use a sitemap
 
-When `opencli browser <session> open <url>` returns `"sitemap": {"available": true, ...}`, load the `opencli-browser-sitemap` skill (`opencli skills read opencli-browser-sitemap`) and follow it. Read the sitemap lazily: `SITE.md` first, then only the `pages/` or `workflows/` file the task needs. Every file stays small enough to load on demand.
-
-**The announcement fires once per browser session per site.** A second `open` in the same session returns `"sitemap": null` even when one exists. Do not conclude there is no sitemap from that: check `~/.opencli/sites/<site>/sitemap/` directly, or open with a fresh session name.
+OpenCLI 2 does not load sitemaps: nothing tells you one exists when a page opens. Before driving the browser on law-tracker or EUR-Lex, read the sitemap yourself from this repo (or from the clone under `~/.opencli/monorepos/opencli/sitemaps/`). Read it lazily: `SITE.md` first, then only the `pages/` or `workflows/` file the task needs. Every file stays small enough to load on demand. Browser commands take the session as an option: `opencli browser open <url> --session <name>`.
 
 A sitemap is a hint. **Live browser state is the truth.** When they disagree, trust the browser and mark the entry stale rather than forcing the old path.
 
@@ -75,5 +65,5 @@ Neither EU-law source carries the other's identifier: bridging a procedure to it
 - Repository language is **English** — READMEs, sitemaps, adapter code, comments, help strings, error messages, `LOG.md`, `tasks/`.
 - Everything under `docs/` except `notes.md` is a verbatim upstream mirror: regenerate it from the URLs in `docs/meta.yml`, never hand-edit it.
 - Every `evidence:` line in a sitemap must name a command that was actually run. An invented evidence line is worse than a missing action.
-- After touching an adapter: `opencli validate <site>` and `opencli convention-audit <site>` must both pass. The audit catches the ways an adapter can lie to you — dropped columns, silent empty fallbacks, sentinel rows, clamped arguments.
+- After touching an adapter: `opencli adapter check <site>` must pass. `opencli convention-audit <site>` scans no plugin file (it only sees the adapters inside the npm package, in 1.8 and 2.0 alike), so check its rules by hand: declared columns equal emitted keys, no camelCase column, `access` set, no clamped argument, no silent empty fallback, no sentinel row.
 - Keep `LOG.md` current, newest entry on top, dates as `YYYY-MM-DD`.

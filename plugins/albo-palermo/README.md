@@ -7,7 +7,7 @@ The portal is a server-rendered JSP application by SISPI. Its "your browser does
 ```bash
 opencli plugin install github:aborruso/opencli/albo-palermo   # from the published repo
 opencli plugin install "file://$PWD"                          # from a local clone
-opencli validate albo-palermo      # expected: PASS, 6 commands
+opencli adapter check albo-palermo      # expected: "ok": true, 7 commands
 ```
 
 | Command | What it does | Browser |

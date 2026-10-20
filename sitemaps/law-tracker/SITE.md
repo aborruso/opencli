@@ -46,4 +46,4 @@ See `pitfalls.md`. The two that bite first: the cookie banner intercepts clicks 
 
 ## Site-name note
 
-Verified with the Browser Bridge connected: `opencli browser <sess> open https://law-tracker.europa.eu/homepage` returns `sitemap.site: "law-tracker"`, `available: true`, `source: local`. The `domain` declared by the adapter beats the SLD fallback. An alias on `europa` was deliberately rejected: it would serve this sitemap to every `*.europa.eu` site. See `pitfalls.md#site_name_alias`.
+Applies to OpenCLI up to 1.8.8, which loaded sitemaps; OpenCLI 2 does not. Verified with the Browser Bridge connected: `opencli browser <sess> open https://law-tracker.europa.eu/homepage` returns `sitemap.site: "law-tracker"`, `available: true`, `source: local`. The `domain` declared by the adapter beats the SLD fallback. An alias on `europa` was deliberately rejected: it would serve this sitemap to every `*.europa.eu` site. See `pitfalls.md#site_name_alias`.

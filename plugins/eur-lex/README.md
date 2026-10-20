@@ -9,7 +9,7 @@ Five commands over EU law. No auth. Four of them need no browser at all.
 ```bash
 opencli plugin install github:aborruso/opencli/eur-lex   # from the published repo
 opencli plugin install "file://$PWD"                     # from a local clone
-opencli validate eur-lex          # expected: PASS, 5 commands
+opencli adapter check eur-lex          # expected: "ok": true, 5 commands
 ```
 
 | Command | What it does | Browser |

@@ -609,3 +609,53 @@ New sub-plugin `plugins/aster`, site `aster`, `Strategy.PUBLIC`, `browser: false
 - `data` is in v1.
 - Geometries (geojson): later, not in v1 (noted in `docs/future-ideas.md`).
 - Hub calls: serial only, no fixed pause.
+
+# Plan — OpenCLI 2.0 compatibility
+
+Status: done 2026-10-20 - global install on 2.0.1, every plugin verified incl. the two browser commands, docs and mirror updated. Not committed. Follow-ups in issues #3-#8.
+
+## Verified (2026-10-20, OpenCLI 2.0.1 in an isolated prefix and HOME; the global 1.8.8 untouched)
+
+Test bed: `npm install --prefix <scratch>/oc2 @jackwener/opencli@2.0.1`, `HOME=<scratch>/oc2/home`, every plugin installed with `plugin install file://…/plugins/<site>`. Release notes saved in `tmp/oc2/`.
+
+- [x] **Install**: all 9 plugins install from `file://`; `list --site aster` shows the 5 commands, `shared.js` is not registered as a command.
+- [x] **`adapter check`** (replaces `validate`): 9 sites, 45 commands, 0 errors, 0 warnings. `convention-audit` still scans 0 plugin files (same blindness as 1.8.8).
+- [x] **Runtime, no browser**: koboyo `search`, law-tracker `timeline`, eur-lex `meta`, eu-funding `calls`, albo-palermo `types`, palermo-delibere `sections`, registroimprese `suggest` → all `ok`.
+- [x] **aster, istatdata**: verified 12:23 UTC, once the ISTAT hosts answered again (they had been unreachable from ~11:50 UTC also from 1.8.8 and curl). aster `atlases` 7, `datasets --grep decessi` 1, `dataset` 9, `values SEX` 3, `data` 4 rows with the same values as under 1.8.8 (Sicilia 81.6/82.4, Sardegna 82.5/83); istatdata `dataset` and `ask` ok.
+- [x] **Browser commands** → done 2026-10-20 with extension 1.0.26 (old one kept in `~/.opencli/extension-1.0.24`), Xvfb bridge. **eur-lex `search` was broken on 2.0**: `TypeError … reading 'innerText'` - the search URL redirects and 2.0's `goto` returns after ≤1 s of DOM stability, inside the redirect. Fixed: wait up to 15 s for the results page (body, `readyState complete`, title "Search results"), body-safe extraction. Then: 10 rows, first `32024R1358` (same as the sitemap evidence), page 2 ok, no-match → EMPTY_RESULT, README loop search → meta ok. registroimprese `search ondata` 3 rows; `--detail` ok on `infocamere --province RM` with the 1.8.8 values (Morgagni 13, RM, protocollo@pec.infocamere.it, 63.10.2), twice; fails on Ondata International S.L. (no "Indirizzo Impresa" on a foreign company: issue #3, not a 2.0 regression). Polling added there first, removed once shown unnecessary; kept: the error now names the page it landed on. Bridge stopped afterwards.
+
+## What breaks
+
+1. **JSON output is wrapped**: `-f json` (and the new default, JSON) prints `{"ok":true,"data":[…]}`, not a bare array. Every `jq '.[]…'` written for 1.8.8 breaks: 19 pipelines in 7 files (`plugins/istatdata/README.md`, `plugins/koboyo/README.md`, `sitemaps/*`, `docs/notes.md`). csv, table, plain, yaml, md unchanged.
+2. **`dump` commands get a trailing envelope**: albo-palermo and palermo-delibere `dump` write JSON Lines themselves and return `undefined`; 2.0 then prints `{"ok":true,"data":null}` as a last line. `bin/jsonl-merge.sh` would refuse the file (schema check), so the nightly merge would fail, not corrupt. Fix verified on a copy: an arg `{ name: 'stdout', type: 'boolean', default: true }` (the 2.0 convention of `web read --stdout`) suppresses the envelope; same output under 1.8.8.
+3. **`defaultFormat` no longer applies**: the default is JSON whatever the adapter says. `istatdata` (`plain`), `koboyo` (`plain`), albo `similar` (`table`): READMEs that promise that default become wrong; `-f plain` still works.
+4. **Sitemaps are gone**: 2.0 removed site sitemap knowledge. `sitemaps/`, `bin/sync-sitemaps.sh` and the README/AGENTS sections about them stop doing anything.
+5. **Docs syntax**: `opencli browser <session> open` → `opencli browser open … --session <name>` (47 lines in 14 files, incl. sitemaps and `docs/` mirror); `opencli validate` → `opencli adapter check` (16 files).
+6. **Mirror in `docs/`**: pinned to v1.8.8; the skills it mirrors changed in 2.0.
+
+## Phases
+
+### Phase A — fixes that work on both versions
+- [x] `stdout` arg on albo-palermo and palermo-delibere `dump` → done 2026-10-20: under 1.8.8 and 2.0.1 the two dumps give byte-identical output, 10 act rows, no envelope; `bin/*-merge.sh` accept them; incremental `--known` run (5 new) and empty run (0 bytes, merge keeps 10) ok under 2.0.1; `adapter check` and `validate` pass.
+
+### Phase B — switch to 2.0 (after decisions)
+- [x] Install snippets to `@jackwener/opencli@2.0.1` → done: README ×2, AGENTS.md, both sitemap READMEs, **both nightly workflows** (`.github/workflows/*-archive.yml`, which also ran `opencli validate`, unknown in 2.0 → now `opencli adapter check`). Workflow steps simulated locally under 2.0.1 (check rc 0, dump `--known`, merge). No 1.8.8 pin left outside LOG/tasks/CLAUDE.md.
+- [x] jq pipelines to `.data[]` → done: 19 rewritten; 18 run under 2.0.1 with the expected output (istatdata 3, law-tracker 3, koboyo 1, eur-lex 8, read-act 1, notes 1, plus find-legislation same as read-act). Not run: the `eur-lex search` loop (browser). eur-lex needed IPv4 forced in the test: the WSL DNS answers AAAA for publications.europa.eu in 15 s, past undici's 10 s connect timeout; same failure under 1.8.8, noted in `docs/notes.md`.
+- [x] Default-format notes → done: istatdata README now says to pass `-f plain` (2.0 ignores the adapter default); koboyo examples already pass `-f plain`; sitemap READMEs list `-f json` as the default.
+- [x] `validate` → `adapter check` (9 plugin READMEs with the real command counts, 2 sitemap READMEs, README, AGENTS.md); browser `--session` syntax in the instruction lines (law-tracker README, `pages/procedure.md` do:, `workflows/find-legislation.md`, `docs/notes.md`). `evidence:` lines left as run with 1.8.8, as the sitemap rule requires.
+- [x] Sitemaps kept as Markdown read by hand (recommendation given to the user 2026-10-20): README and AGENTS.md say OpenCLI 2 does not load them and when to read them; `bin/sync-sitemaps.sh` and `sitemaps/aliases.txt` removed (`git rm`); law-tracker README/SITE.md mark the `available: true` output as 1.8.8.
+- [x] Refresh `docs/` mirror to v2.0.1 → done after the global install: 7 files re-downloaded, sha256/bytes regenerated, `cli_version_al_fetch: 2.0.1`. Skills shrank (browser 29 861 → 4 545 bytes); adapter-author now points to `references/*.md`, not mirrored (same scope as before). CLAUDE.md: tag line to v2.0.1, sitemap sentence and browser syntax updated.
+- [x] Global install to 2.0.1 → done 2026-10-20 (`npm install -g`; back with `@1.8.8`). npm did not run the package postinstall (completions, `~/.opencli/clis/` cleanup): the two local overrides there (`openalex`, `sec`) are untouched. `adapter check` clean on all 10 linked plugins (also `asl-taranto`, other repo) and on `openalex`, `sec`; `sec company AAPL`, `openalex trends topics`, `asl-taranto info|list` run.
+
+## Follow-ups (GitHub issues, opened 2026-10-20)
+
+- #3 registroimprese `--detail` fails on a detail without "Indirizzo Impresa"
+- #4 Node `fetch` fails where curl works: slow AAAA on the WSL resolver
+- #5 `defaultFormat` ignored by OpenCLI 2
+- #6 sitemaps under OpenCLI 2: no loader, 1.8 evidence
+- #7 `dump --stdout` shows up as a user option
+- #8 aster series can lag behind SDMX
+
+## Unresolved questions
+
+- Commit and push: the workflows switch the nightly archives to 2.0.1 from the next run.

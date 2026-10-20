@@ -49,9 +49,9 @@ jobs:
 
       - name: Install opencli and the adapter
         run: |
-          npm install -g @jackwener/opencli@1.8.8
+          npm install -g @jackwener/opencli@2.0.1
           opencli plugin install "file://$PWD/plugins/palermo-delibere"
-          opencli validate palermo-delibere
+          opencli adapter check palermo-delibere
 
       - name: Pick the day
         run: |

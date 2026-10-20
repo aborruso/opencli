@@ -25,13 +25,13 @@ Sono a mano - non mirrorati - anche `sitemaps/` (le sitemap OpenCLI di questo re
 
 Per aggiornare i `.md` verbatim: riscaricare dagli `url` in `docs/meta.yml`, poi rigenerare `sha256` e `bytes` per ogni file. Aggiornare anche `cli_version_al_fetch` e `ultimo_fetch`. **Non** toccare `notes.md`.
 
-Gli `url` puntano al **tag della release** (`v1.8.8`), non a `main`: il mirror deve descrivere la CLI installata. Al refresh si porta il tag alla versione di `opencli --version`. Su `main` upstream le sitemap sono state rimosse (PR #2539, 24/09/2026): dalla prima release che la include `sitemaps/` smette di funzionare, da verificare prima di aggiornare la CLI.
+Gli `url` puntano al **tag della release** (`v2.0.1`), non a `main`: il mirror deve descrivere la CLI installata. Al refresh si porta il tag alla versione di `opencli --version`. Dalla 2.0 OpenCLI non legge più le sitemap (PR #2539): `sitemaps/` resta come Markdown che gli agenti leggono da sé, senza meccanismo di caricamento.
 
 ## Contesto d'uso di OpenCLI (per aiutare sulle note)
 
 Distinzione chiave che struttura le note — OpenCLI ha due "transport":
 
 - **Adapter PUBLIC**: passano dal daemon locale (porta 19825, auto-start), leggono API pubbliche, **non serve Chrome** (es. `opencli hackernews top`).
-- **Comandi/adapter browser**: richiedono l'**estensione Chrome "Browser Bridge"** nel proprio Chrome loggato (es. `opencli browser <sess> open …`, `opencli twitter …`).
+- **Comandi/adapter browser**: richiedono l'**estensione Chrome "Browser Bridge"** nel proprio Chrome loggato (es. `opencli browser open … --session <nome>`, `opencli twitter …`).
 
 Trappola già documentata in `notes.md`: `OPENCLI_CDP_ENDPOINT` copre solo gli adapter desktop/Electron; i comandi `opencli browser` lo ignorano e pretendono l'estensione. Su WSL2 l'estensione va caricata nel Chrome **di WSL** (non Windows) e Chrome va lanciato da una shell utente persistente (altrimenti exit 144). Vedi `docs/notes.md` per il setup completo WSL2 + X410.

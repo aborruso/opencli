@@ -210,12 +210,12 @@ cli({
         while (state === 'empty' && submits < SUBMITS) {
             submits++;
             const sent = await page.evaluate(submitSearch, NS, SITE_KEY, name, province, Boolean(args.all), activity);
-            if (sent !== 'submitted') throw new CommandExecutionError('registroimprese: the search form or the captcha is not on the page', 'Open the URL with "opencli browser <session> open" and look at what the site shows.');
+            if (sent !== 'submitted') throw new CommandExecutionError('registroimprese: the search form or the captcha is not on the page', 'Open the URL with "opencli browser open <url> --session <name>" and look at what the site shows.');
             state = await pollState(page);
         }
         args._submits = submits;
         if (state === 'empty') throw new CommandExecutionError(`registroimprese: the portal answered an empty results block ${submits} times`, 'The reCAPTCHA score of this browser may be too low. Retry later, or from a Chrome profile that has browsed the site.');
-        if (state === 'pending') throw new CommandExecutionError('registroimprese: the results page did not load', 'Retry; if it persists open the search by hand with "opencli browser <session> open".');
+        if (state === 'pending') throw new CommandExecutionError('registroimprese: the results page did not load', 'Retry; if it persists open the search by hand with "opencli browser open <url> --session <name>".');
         if (state === 'none') throw new EmptyResultError(`registroimprese search ${name}`, `no company matches this ${activity ? 'activity' : 'name'}${province ? ` in ${PROVINCES[province]}` : ''}`);
 
         let found = await page.evaluate(readRows);
@@ -236,7 +236,10 @@ cli({
             if (args.detail && row.url) {
                 await page.goto(row.url);
                 detail = await page.evaluate(readDetail);
-                if (!detail) throw new CommandExecutionError(`registroimprese: the detail of "${row.name}" did not load`);
+                if (!detail) {
+                    const where = await page.evaluate(`(() => location.href.slice(0, 120) + ' | ' + document.title + ' | ' + (document.body ? document.body.innerText.replace(/\\s+/g, ' ').slice(0, 160) : ''))()`).catch(() => 'unknown');
+                    throw new CommandExecutionError(`registroimprese: the detail of "${row.name}" did not load (page: ${where})`);
+                }
             }
             out.push({
                 name: row.name,

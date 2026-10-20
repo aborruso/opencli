@@ -40,7 +40,7 @@ Non tutti i comandi usano tutti e 3. Da qui i tre casi.
 
 ```bash
 opencli hackernews top --limit 5
-opencli hackernews top --limit 3 -f json | jq -r '.[] | "\(.score)\t\(.title)"'
+opencli hackernews top --limit 3 -f json | jq -r '.data[] | "\(.score)\t\(.title)"'
 opencli hackernews top --limit 3 -f csv
 ```
 
@@ -57,7 +57,7 @@ L'estensione **non è nel pacchetto npm** → va scaricata dalle Release GitHub 
 mkdir -p ~/.opencli
 # asset della release taggata come la CLI (verifica la versione su github.com/jackwener/OpenCLI/releases)
 curl -sfL -o /tmp/opencli-ext.zip \
-  "https://github.com/jackwener/OpenCLI/releases/download/v1.8.8/opencli-extension-v1.0.24.zip"
+  "https://github.com/jackwener/OpenCLI/releases/download/v2.0.1/opencli-extension-v1.0.26.zip"
 rm -rf ~/.opencli/extension && unzip -oq /tmp/opencli-ext.zip -d ~/.opencli/extension
 ls ~/.opencli/extension/manifest.json   # deve esistere
 ```
@@ -103,17 +103,19 @@ xvfb-run -a google-chrome --user-data-dir="$HOME/.opencli/chrome-profile" \
 
 ```bash
 opencli doctor                                   # atteso: [OK] Extension: connected
-opencli browser hello open https://news.ycombinator.com
-opencli browser hello state                      # url, titolo, elementi interattivi numerati [1],[2]…
-opencli browser hello extract                    # pagina in markdown pulito (ottimo per LLM)
+opencli browser open https://news.ycombinator.com --session hello
+opencli browser state --session hello            # url, titolo, elementi interattivi numerati [1],[2]…
+opencli browser extract --session hello          # pagina in markdown pulito (ottimo per LLM)
 ```
 
 Da qui: `click <N>`, `type`, `fill`, `select`, `keys`, `wait`, `screenshot`, `network`, `tab …`.
-Il `<session>` (`hello` qui) è un nome libero: stesso nome = stessa tab/stato tra chiamate.
+Il `--session` (`hello` qui) è un nome libero: stesso nome = stessa tab/stato tra chiamate. Dalla 2.0 è un'opzione obbligatoria; fino alla 1.8.8 era il primo argomento (`opencli browser hello open …`).
 
 ## Trappole viste sul campo
 
-### L'annuncio della sitemap arriva una volta sola per sessione
+### L'annuncio della sitemap arriva una volta sola per sessione (solo fino alla 1.8.8)
+
+Dalla 2.0 OpenCLI non legge più le sitemap e l'annuncio non c'è più: le sitemap di `sitemaps/` vanno lette a mano. Quanto segue vale per la 1.8.8.
 
 `opencli browser <sess> open <url>` mette nell'output un blocco `sitemap` quando esiste una sitemap per quel sito - ma **solo la prima volta che quella sessione tocca quel sito**. Dalla seconda apertura in poi il campo è `null`, anche cambiando pagina. Verificato il 2026-08-28: sessione nuova su `eur-lex.europa.eu` → `{"site":"eur-lex","available":true,…}`; seconda `open` nella stessa sessione → `null`.
 
@@ -126,12 +128,13 @@ Conseguenza pratica: un agente che riprende a metà lavoro, o che apre la pagina
 - **Un solo Chrome per profilo**: `opencli-bridge` e `opencli-bridge-login` usano lo stesso `--user-data-dir` → non avviarli insieme (lock). `opencli-bridge-stop` prima di cambiare modo.
 - **`OPENCLI_WINDOW=background` / `--window background`**: mette la finestra in secondo piano anche con un display presente (utile con X410, ridondante con Xvfb).
 - **Siti con reCAPTCHA Enterprise a punteggio (registroimprese)**: in Xvfb il primo invio di solito viene respinto e dopo qualche decina di ricerche il profilo resta bloccato per un po'; nel Chrome visibile via X410 (`opencli-bridge-login`), stesso profilo, le ricerche passano al primo invio. Per questi siti usare il ponte visibile, e poche ricerche per sessione (26/09/2026).
+- **`fetch failed` / `UND_ERR_CONNECT_TIMEOUT` su un adapter PUBLIC mentre curl funziona**: può essere il DNS di WSL (`172.19.0.1`), che su alcuni host risponde alla richiesta AAAA in 15 s. Node chiede A e AAAA insieme (`getaddrinfo`), supera i 10 s di timeout di connessione di undici e fallisce; curl chiede solo A e passa. Visto il 20/10/2026 su `publications.europa.eu` (eur-lex): `dns.lookup` con `family: 4` 52 ms, senza 15 s. Controllo: `time getent ahosts <host>`. Per una prova, un `--require` che forza `family: 4` su `dns.lookup` (`NODE_OPTIONS=--require=…`).
 - Chiudendo il ponte, `doctor` torna a `Extension: not connected` — normale. Gli adapter PUBLIC continuano a funzionare.
 
 ## Estendere (quando serve)
 
-- Wrappare una CLI locale: `opencli external register <name>` → poi `opencli <name> …`.
-- Nuovo adapter per un sito: skill `opencli-adapter-author` + `opencli browser analyze <url>` → `opencli browser <sess> init …` → scrivi adapter → `verify`. Vedi `SKILL-opencli-adapter-author.md` e `guide-extending-opencli.md`.
+- Wrappare una CLI locale: `opencli external register <name>` → poi `opencli <name> …`. Solo fino alla 1.8.8: la 2.0 ha tolto il passthrough verso CLI esterne.
+- Nuovo adapter per un sito: skill `opencli-adapter-author` + `opencli browser network --static` → `opencli adapter init …` → scrivi adapter → `opencli adapter test` / `adapter check` (2.0; fino alla 1.8.8 erano `browser analyze`, `browser <sess> init`, `verify`). Vedi `SKILL-opencli-adapter-author.md` e `guide-extending-opencli.md`.
 - Exit code stile `sysexits.h` (`0` ok, `66` vuoto, `69` bridge down, `75` timeout, `77` auth, `78` config): vedi `guide-exit-codes.md`.
 
 ## Rinfrescare il mirror

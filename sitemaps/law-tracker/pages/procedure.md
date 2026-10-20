@@ -23,7 +23,7 @@ URL: `/procedure/<api-ref>?lang=en`, where `<api-ref>` is the API form of the re
 
 ### action:verify_procedure_exists
 pre: navigation to `/procedure/<api-ref>` has completed
-do: `opencli browser <sess> find --role link --text "<year>/<number>"`
+do: `opencli browser find --role link --text "<year>/<number>" --session <sess>`
 post: the link exists → the procedure exists
 fail: `semantic_not_found` — "Semantic locator matched 0 elements"
 recover: the reference is wrong or non-existent; get the right one from `opencli law-tracker search` or from the results page. See `pitfalls.md#silent_empty_procedure`

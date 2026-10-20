@@ -44,9 +44,9 @@ jobs:
 
       - name: Install opencli and the adapter
         run: |
-          npm install -g @jackwener/opencli@1.8.8
+          npm install -g @jackwener/opencli@2.0.1
           opencli plugin install "file://$PWD/plugins/albo-palermo"
-          opencli validate albo-palermo
+          opencli adapter check albo-palermo
 
       - name: Download the current archive
         run: |

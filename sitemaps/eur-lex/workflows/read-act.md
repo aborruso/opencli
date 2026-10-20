@@ -24,7 +24,7 @@ An ELI is the same state in another form: `reg/2024/1689/oj` is `32024R1689`, `r
 opencli eur-lex meta 32024R1689                 # title, date, type, ELI, EuroVoc
 opencli eur-lex meta reg/2024/1689/oj           # same act, by ELI
 opencli eur-lex get 32024R1689 --chars 4000     # first 4000 characters
-opencli eur-lex get 32024R1689 -f json | jq -r '.[0].text' > act.txt
+opencli eur-lex get 32024R1689 -f json | jq -r '.data[0].text' > act.txt
 opencli eur-lex get 32024R1689 --as xhtml       # raw XHTML, markup kept
 opencli eur-lex get 32024R1689 --lang ita       # the Italian expression
 ```

@@ -7,7 +7,7 @@ The search box on the site needs JavaScript and produces no URL of its own, so t
 ```bash
 opencli plugin install github:aborruso/opencli/koboyo   # from the published repo
 opencli plugin install "file://$PWD"                    # from a local clone
-opencli validate koboyo             # expected: PASS, 2 commands
+opencli adapter check koboyo             # expected: "ok": true, 3 commands
 ```
 
 | Command | What it does | Browser |
@@ -36,7 +36,7 @@ opencli koboyo search "coffee mug" --style cartoon --limit 5
 opencli koboyo search guitar --group object/entertainment
 opencli koboyo groups --group people            # which branches exist under people
 opencli koboyo get acoustic-guitar-folk
-curl -s "$(opencli koboyo search "abacus" --limit 1 -f json | jq -r '.[0].svg')" -o abacus.svg
+curl -s "$(opencli koboyo search "abacus" --limit 1 -f json | jq -r '.data[0].svg')" -o abacus.svg
 ```
 
 ## What the columns are

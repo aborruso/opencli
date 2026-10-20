@@ -7,7 +7,7 @@ The search form is guarded by reCAPTCHA Enterprise, scored on the server, so `se
 ```bash
 opencli plugin install github:aborruso/opencli/registroimprese   # from the published repo
 opencli plugin install "file://$PWD"                             # from a local clone
-opencli validate registroimprese      # expected: PASS, 2 commands
+opencli adapter check registroimprese      # expected: "ok": true, 2 commands
 opencli doctor                        # `search` needs: Extension: connected
 ```
 

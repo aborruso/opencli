@@ -65,6 +65,10 @@ cli({
         { name: 'pages', type: 'int', default: 0, help: `Pages of 10 to read in every section, 1 to ${DAILY_PAGES_MAX}; default: each section's own number (${SECTIONS.map((s) => `${s.code} ${s.dailyPages || 'all'}`).join(', ')})` },
         { name: 'known', type: 'string', default: '', help: 'An archive of earlier dumps (JSON Lines): print only the acts not in it, and read DDI and ODT for the last --lookback protocol days. No new act is not an error' },
         { name: 'lookback', type: 'int', default: LOOKBACK_DEFAULT, help: `With --known, protocol days read for DDI and ODT, ending at --date, 1 to ${LOOKBACK_MAX}` },
+        // OpenCLI 2 prints its own result envelope after a command unless the
+        // command declares `stdout`: without this, the JSON Lines would end with
+        // {"ok":true,"data":null}. OpenCLI 1.8 ignores it.
+        { name: 'stdout', type: 'boolean', default: true, help: 'The rows go to stdout as JSON Lines; keep the default' },
     ],
     defaultFormat: 'json',
     columns: COLUMNS,

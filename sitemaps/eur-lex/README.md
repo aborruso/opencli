@@ -29,26 +29,24 @@ No attempt is made to get around the WAF.
 From a published copy — this site only:
 
 ```bash
-npm install -g @jackwener/opencli@1.8.8   # last release that reads sitemaps
+npm install -g @jackwener/opencli@2.0.1
 opencli plugin install github:aborruso/opencli/eur-lex
-bash ~/.opencli/monorepos/opencli/bin/sync-sitemaps.sh eur-lex
-opencli validate eur-lex
+opencli adapter check eur-lex
 opencli doctor            # only needed for `search`, which drives a real browser
 ```
 
-Both sites at once: drop the `/eur-lex` and run the sync script with no arguments.
+Both sites at once: drop the `/eur-lex`. OpenCLI 2 does not load this sitemap: read it from the repo, starting from `SITE.md`.
 
 From a local clone of this repo:
 
 ```bash
 opencli plugin install "file://$(pwd)/../../plugins/eur-lex"
-bash ../../bin/sync-sitemaps.sh eur-lex
 ```
 
 ## Metadata of an act
 
 ```bash
-opencli eur-lex meta 32024R1689 -f json | jq -r '.[] | "\(.date)  \(.type)  \(.title[0:60])\n\(.eli)\n\(.eurovoc)"'
+opencli eur-lex meta 32024R1689 -f json | jq -r '.data[] | "\(.date)  \(.type)  \(.title[0:60])\n\(.eli)\n\(.eurovoc)"'
 ```
 
 ```
@@ -62,7 +60,7 @@ single market; new technology; harmonisation of standards; market approval; inno
 `meta` and `get` take an ELI wherever they take a CELEX number, as a full URI or as its path:
 
 ```bash
-opencli eur-lex meta reg/2016/679/oj -f json | jq -r '.[] | "\(.celex)  \(.eli)"'
+opencli eur-lex meta reg/2016/679/oj -f json | jq -r '.data[] | "\(.celex)  \(.eli)"'
 ```
 
 ```
@@ -72,7 +70,7 @@ opencli eur-lex meta reg/2016/679/oj -f json | jq -r '.[] | "\(.celex)  \(.eli)"
 `meta` also carries the legal dates: `in_force` (true/false), `entry_into_force`, `transposition` (the deadline for Member States, directives only) and `end_of_validity`, `null` when the act has no end date. Acts that apply in stages have several entry-into-force dates, joined with `; ` (the AI Act has five).
 
 ```bash
-opencli eur-lex meta 32019L1024 -f json | jq -r '.[] | "in_force=\(.in_force) entry_into_force=\(.entry_into_force) transposition=\(.transposition) end_of_validity=\(.end_of_validity)"'
+opencli eur-lex meta 32019L1024 -f json | jq -r '.data[] | "in_force=\(.in_force) entry_into_force=\(.entry_into_force) transposition=\(.transposition) end_of_validity=\(.end_of_validity)"'
 ```
 
 ```
@@ -84,7 +82,7 @@ in_force=true entry_into_force=2019-07-16 transposition=2021-07-17 end_of_validi
 The measures each Member State notified to transpose a directive, from Cellar. `--country` takes an ISO 3166 alpha-3 code.
 
 ```bash
-opencli eur-lex transposition dir/2019/1024/oj --country ITA -f json | jq -r '.[] | [.date, .type, .title[0:70]] | @tsv'
+opencli eur-lex transposition dir/2019/1024/oj --country ITA -f json | jq -r '.data[] | [.date, .type, .title[0:70]] | @tsv'
 ```
 
 ```
@@ -94,7 +92,7 @@ opencli eur-lex transposition dir/2019/1024/oj --country ITA -f json | jq -r '.[
 Without `--country` you get every measure, one row each: 333 for directive 2016/680, 842 for the services directive 2006/123. Count them by country:
 
 ```bash
-opencli eur-lex transposition 32016L0680 -f json | jq -r 'group_by(.country) | map("\(.[0].country)\t\(length)") | .[]' | sort -k2 -nr | head -5
+opencli eur-lex transposition 32016L0680 -f json | jq -r '.data | group_by(.country) | map("\(.[0].country)\t\(length)") | .[]' | sort -k2 -nr | head -5
 ```
 
 ```
@@ -110,7 +108,7 @@ A measure often transposes several directives, so the count reflects how each co
 ## Full text of an act
 
 ```bash
-opencli eur-lex get 32024R1689 --chars 400 -f json | jq -r '.[] | "chars=\(.chars) truncated=\(.truncated)\n\(.text[0:260])"'
+opencli eur-lex get 32024R1689 --chars 400 -f json | jq -r '.data[] | "chars=\(.chars) truncated=\(.truncated)\n\(.text[0:260])"'
 ```
 
 ```
@@ -138,7 +136,7 @@ of the European Union
 Pull it once and work on it locally:
 
 ```bash
-opencli eur-lex get 32024R1689 -f json | jq -r '.[0].text' > aiact.txt
+opencli eur-lex get 32024R1689 -f json | jq -r '.data[0].text' > aiact.txt
 for t in "facial recognition" "biometric identification" "biometric categorisation"; do
   printf '%-28s %s\n' "$t" "$(grep -o -i "$t" aiact.txt | wc -l)"
 done
@@ -173,8 +171,8 @@ This is the one command that needs the Browser Bridge connected. If it is not, `
 Then take the CELEX numbers and leave the browser behind:
 
 ```bash
-opencli eur-lex search "facial recognition" --exact -f json | jq -r '.[].celex' | while read c; do
-  opencli eur-lex meta "$c" -f json | jq -r '.[] | "\(.celex)  \(.date)  \(.title[0:60])"'
+opencli eur-lex search "facial recognition" --exact -f json | jq -r '.data[].celex' | while read c; do
+  opencli eur-lex meta "$c" -f json | jq -r '.data[] | "\(.celex)  \(.date)  \(.title[0:60])"'
 done
 ```
 
