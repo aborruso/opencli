@@ -4,12 +4,12 @@ Five commands over [ASTER](https://aster.istat.it/), the ISTAT Statistical Atlas
 
 ASTER is a set of atlases - territory, municipalities, museums and libraries, infrastructures, urban peripheries, the population census - each one a node of the same Data Browser product that runs [IstatData](../istatdata/README.md), with its own hub. The adapter walks it the way the site does: atlas, dataset, its dimensions, the codes of a dimension, the data. The data comes out as rows, one per observation, with the code and the label of every dimension.
 
-ASTER is its own source, not a view of the ISTAT SDMX endpoint: it has no public SDMX REST, only about a third of its dataflow ids exist on `esploradati.istat.it`, and the same id can have a different structure there (`26_29`: `TERRITORIO` on `CL_AST_ITTER` here, `REF_AREA` on `CL_ITTER107` there).
+ASTER has no public SDMX REST, and its ids and territorial codelist are its own (`26_29`: `TERRITORIO` on `CL_AST_ITTER` here, `REF_AREA` on `CL_ITTER107` on the ISTAT SDMX endpoint). Much of its data is on that endpoint too, and where compared the numbers are the same: see [ASTER or SDMX?](#aster-or-sdmx) before choosing.
 
 ```bash
 opencli plugin install github:aborruso/opencli/aster   # from the published repo
 opencli plugin install "file://$PWD"                   # from a local clone
-opencli validate aster          # expected: PASS, 5 commands
+opencli adapter check aster          # expected: "ok": true, 5 commands
 ```
 
 | Command | What it does | Browser |
@@ -21,6 +21,27 @@ opencli validate aster          # expected: PASS, 5 commands
 | `data <id>` | the data, one row per observation; `--filter`, `--last`, `--from`/`--to` | no |
 
 Every command takes `--lang it|en` (default `it`); all but `atlases` take `--atlas` (code or id, default `AST`).
+
+<a id="aster-or-sdmx"></a>
+## ASTER or SDMX?
+
+The same ISTAT data is often on both ASTER and the ISTAT SDMX endpoint (`esploradati.istat.it/SDMXWS`, reachable with [opensdmx](https://pypi.org/project/opensdmx/)). Checked on 2026-10-20, full analysis in [`docs/evaluation.md`](../../docs/evaluation.md#aster-vs-sdmx):
+
+| ASTER datasets vs SDMX dataflows | Datasets |
+|---|---|
+| Same id | 113 |
+| Same name with a suffix, or with the domain numbers moved: one ASTER dataset groups a family of SDMX tables | 38 |
+| Same theme, other names (urban environment, daily life survey, BES of the territories, museums, schools, labour force, projections) | ~140, not matched one to one |
+| No counterpart found | ~30 |
+
+- **Same numbers**: 170 values compared on three datasets (`26_29`, the composite fragility index, population in the municipal identity card), all identical.
+- **ASTER can be behind**: population on 1 January stops at 2024 here and reaches 2026 on SDMX (`22_289`); household projections are the 2023-2043 edition here and 2025-2050 on SDMX (`165_1167`).
+- **Found only on ASTER**: the sub-municipal areas of the metropolitan capitals (708 neighbourhoods, atlas `PERIFERIE`); the infrastructure indicators (atlas `ASTI`); the yearly area of every municipality (`DF_CARTA_IDENTITA`); one territorial hierarchy from Italy down to the neighbourhood, with `parent` on every code (`CL_AST_ITTER` does not exist on the SDMX endpoint).
+- **Ready-made tables**: where SDMX splits a topic into many dataflows, ASTER serves one dataset. ICT in enterprises (`DF_DCSP_ICT_6_39`) is one dataset with 448 indicators here, 20 dataflows on SDMX (`6_39_DF_DCSP_ICT_1…`): there, the whole picture takes 20 queries and a union. Every dataset also comes with the default view of the web table.
+
+In practice: for a figure that is on SDMX, prefer opensdmx, which has the newer editions and the full catalog (4953 dataflows against 313). Use `aster` for what is only here, for ready-made tables when you do not want to merge, and as an entry point to find the theme; then check the year coverage on SDMX before relying on an ASTER series that exists there too.
+
+Limits: values compared on 3 datasets of 313, about 140 matched by theme only, SDMX titles in English and ASTER titles in Italian, so some of the ~30 "only on ASTER" may be on SDMX under names not tried.
 
 ## Examples
 
