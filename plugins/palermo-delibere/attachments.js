@@ -53,7 +53,6 @@ cli({
         { name: 'section', type: 'string', default: '', help: 'Section code, when `act` is a bare ALBCOD' },
         { name: 'dir', type: 'string', default: '', help: 'Folder to save into; default ./<section>-<year>-<protocol number>, e.g. ./DGC-2026-302. The act is saved there too, as act.html and act.json. Files already there are skipped, never overwritten' },
     ],
-    defaultFormat: 'json',
     columns: ['idx', 'filename', 'bytes', 'signed', 'status', 'path'],
     func: async (args) => {
         const { url, s } = actUrl(args.act, args.section);

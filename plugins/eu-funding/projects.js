@@ -28,7 +28,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON, added to the filters above (e.g. missionGroup, crossCuttingPriorities, countries - see `codes --index projects`)' },
         { name: 'limit', type: 'int', default: 20, help: 'How many projects; pages over the API cap of 100 as needed' },
     ],
-    defaultFormat: 'json',
     columns: ['id', 'acronym', 'title', 'programme', 'status', 'start', 'end', 'eu_contribution', 'overall_budget', 'coordinator', 'countries', 'call', 'topic', 'url'],
     footerExtra: (kwargs) => (kwargs._total != null ? `${kwargs._total} projects in total` : undefined),
     func: async (args) => {

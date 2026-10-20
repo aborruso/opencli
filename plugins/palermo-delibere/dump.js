@@ -70,7 +70,6 @@ cli({
         // {"ok":true,"data":null}. OpenCLI 1.8 ignores it.
         { name: 'stdout', type: 'boolean', default: true, help: 'The rows go to stdout as JSON Lines; keep the default' },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     func: async (args) => {
         const pages = Number(args.pages);

@@ -37,7 +37,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON, added to the filters above - anything the API allows, e.g. the query the portal sends, copied from the browser' },
         { name: 'limit', type: 'int', default: 20, help: 'How many results; the API serves 100 per page and this pages as needed' },
     ],
-    defaultFormat: 'json',
     columns: ['identifier', 'title', 'type', 'status', 'programme', 'call', 'opening', 'deadline', 'url'],
     footerExtra: (kwargs) => (kwargs._total != null ? `${kwargs._total} results in total` : undefined),
     func: async (args) => {

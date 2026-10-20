@@ -18,7 +18,6 @@ cli({
         { name: 'section', type: 'string', positional: true, required: true, help: 'Section code: DGC, DCC, DCCIR, DCS, OS, DCO, ODT (DDI has no list: use `search DDI --date`); see `opencli palermo-delibere sections`' },
         { name: 'pages', type: 'int', default: MAX_PAGES, help: `List pages to read, 1 or ${MAX_PAGES}; each page is 10 acts and 11 requests` },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     footerExtra: (kwargs) => (kwargs._total == null ? undefined : `${kwargs._total} acts in the ${kwargs._scope}, ${kwargs._pages} pages of 10 on the portal`),
     func: async (args) => {

@@ -18,7 +18,6 @@ cli({
         { name: 'type', type: 'string', positional: true, required: true, help: 'Document type: its TD code or its exact name, e.g. 2024 or "Delibera Di Giunta Comunale"; see `opencli albo-palermo types`' },
         { name: 'pages', type: 'int', default: MAX_PAGES, help: `List pages to read, 1 or ${MAX_PAGES}; each page is 10 acts and 11 requests` },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     footerExtra: footer,
     func: async (args) => {

@@ -16,9 +16,6 @@ cli({
         { name: 'slug', type: 'string', positional: true, required: true, help: 'The icon slug, as the search returns it, e.g. acoustic-guitar' },
         { name: 'svg', type: 'boolean', default: false, help: 'Print the SVG markup in the row instead of only its URL' },
     ],
-    // One icon, a description of a couple of lines and a long keyword list: the
-    // default table would be one very wide row. `plain` prints it as a block.
-    defaultFormat: 'plain',
     columns: ['slug', 'name', 'group', 'style', 'keywords', 'description', 'url', 'svg', 'markup'],
     func: async (args) => {
         const slug = checkSlug(args.slug);

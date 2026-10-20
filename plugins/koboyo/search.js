@@ -26,13 +26,6 @@ cli({
         { name: 'group', type: 'string', default: '', help: 'Keep one taxonomy branch only, as group/subgroup: the groups are face, mark, object, people, scene, e.g. object/food' },
         { name: 'limit', type: 'int', default: 20, help: 'How many icons to return; 0 returns every match' },
     ],
-    // Eight columns, three of them full URLs: the default table is a screen-wide
-    // wall of box-drawing characters that wraps into noise. `plain` prints one
-    // key/value block per icon, loses no data, and yields to any explicit -f.
-    // The same lesson as istatdata on 2026-09-12, met again from a different
-    // direction: there the offender was a 400-character description, here it is
-    // three URLs.
-    defaultFormat: 'plain',
     // `svg` and `page` last: the longest columns, and the ones that can
     // overflow without pushing the identifiers off the screen.
     columns: ['slug', 'name', 'group', 'style', 'relevance', 'url', 'svg', 'page'],

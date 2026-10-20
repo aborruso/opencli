@@ -19,7 +19,6 @@ cli({
     strategy: Strategy.PUBLIC,
     browser: false,
     args: [],
-    defaultFormat: 'json',
     columns: ['code', 'name', 'access', 'url'],
     func: async () => SECTIONS.map((s) => ({ code: s.code, name: s.name, access: HOW[s.daily], url: listUrl(s) })),
 });

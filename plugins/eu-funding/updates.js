@@ -23,7 +23,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON, added to the filters above' },
         { name: 'limit', type: 'int', default: 20, help: 'How many updates; pages over the API cap of 100 as needed' },
     ],
-    defaultFormat: 'json',
     columns: ['date', 'identifier', 'title', 'call', 'programme', 'update', 'url'],
     footerExtra: (kwargs) => (kwargs._total != null ? `${kwargs._total} updates in total` : undefined),
     func: async (args) => {

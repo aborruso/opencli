@@ -28,7 +28,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON, added to the filters above' },
         { name: 'limit', type: 'int', default: 20, help: 'How many FAQs; pages over the API cap of 100 as needed' },
     ],
-    defaultFormat: 'json',
     columns: ['nid', 'type', 'question', 'short_answer', 'programme', 'categories', 'procedure', 'status', 'published', 'url'],
     footerExtra: (kwargs) => (kwargs._total != null ? `${kwargs._total} FAQs in total` : undefined),
     func: async (args) => {

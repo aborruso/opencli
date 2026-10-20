@@ -24,7 +24,6 @@ cli({
         { name: 'sector', type: 'string', default: '', help: 'Sector code, or a piece of its name that picks one sector (DDI only)' },
         { name: 'pages', type: 'int', default: MAX_PAGES, help: `Result pages to read, 1 or ${MAX_PAGES}` },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     footerExtra: (kwargs) => (kwargs._total == null ? undefined : `${kwargs._total} acts match, ${kwargs._pages} pages of 10 on the portal`),
     func: async (args) => {

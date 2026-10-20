@@ -17,7 +17,6 @@ cli({
         { name: 'act', type: 'string', positional: true, required: true, help: 'The permanent link, or only its ALBCOD value (then --section is needed)' },
         { name: 'section', type: 'string', default: '', help: 'Section code, when `act` is a bare ALBCOD' },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     func: async (args) => {
         const { url, s } = actUrl(args.act, args.section);

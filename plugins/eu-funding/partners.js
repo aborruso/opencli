@@ -32,7 +32,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON, added to the filters above' },
         { name: 'limit', type: 'int', default: 20, help: 'How many results; pages over the API cap of 100 as needed' },
     ],
-    defaultFormat: 'json',
     columns: ['id', 'type', 'name', 'pic', 'country', 'organisation_type', 'expertise', 'date', 'topic', 'topic_title', 'summary', 'url'],
     footerExtra: (kwargs) => (kwargs._total != null ? `${kwargs._total} results in total` : undefined),
     func: async (args) => {

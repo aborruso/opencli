@@ -19,7 +19,6 @@ cli({
     args: [
         { name: 'pic', type: 'string', positional: true, required: true, help: 'The 9-digit Participant Identification Code, e.g. 999991722' },
     ],
-    defaultFormat: 'json',
     columns: ['pic', 'name', 'city', 'country', 'organisation_type', 'legal_status', 'validation', 'vat', 'registration', 'projects', 'roles', 'partner_searches', 'programmes', 'keywords', 'deprecated_pics', 'modified', 'url'],
     func: async (args) => {
         const pic = String(args.pic ?? '').trim();

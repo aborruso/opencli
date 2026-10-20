@@ -19,7 +19,6 @@ cli({
         { name: 'text', type: 'string', positional: true, required: true, help: 'Start of a company name or of an activity, 2 characters at least' },
         { name: 'kind', type: 'string', default: '', help: `Keep one kind only: ${Object.values(KINDS).join(', ')}` },
     ],
-    defaultFormat: 'json',
     columns: ['kind', 'term', 'ateco'],
     func: async (args) => {
         const text = String(args.text ?? '').trim();

@@ -22,7 +22,7 @@ opencli adapter check eu-funding          # expected: "ok": true, 9 commands
 | `projects [text]` | funded projects: budget, EU contribution, coordinator, countries | Projects & Results |
 | `codes [field]` | the codes of an index and their labels | Facet API |
 
-Every command defaults to `-f json`. `-f table`, `-f csv`, `-f yaml`, `-f md` and `-f plain` work as elsewhere. The result total of a search goes in the table footer, so it appears in `-f table` only.
+Without `-f`, OpenCLI 2 prints JSON, the rows under `.data`. `-f table`, `-f csv`, `-f yaml`, `-f md` and `-f plain` work as elsewhere. The result total of a search goes in the table footer, so it appears in `-f table` only.
 
 ## Examples
 

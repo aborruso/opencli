@@ -34,7 +34,6 @@ cli({
         { name: 'sector', type: 'string', default: '', help: 'Sector code, or a piece of its name that picks one sector (e.g. "segreteria")' },
         { name: 'pages', type: 'int', default: MAX_PAGES, help: `Result pages to read, 1 or ${MAX_PAGES}` },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     footerExtra: footer,
     func: async (args) => {

@@ -24,7 +24,6 @@ cli({
         { name: 'query', type: 'string', default: '', help: 'Raw bool query in JSON: count only the records that match it' },
         { name: 'filter', type: 'string', default: '', help: 'Keep the codes whose label or code contains this text (case-insensitive)' },
     ],
-    defaultFormat: 'json',
     columns: ['field', 'code', 'label', 'count'],
     func: async (args) => {
         const index = String(args.index ?? 'calls').toLowerCase();

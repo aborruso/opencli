@@ -17,7 +17,6 @@ cli({
         { name: 'category', type: 'string', default: '', help: 'Keep the categories whose name contains this text (case-insensitive), e.g. delibere' },
         { name: 'filter', type: 'string', default: '', help: 'Keep the document types whose name contains this text (case-insensitive), e.g. "avviso pubblico"' },
     ],
-    defaultFormat: 'json',
     columns: ['category', 'type', 'td', 'url'],
     func: async (args) => {
         const category = String(args.category ?? '').trim().toLowerCase();

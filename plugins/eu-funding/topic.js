@@ -21,7 +21,6 @@ cli({
     args: [
         { name: 'identifier', type: 'string', positional: true, required: true, help: 'Topic identifier (the `identifier` column of `calls`), e.g. HORIZON-CL3-2022-BM-01-01' },
     ],
-    defaultFormat: 'json',
     columns: ['identifier', 'title', 'type', 'status', 'programme', 'call', 'call_title', 'types_of_action', 'opening', 'deadline', 'deadline_model', 'keywords', 'description', 'conditions', 'support', 'url'],
     func: async (args) => {
         const id = String(args.identifier ?? '').trim();

@@ -33,7 +33,6 @@ cli({
     args: [
         { name: 'link', type: 'string', positional: true, required: true, help: 'A permanent link of the Albo Pretorio (albopretorio.comune.palermo.it), with TD and ALBCOD' },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     func: async (args) => {
         let u;

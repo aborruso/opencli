@@ -17,7 +17,6 @@ cli({
         { name: 'act', type: 'string', positional: true, required: true, help: 'The permanent link, or only its ALBCOD value (then --type is needed)' },
         { name: 'type', type: 'string', default: '', help: 'Document type, TD code or exact name, when `act` is a bare ALBCOD' },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     func: async (args) => {
         const url = await actUrl(args.act, args.type);

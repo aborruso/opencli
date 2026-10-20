@@ -53,7 +53,6 @@ cli({
         { name: 'type', type: 'string', default: '', help: 'Document type, TD code or exact name, when `act` is a bare ALBCOD' },
         { name: 'dir', type: 'string', default: '', help: 'Folder to save into; default ./albo-<TD>-<protocol number>. The act is saved there too, as act.html and act.json. Files already there are skipped, never overwritten' },
     ],
-    defaultFormat: 'json',
     columns: ['idx', 'filename', 'bytes', 'signed', 'status', 'path'],
     func: async (args) => {
         const url = await actUrl(args.act, args.type);

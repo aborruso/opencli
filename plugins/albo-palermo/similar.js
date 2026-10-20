@@ -99,7 +99,6 @@ cli({
         { name: 'mode', type: 'string', default: 'hybrid', help: `${MODES.join(', ')}: both rankings fused, the vector one alone, the BM25 one alone` },
         { name: 'index', type: 'string', default: '', help: `Path of the index; default: the release asset, cached in ${CACHE} for 12 hours` },
     ],
-    defaultFormat: 'table',
     columns: COLUMNS,
     footerExtra: (kwargs) => (kwargs._n == null ? undefined : `${kwargs._n} acts in the index, ${kwargs._mode}${kwargs._kw == null ? '' : `, ${kwargs._kw} match the words`}${kwargs._cost == null ? '' : `; the question cost $${kwargs._cost}`}`),
     func: async (args) => {

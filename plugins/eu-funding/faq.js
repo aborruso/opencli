@@ -21,7 +21,6 @@ cli({
     args: [
         { name: 'nid', type: 'string', positional: true, required: true, help: 'FAQ id: the `nid` column of `faqs`, or the number at the end of a portal FAQ url' },
     ],
-    defaultFormat: 'json',
     columns: ['nid', 'type', 'question', 'answer', 'programme', 'categories', 'keywords', 'procedure', 'status', 'published', 'modified', 'archived', 'url'],
     func: async (args) => {
         const nid = String(args.nid ?? '').trim();

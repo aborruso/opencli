@@ -179,7 +179,6 @@ cli({
         { name: 'detail', type: 'bool', default: false, help: 'Open the detail of each row: address, province, phone, PEC, ATECO (one page per row)' },
         { name: 'limit', type: 'int', default: 20, help: `Rows to return, at most 75 (the site's page sizes: ${PAGE_SIZES.join(', ')})` },
     ],
-    defaultFormat: 'json',
     columns: COLUMNS,
     footerExtra: (kwargs) => {
         const parts = [];
