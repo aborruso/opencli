@@ -10,7 +10,7 @@ cli({
     site: 'aster',
     name: 'datasets',
     access: 'read',
-    description: 'Datasets of one atlas of aster.istat.it: id, title, theme path and link to the table (no browser)',
+    description: 'Datasets of one atlas of aster.istat.it: id, title, theme path and link to the table; with --tree, the theme tree with the number of datasets per theme (no browser)',
     example: 'opencli aster datasets --atlas AST --grep popolazione',
     domain: 'aster.istat.it',
     strategy: Strategy.PUBLIC,
