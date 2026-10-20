@@ -134,7 +134,9 @@ function readDetail() {
         const dd = dt.nextElementSibling;
         if (dd && dd.tagName === 'DD') byLabel[clean(dt.textContent)] = clean(dd.textContent);
     }
-    if (!('Indirizzo Impresa' in byLabel)) return null;
+    // "Nome impresa" is on every detail; a foreign company has no address
+    // (no "Indirizzo Impresa", no 0_* fields), so the address stays null.
+    if (!('Nome impresa' in byLabel)) return null;
     const ateco = byLabel['Classificazione ATECO'] ?? '';
     const m = ateco.match(/^([\d.]+)\s*-\s*(.*)$/);
     const street = [hidden('via'), hidden('numeroCivico')].filter(Boolean).join(' ');

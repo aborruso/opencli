@@ -28,7 +28,7 @@ One row per company office (a company with a registered office and local units g
 | `legal_form` | "Forma giuridica (generico)" | Generic legal form, e.g. `Societa' Di Capitale`; the full one is behind login |
 | `activity` | "Descrizione Attività" | Activity as declared, with its start date in the list row |
 | `status` | the status badge | `Registrata`, or the other states the register shows (`--all` may include cancelled ones only when the site does) |
-| `address` | hidden fields of the detail | Street and number, plus hamlet and postcode when present. `--detail` only |
+| `address` | hidden fields of the detail | Street and number, plus hamlet and postcode when present. Empty for a foreign company, whose detail has no address. `--detail` only |
 | `province` | hidden field of the detail | Two-letter code. `--detail` only |
 | `phone` | hidden field of the detail | Often empty. `--detail` only |
 | `pec` | "Domicilio digitale/PEC" | The certified e-mail, behind the page's "MOSTRA" button. `--detail` only |

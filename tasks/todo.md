@@ -659,3 +659,16 @@ Test bed: `npm install --prefix <scratch>/oc2 @jackwener/opencli@2.0.1`, `HOME=<
 ## Unresolved questions
 
 - Commit and push: the workflows switch the nightly archives to 2.0.1 from the next run.
+
+## Issue #3 - registroimprese `--detail` on a detail without "Indirizzo Impresa" (2026-10-20)
+
+Cause: `readDetail()` (`plugins/registroimprese/search.js:137`) returned `null` when the `Indirizzo Impresa` label was missing, and the loop reads `null` as "page not loaded", so one row failed the whole command.
+
+- [x] Bridge up (Xvfb) → done, extension connected, stopped afterwards.
+- [x] Labels of the Ondata International detail (temporary debug, reverted) → done: Nome impresa, PEC, legal form, activity, ATECO, Registrata; no Indirizzo Impresa, no `0_*` fields. Output in `tmp/ri-3/`.
+- [x] Control InfoCamere → done: same labels plus Indirizzo Impresa and 14 `0_*` fields.
+- [x] Fix: check on "Nome impresa" → done, one line; `search ondata --detail` 3 rows, Ondata International PEC + ATECO, address null.
+- [x] Control `infocamere --province RM --detail` unchanged (Morgagni 13, RM, protocollo@pec.infocamere.it, 63.10.2); `adapter check` clean.
+- [x] README (`address` empty for a foreign company), LOG.
+- [~] Superseded: null row + warning for a detail that truly does not load. Not needed for #3; a page without "Nome impresa" still fails, as before.
+- [ ] Commit, close #3 (waiting for Andrea).
