@@ -188,7 +188,7 @@ async function call(url, init, what) {
     try {
         res = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
     } catch (e) {
-        const why = e.name === 'TimeoutError' ? `no answer in ${TIMEOUT_MS / 1000} s` : e.message;
+        const why = e.name === 'TimeoutError' ? `no answer in ${TIMEOUT_MS / 1000} s` : `${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`;
         throw new CommandExecutionError(`${what} is unreachable: ${why}`);
     }
     if (!res.ok) {

@@ -30,7 +30,7 @@ async function request(url, init) {
     try {
         res = await fetch(url, { ...init, headers: { accept: 'application/json', 'user-agent': UA, ...(init.headers ?? {}) } });
     } catch (e) {
-        throw new CommandExecutionError(`law-tracker is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`law-tracker is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (res.status === 400) {
         // The backend answers 400 for an unknown or malformed reference too.

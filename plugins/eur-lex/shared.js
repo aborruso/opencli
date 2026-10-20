@@ -57,7 +57,7 @@ export async function cellarFetch(celex, accept, lang3 = 'eng') {
             headers: { accept, 'accept-language': lang3, 'user-agent': UA },
         });
     } catch (e) {
-        throw new CommandExecutionError(`Cellar is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`Cellar is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (res.status === 404) {
         throw new ArgumentError(`Cellar has no "${accept}" for CELEX ${celex} in language ${lang3} (404). Try another --as or --lang.`);
@@ -74,7 +74,7 @@ export async function sparql(query) {
     try {
         res = await fetch(url, { headers: { accept: 'application/sparql-results+json', 'user-agent': UA } });
     } catch (e) {
-        throw new CommandExecutionError(`SPARQL endpoint is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`SPARQL endpoint is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (res.status === 400) throw new ArgumentError('the SPARQL endpoint rejected the query (HTTP 400): check the syntax');
     if (!res.ok) throw new CommandExecutionError(`SPARQL endpoint answered HTTP ${res.status}`);

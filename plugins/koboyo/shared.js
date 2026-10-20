@@ -61,7 +61,7 @@ async function getJson(path, { optional = false } = {}) {
             headers: { accept: 'application/json', 'user-agent': UA },
         });
     } catch (e) {
-        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     // A missing shard is a normal outcome of the prefix walk, not a failure: it
     // simply means the index does not split that far.
@@ -198,7 +198,7 @@ export async function taxonomy() {
     try {
         res = await fetch(`${BASE}/icons`, { headers: { 'user-agent': UA } });
     } catch (e) {
-        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (!res.ok) throw new CommandExecutionError(`koboyo.com answered HTTP ${res.status} for the browse page`);
     const html = await res.text();
@@ -248,7 +248,7 @@ export async function fetchSvg(slug) {
     try {
         res = await fetch(svgUrl(slug), { headers: { 'user-agent': UA } });
     } catch (e) {
-        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`koboyo.com is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (!res.ok) throw new CommandExecutionError(`koboyo.com answered HTTP ${res.status} for the SVG of "${slug}"`);
     return (await res.text()).trim();

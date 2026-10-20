@@ -43,7 +43,7 @@ export async function hubFetch(path, { lang, ...init } = {}, what = 'the aster h
             headers: { accept: 'application/json', 'user-agent': UA, UserLang: lang, ...(init.headers ?? {}) },
         });
     } catch (e) {
-        throw new CommandExecutionError(`${what} is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`${what} is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (res.status === 429) {
         throw new CommandExecutionError('the aster hub refused the request for rate limiting (HTTP 429): retry later, serially');

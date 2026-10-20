@@ -60,7 +60,7 @@ async function hubFetch(url, init = {}, what = 'the hub') {
             headers: { accept: 'application/json', 'user-agent': UA, ...(init.headers ?? {}) },
         });
     } catch (e) {
-        throw new CommandExecutionError(`${what} is unreachable: ${e.message}`);
+        throw new CommandExecutionError(`${what} is unreachable: ${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`);
     }
     if (res.status === 429) {
         throw new CommandExecutionError('the node refused the request for rate limiting (HTTP 429). It declares 10 requests every 60 seconds: ask serially');
