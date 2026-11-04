@@ -6,7 +6,7 @@
 - **Italy is ANAC**: all 3,807,466 Italian tenders are `IT_data`, source the ANAC CIG open data, version `202607`. No `finalPrice` and no CPV on any of them: money only in winning bids and estimates.
 - **Amounts not summed**: TED 444671-2016 repeats the 21.4 M EUR tender total on both lots, so `tenders` lists the winning bid of every lot instead of a sum; the server's `totalValueOfContracts` does sum them (Palantir UK, Ltd: 42.9 M). Supplier records are one per spelling (Palantir: 9) and never merged; `--supplier-id`/`--buyer-id` search by record. Server window 10000 results, checked with paging up to 416 rows without duplicates.
 - Verified: `adapter check` 8 commands clean; Palantir 17 tenders; Comune di Palermo `it` 2022-2023 416; `--cpv 72` 499,864; a Palantir record's tenders 4 = its `contractsCount`. Licence not stated (user's decision). CSV download left to `docs/future-ideas.md`.
-- Pre-existing, not fixed: the `opencli list | grep …` checks in README and AGENTS find nothing on 2.0.2, `list` pages at 25 commands; `opencli list --site <site>` works.
+- **Install check fixed**: the `opencli list | grep …` lines in README and AGENTS found nothing on 2.0.2, since `list` pages at 25 of 1356 commands; replaced with `opencli plugin list | jq -r '.data[].name'`, which lists the installed plugins (all 10 of this repo, checked).
 
 ## 2026-10-20
 

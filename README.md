@@ -82,7 +82,7 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 ```bash
 npm install -g @jackwener/opencli@2.0.2                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
-opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|opentender|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
+opencli plugin list | jq -r '.data[].name'                # check: the installed plugins
 ```
 
 > **Written for OpenCLI 2.** Two things changed from 1.8: `-f json` (and the default output, which is now JSON) wraps the rows as `{"ok": true, "data": [...]}`, so the `jq` examples read `.data[]`; and OpenCLI no longer reads site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539)). The folders in `sitemaps/` stay as Markdown notes that an agent reads itself before driving the browser; [`AGENTS.md`](AGENTS.md) says when. Checked on 2.0.2 on 2026-10-20: every plugin installs, `opencli adapter check` passes on all of them.
