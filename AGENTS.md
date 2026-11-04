@@ -12,7 +12,7 @@ This repo ships two things for two different consumers:
 ```bash
 npm install -g @jackwener/opencli@2.0.2                 # the CLI itself, Node >= 20.18.1
 opencli plugin install github:aborruso/opencli          # every adapter, in one shot
-opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding'  # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|opentender|koboyo|eu-funding'  # check
 ```
 
 The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symlinks each sub-plugin into `~/.opencli/plugins/`. To install a single site, name the sub-plugin: `opencli plugin install github:aborruso/opencli/eur-lex`.
@@ -29,6 +29,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 | eur-lex.europa.eu | [`sitemaps/eur-lex/SITE.md`](sitemaps/eur-lex/SITE.md) | `opencli eur-lex search\|get\|meta\|transposition\|sparql` (only `search` needs a browser) |
 | esploradati.istat.it | [`plugins/istatdata/README.md`](plugins/istatdata/README.md) — no sitemap | `opencli istatdata ask\|dataset` (no browser) |
 | aster.istat.it | [`plugins/aster/README.md`](plugins/aster/README.md) — no sitemap | `opencli aster atlases\|datasets\|dataset\|values\|data` (no browser) |
+| opentender.eu | [`plugins/opentender/README.md`](plugins/opentender/README.md) — no sitemap | `opencli opentender stats\|sectors\|tenders\|tender\|companies\|company\|authorities\|authority` (no browser) |
 | koboyo.com | [`plugins/koboyo/README.md`](plugins/koboyo/README.md) — no sitemap | `opencli koboyo search\|get\|groups` (no browser) |
 | ec.europa.eu/info/funding-tenders | [`plugins/eu-funding/README.md`](plugins/eu-funding/README.md) — no sitemap | `opencli eu-funding calls\|topic\|updates\|faqs\|faq\|org\|partners\|projects\|codes` (no browser) |
 
@@ -46,6 +47,8 @@ A sitemap is a hint. **Live browser state is the truth.** When they disagree, tr
 **istatdata** is unrelated to the other two: Italian official statistics, not EU law. Its one thing worth knowing is that `ask` is a *dataset finder, not an oracle* — ask it for the average income in a town and it returns the table that holds the figure, never the figure. Getting the number out means downloading the `data` URL, which pulls the whole dataflow unless you narrow it.
 
 **aster** is ISTAT too, but a different source from istatdata: the Statistical Atlas of the Territory, seven atlases on their own hub, with no SDMX endpoint behind them. Unlike istatdata it returns the figure itself: `data` returns one row per observation, code and label of every dimension. Three things to hold: `data` starts from the filter the web table opens with (`dataset` shows it), and `--filter` changes only the dimensions it names; a request too large for the hub fails with an error rather than coming back short; and no observation is `EMPTY_RESULT`, not a zero. The way in is `datasets --grep`, then `dataset`, then `values` for the codes.
+
+**opentender** is European public procurement: 24.5 million tenders of 35 countries and the EU institutions, from TED and national sources (Italy: ANAC open data). The portal is behind Cloudflare; the adapter reads its data server. Four things to hold when you answer with it: one company has one record per spelling of its name, so `companies` lists them all and you decide which are the same company, saying which ones you joined and never on the name alone; the winner is usually a local subsidiary, not the group; amounts come in three kinds (final, estimated, winning bid per lot) that are not summed, because some sources repeat the tender total on every lot, and the server's own `total_value_eur` does double count; Italian tenders have no final price and no CPV. Report the commands you ran, the numbers they gave, and what you could not verify. The way in is `companies` or `authorities`, then `tenders --supplier-id` or `--buyer-id`, then `tender` for the lots.
 
 **koboyo** is unrelated to all three: a library of 261,740 free hand-drawn SVG icons. Its search is not a server endpoint — the site ships a static JSON index and ranks in the browser — so the adapter ports that ranking and returns what the page would have shown. Three things to hold: the words are **ANDed**, so fewer words find more; names and keywords are **English only**, and an Italian query returns nothing; and every row carries a `page` URL, the same search on the site, which is what to hand to a person who needs to *see* the icons. Commands are read-only: they return URLs and print markup, and never write a file.
 

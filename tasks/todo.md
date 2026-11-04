@@ -672,3 +672,69 @@ Cause: `readDetail()` (`plugins/registroimprese/search.js:137`) returned `null` 
 - [x] README (`address` empty for a foreign company), LOG.
 - [~] Superseded: null row + warning for a detail that truly does not load. Not needed for #3; a page without "Nome impresa" still fails, as before.
 - [x] Commit, close #3 → done 2026-10-20.
+
+---
+
+# Plan — opentender (OpenTender, European public procurement)
+
+Status: done 2026-11-04 (Phases 1-4). Not committed. Written 2026-11-04.
+
+## Verified (live, 2026-11-04, curl; files in `tmp/opentender/`)
+
+- `opentender.eu` (the portal) answers **403 with a Cloudflare managed challenge** to curl, on every path (home, `/api/*`, `/robots.txt`, downloads), even with a browser UA.
+- `api.opentender.eu` (the data server behind it) answers without key or cookie. `GET /api/test.json` → `{"version":"1.0.9","ok":"yes"}`. Undocumented: routes from `yigit-serin/opentender-backend` (`server.js`, last push 2023-10-02), filter definitions from `arnese/opentender-frontend` (`src/app/model/filters.ts`). Both saved in `tmp/opentender/src/`.
+- Every route exists as `/api/all/...` and `/api/<cc>/...`; `<cc>` adds an `ot.country` term. `/api/it/tender/search` total 3,807,466 = `country` select `IT` on `all`.
+- `GET /api/portals/stats`: tenders per portal, `all` = 24,525,649. `GET /api/all/sector/list/main`: CPV divisions with counts.
+- `POST /api/<cc>/tender|company|authority/search`, body `{filters:[{field,type,value[],mode?}], size, from, sort:{field, ascend}}`; result in `.data.hits.hits`, total in `.data.hits.total.value`. Filter types from `lib/queries.js`: `text` = match_phrase_prefix, `select`/`term` = term, `value` with `mode` `= < <= > >=`, `range` `[a,b]` inclusive, `date` with mode, `years` (gte Jan 1 a, lte Jan 1 b, so effectively a..b-1: not used).
+- Fields checked: `buyers.name` (text; Comune di Palermo 2723), `lots.bids.bidders.name` (text; Palantir 17), `title` (text; videosorveglianza 9246), `tenderYear` (range; Palermo 2022-2023 on `it` 416), `cpvs.code.divisions` (select, 2 digits; 72 → 499,864), `cpvs.code` (select, 8 digits; 72000000 → 125,271; a wrong length gives 0), `finalPrice.netAmountEur` (value), `lots.bids.price.netAmountEur` (value, nested sort works), `country` (select).
+- `size` 1000 per page works (18.7 MB, 1.6 s). `from + size > 10000` → HTTP 400.
+- `GET /api/all/tender/id/<id>` → `.data` = the tender; `company/id/<id>` → `.data.company`; `authority/id/<id>` → `.data.authority`. Company/authority `body`: name, address, contractsCount, totalValueOfContracts, dates, sector, isSme (company), buyerType/mainActivities (authority).
+- `POST tender/download/csv` → `{data:{id}}`, then `GET download/id/<id>` (token lives 60 s) → gzip of a `;`-separated CSV, one row per tender/lot/bid (Palantir: 20 KB gz, 143 KB).
+- **Italy**: all 3,807,466 tenders are `dataset: IT_data`, source `https://dati.anticorruzione.it/opendata/download/dataset/` (ANAC CIG open data), `datasetVersion 202607`. `finalPrice` is null on every Italian tender (0 with `> 0`), `cpvs` empty on the 5 Palermo tenders sampled: money is in `lots.bids.price.netAmountEur` and `estimatedPrice.netAmountEur`.
+- Data quality seen: largest `finalPrice` on `all` is 89.5 billion EUR (ES); Palermo has a bid of 2.68 billion EUR. Amounts are not clean.
+- Supplier names: one record per spelling (Palantir: 9 companies). Never merged by the adapter.
+
+```
+Strategy: PUBLIC_API
+Contract: internal-unstable (data server of the portal, no public spec, backend code last pushed 2023)
+Evidence: the calls above, 2026-11-04, all HTTP 200 except the documented 400 beyond 10000.
+Fragility: Cloudflare could be extended to api.opentender.eu; ES window 10000; download token 60 s.
+```
+
+## Design
+
+New sub-plugin `plugins/opentender`, site `opentender`, `domain: 'opentender.eu'`, `Strategy.PUBLIC`, `browser: false`, all `access: read`, calls serial. Same `apiFetch` style as `aster/shared.js` (with `e.cause.code`). Every command takes `--country` (ISO 2 letters or `all`, default `all`) → path `/api/<cc>/`.
+
+- `opentender stats` — tenders per country portal.
+- `opentender sectors` — CPV divisions with counts.
+- `opentender tenders [--title] [--buyer] [--supplier] [--cpv 2|8 digits] [--year-from] [--year-to] [--min-bid] [--sort recent|bid-price|final-price] [--limit 20, max 10000]` — one row per tender: id, country, year, title, buyer, winners (`; `-joined), bid_price_eur (sum of winning bids), estimated_eur, final_eur, main cpv, procedure, source, url. At least one filter required.
+- `opentender tender <id>` — one row per lot × bid: lot title, bidder, winning, price, plus tender header fields.
+- `opentender companies <name>` / `opentender authorities <name>` — every matching record, no merging: id, name, city, country, contracts, total_value_eur, years.
+- `opentender company <id>` / `opentender authority <id>` — the record's details.
+- `url`: `https://opentender.eu/<cc|all>/tender/<id>` from the frontend routes (`tender/:id` under the portal prefix); **not verifiable from curl** (Cloudflare), to check once in a browser.
+
+## Phases
+
+### Phase 1 — shared + stats + sectors
+- [x] `shared.js`, `stats.js`, `sectors.js`, local install → done 2026-11-04: `stats` all 24,525,649, IT 3,807,466; `sectors` 45 divisions, 72 = 383,383 (main CPV only; the search on `cpvs.code.divisions` counts any CPV, 499,864); `sectors --country it` → EMPTY_RESULT (server answers `{}`, ANAC data has no CPV); `xx` → ARGUMENT from the 404, `ita` → ARGUMENT; `adapter check` clean. Planned verify: `stats` gives `all` 24,525,649 and IT 3,807,466; `sectors` division 72 present; `--country xx` → ARGUMENT; `adapter check opentender` clean.
+
+### Phase 2 — tenders + tender
+- [x] `tenders.js` → done 2026-11-04: Palantir 17; Palermo `it` 2022-2023 416 (footer "416 tenders match"), 250 and 416 rows paged without duplicates; `--cpv 72` 499,864, `7200` ARGUMENT; sort final-price and bid-price descending; errors as planned. Amounts not summed: TED 444671-2016 repeats the 21.4 M tender total on both lots, so `winning_bids_eur` lists the lot prices. Added `--buyer-id`/`--supplier-id` (term on `buyers.id`/`lots.bids.bidders.id`): Palermo 2723, a Palantir record 4 = its `contractsCount`. Planned verify: `--supplier Palantir` 17 rows; `--buyer "Comune di Palermo" --country it --year-from 2022 --year-to 2023` total 416; `--cpv 72` vs `--cpv 7200` (ARGUMENT); `--limit 10001` → ARGUMENT; no filter → ARGUMENT; no match → EMPTY_RESULT.
+- [x] `tender.js` → done: 2 lots, PET-INTEL and POL-INTEL, Palantir Technologies UK, Ltd winning both at 21,448,653.47; unknown id → server 404 → EMPTY_RESULT. Planned verify: `73a431a7-…` gives 2 lots, Palantir Technologies UK, Ltd winning both, Rigspolitiet; unknown id → EMPTY_RESULT (check what the server answers).
+
+### Phase 3 — companies, authorities and their records
+- [x] `companies.js`, `company.js`, `authorities.js`, `authority.js` → done: Palantir 9 records; Palermo `it` 1 record, 1706 contracts, identifiers (tax id, VAT) in `authority`; `adapter check` 8 commands clean. Found: the server's `totalValueOfContracts` double counts too (Palantir UK, Ltd 42.9 M = 2 × 21.4 M). Planned verify: `companies Palantir` 9 records with distinct ids; `authorities "Comune di Palermo" --country it` 1 record, 1706 contracts.
+
+### Phase 4 — docs + gate
+- [x] → done 2026-11-04: README with live output, registered in root manifest, README, AGENTS.md, future-ideas, LOG; `adapter check` 8 clean, `list --site opentender` 8. Planned: `plugins/opentender/README.md` with live output, data caveats (name variants, local subsidiaries, missing/estimated amounts, Italy = ANAC without final price), no licence statement; root `opencli-plugin.json`, AGENTS.md, root README, LOG.md → verify: README examples run; `adapter check` clean.
+
+## Decisions (user, 2026-11-04)
+
+- Licence: write nothing about it.
+- `download`: later, not in v1 (noted in `docs/future-ideas.md`).
+- Site name `opentender`; default `--country all`.
+
+## Review
+
+- Done 2026-11-04, 8 commands, not committed. Testing surfaced: Italian tenders (ANAC) have no final price and no CPV; some sources repeat the tender total on every lot, and the server's `totalValueOfContracts` double counts because of it; outliers such as a 2.68 billion EUR winning bid on two Palermo tenders of 2025.
+- Open: portal page URLs (`/<portal>/<entity>/<id>`) built from the frontend routes, not opened (Cloudflare); CSV download later; whether Italian TED notices are merged into the ANAC records was not established.

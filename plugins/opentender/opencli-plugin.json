@@ -1,0 +1,6 @@
+{
+  "name": "opentender",
+  "version": "0.1.0",
+  "description": "OpenTender (opentender.eu) - European public procurement: tenders, suppliers and contracting authorities of 35 country portals, from the portal's data server, no browser",
+  "opencli": ">=2.0.0"
+}

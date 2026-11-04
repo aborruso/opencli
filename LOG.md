@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-04
+
+- **Tenth site: `opentender`** (`plugins/opentender/`, 8 commands: `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority`), European public procurement, 24,525,649 tenders. `opentender.eu` answers 403 with a Cloudflare managed challenge on every path; `api.opentender.eu`, the data server behind it, answers without key. Routes from `yigit-serin/opentender-backend`, search fields from `arnese/opentender-frontend`, all checked live. No browser.
+- **Italy is ANAC**: all 3,807,466 Italian tenders are `IT_data`, source the ANAC CIG open data, version `202607`. No `finalPrice` and no CPV on any of them: money only in winning bids and estimates.
+- **Amounts not summed**: TED 444671-2016 repeats the 21.4 M EUR tender total on both lots, so `tenders` lists the winning bid of every lot instead of a sum; the server's `totalValueOfContracts` does sum them (Palantir UK, Ltd: 42.9 M). Supplier records are one per spelling (Palantir: 9) and never merged; `--supplier-id`/`--buyer-id` search by record. Server window 10000 results, checked with paging up to 416 rows without duplicates.
+- Verified: `adapter check` 8 commands clean; Palantir 17 tenders; Comune di Palermo `it` 2022-2023 416; `--cpv 72` 499,864; a Palantir record's tenders 4 = its `contractsCount`. Licence not stated (user's decision). CSV download left to `docs/future-ideas.md`.
+- Pre-existing, not fixed: the `opencli list | grep …` checks in README and AGENTS find nothing on 2.0.2, `list` pages at 25 commands; `opencli list --site <site>` works.
+
 ## 2026-10-20
 
 - **registroimprese `--detail` on foreign companies** (#3): the detail of Ondata International S.L. has no "Indirizzo Impresa" and no `0_*` hidden fields, so `readDetail()` took it for an unloaded page and the whole command failed. The "page arrived" check is now "Nome impresa", present on both pages inspected; the address, province and phone of such a row stay `null`, PEC, ATECO and status are read. Verified live (Xvfb): `search ondata --detail` 3 rows, Ondata International with `amministrazione@pec.ondata-it.com`, 62.90.09; control `infocamere --province RM --detail` unchanged; `adapter check` clean.

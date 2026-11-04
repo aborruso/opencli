@@ -1,0 +1,9 @@
+{
+  "name": "opencli-plugin-opentender",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "OpenTender (opentender.eu) - European public procurement: tenders, suppliers, contracting authorities, no browser",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=2.0.0"
+  }
+}

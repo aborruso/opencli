@@ -1,13 +1,14 @@
 # opencli — terminal commands for public data sources
 
-[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for nine public sources — EU legislative procedures, the text of EU law, EU funding calls and projects, Italian official statistics and the ISTAT statistical atlas of the territory, the Italian business register, the official register of the city of Palermo and its permanent archive of deliberations and ordinances, and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
+[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for ten public sources — EU legislative procedures, the text of EU law, EU funding calls and projects, European public procurement, Italian official statistics and the ISTAT statistical atlas of the territory, the Italian business register, the official register of the city of Palermo and its permanent archive of deliberations and ordinances, and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
-Nine sources; eight of them have a command like these, which needs neither a browser nor an API key:
+Ten sources; nine of them have a command like these, which needs neither a browser nor an API key:
 
 ```bash
 opencli law-tracker timeline 2021_106       # the stages the AI Act went through
 opencli eur-lex get 32024R1689              # the full text of the AI Act
 opencli eu-funding calls "artificial intelligence" --type grant   # EU grants open now
+opencli opentender tenders --supplier Palantir   # public contracts won across Europe
 opencli istatdata ask "reddito medio a Bagheria"   # which ISTAT tables answer a question
 opencli aster data "IT1,26_29,1.0" --filter "SEX=9 DATA_TYPE=LIFEEXP0" --last 3   # life expectancy by region, from the ISTAT atlas
 opencli albo-palermo list "Avviso Pubblico"   # the latest public notices of Palermo
@@ -39,6 +40,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 |---|---|---|
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `transposition`, `sparql` |
+| [OpenTender](https://opentender.eu/) — European public procurement, 24.5 million tenders | — | [`plugins/opentender/`](plugins/opentender/) — `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
 | [ASTER](https://aster.istat.it/) — the ISTAT Statistical Atlas of the Territory | — | [`plugins/aster/`](plugins/aster/) — `atlases`, `datasets`, `dataset`, `values`, `data` |
 | [Koboyo Icons](https://koboyo.com/icons) — 261,740 free hand-drawn SVG icons | — | [`plugins/koboyo/`](plugins/koboyo/) — `search`, `get`, `groups` |
@@ -50,6 +52,8 @@ Each adapter has its own README with its commands, its examples and the traps of
 The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
 
 **aster has no sitemap either.** The adapter covers the path through the pages that leads to a figure - atlas, dataset, dimensions, codes, data - through the hub the pages call. Maps, news and indicators are not wrapped.
+
+**opentender has no sitemap either.** The portal is behind a Cloudflare challenge; the adapter reads the data server the portal is built on, which answers without a key. Read its README before counting: one company has many records, amounts are partial and sometimes repeated.
 
 **koboyo has no sitemap either**, for the same reason and more so: its search page is the only page worth driving, and the adapter reproduces it exactly, ranking included.
 
@@ -78,7 +82,7 @@ Agents should start from [`AGENTS.md`](AGENTS.md).
 ```bash
 npm install -g @jackwener/opencli@2.0.2                 # the CLI itself
 opencli plugin install github:aborruso/opencli          # every adapter in this repo
-opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
+opencli list | grep -E 'law-tracker|eur-lex|istatdata|aster|opentender|koboyo|eu-funding|albo-palermo|palermo-delibere'  # check
 ```
 
 > **Written for OpenCLI 2.** Two things changed from 1.8: `-f json` (and the default output, which is now JSON) wraps the rows as `{"ok": true, "data": [...]}`, so the `jq` examples read `.data[]`; and OpenCLI no longer reads site sitemaps ([PR #2539](https://github.com/jackwener/OpenCLI/pull/2539)). The folders in `sitemaps/` stay as Markdown notes that an agent reads itself before driving the browser; [`AGENTS.md`](AGENTS.md) says when. Checked on 2.0.2 on 2026-10-20: every plugin installs, `opencli adapter check` passes on all of them.
@@ -102,6 +106,7 @@ opencli plugin install "file://$PWD/plugins/law-tracker"
 opencli plugin install "file://$PWD/plugins/eur-lex"
 opencli plugin install "file://$PWD/plugins/istatdata"
 opencli plugin install "file://$PWD/plugins/aster"
+opencli plugin install "file://$PWD/plugins/opentender"
 opencli plugin install "file://$PWD/plugins/koboyo"
 opencli plugin install "file://$PWD/plugins/eu-funding"
 opencli plugin install "file://$PWD/plugins/albo-palermo"

@@ -39,6 +39,10 @@
     "aster": {
       "path": "plugins/aster",
       "description": "ASTER - the ISTAT Statistical Atlas of the Territory: atlases, datasets, a dataset's dimensions and codes, and its data as rows"
+    },
+    "opentender": {
+      "path": "plugins/opentender",
+      "description": "OpenTender - European public procurement: tenders, suppliers and contracting authorities of 35 countries and the EU institutions, from the portal's data server"
     }
   }
 }
