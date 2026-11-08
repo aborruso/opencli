@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-08
+
+- **Raindrop adapter** (`plugins/raindrop/`): four read-only commands, `search`, `get`, `collections`, `tags`, over the official API. Standard `RAINDROP_TOKEN` environment authentication; optional external dotenvx invocation verified on OpenCLI 2.0.2 without daemon restart. No key-file access in the adapter.
+- Search combines unchanged native queries with locally verified inclusive UTC save-date ranges and exact-host/subdomain filters; limit applies after filtering, serial pages of 50, no silent cap or partial success. Collections deduplicate ids because the live child endpoint repeated a root record.
+- Live regression: 2026 Twitter/X search returned 16 bookmarks, matching an independent scan; exact-phrase CLI article search and `get` agree. Tags, collection discovery, native tag/title/OR queries and one-day date boundaries exercised. Missing token exits 77; unmatched search exits 66. Synthetic tests cover auth, paging, filtering, payload errors and output shapes; adapter check passes on all four commands.
+- Added the Raindrop README search cookbook and root discovery entries; external WSL wiki documents secure token custody and verified adapter use. No private inventory or credentials committed.
+
 ## 2026-11-04
 
 - **Tenth site: `opentender`** (`plugins/opentender/`, 8 commands: `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority`), European public procurement, 24,525,649 tenders. `opentender.eu` answers 403 with a Cloudflare managed challenge on every path; `api.opentender.eu`, the data server behind it, answers without key. Routes from `yigit-serin/opentender-backend`, search fields from `arnese/opentender-frontend`, all checked live. No browser.

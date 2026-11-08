@@ -1,0 +1,12 @@
+{
+  "name": "opencli-plugin-raindrop",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Read-only Raindrop bookmark search through the official API",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "peerDependencies": {
+    "@jackwener/opencli": ">=2.0.0"
+  }
+}

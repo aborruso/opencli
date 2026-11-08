@@ -1,0 +1,6 @@
+{
+  "name": "raindrop",
+  "version": "0.1.0",
+  "description": "Raindrop — search private bookmarks, collections and tags with RAINDROP_TOKEN; no browser",
+  "opencli": ">=2.0.0"
+}

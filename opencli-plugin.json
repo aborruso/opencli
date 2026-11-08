@@ -1,7 +1,7 @@
 {
   "name": "opencli-sitemaps",
   "version": "0.1.0",
-  "description": "OpenCLI adapters and agent sitemaps for public data sources",
+  "description": "OpenCLI adapters and agent sitemaps for public data sources and personal bookmarks",
   "opencli": ">=1.8.6",
   "plugins": {
     "law-tracker": {
@@ -39,6 +39,10 @@
     "aster": {
       "path": "plugins/aster",
       "description": "ASTER - the ISTAT Statistical Atlas of the Territory: atlases, datasets, a dataset's dimensions and codes, and its data as rows"
+    },
+    "raindrop": {
+      "path": "plugins/raindrop",
+      "description": "Raindrop — read-only search of personal bookmarks, collections and tags through the official API; requires RAINDROP_TOKEN"
     },
     "opentender": {
       "path": "plugins/opentender",

@@ -1,8 +1,8 @@
-# opencli — terminal commands for public data sources
+# opencli — terminal commands for public data sources and personal bookmarks
 
-[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for ten public sources — EU legislative procedures, the text of EU law, EU funding calls and projects, European public procurement, Italian official statistics and the ISTAT statistical atlas of the territory, the Italian business register, the official register of the city of Palermo and its permanent archive of deliberations and ordinances, and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
+[OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for ten public sources and a personal bookmark archive — EU legislative procedures, the text of EU law, EU funding calls and projects, European public procurement, Italian official statistics and the ISTAT statistical atlas of the territory, the Italian business register, the official register of the city of Palermo and its permanent archive of deliberations and ordinances, and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
-Ten sources; nine of them have a command like these, which needs neither a browser nor an API key:
+Ten public sources; nine of them have a command like these, which needs neither a browser nor an API key. An eleventh adapter, Raindrop, searches personal bookmarks with a token:
 
 ```bash
 opencli law-tracker timeline 2021_106       # the stages the AI Act went through
@@ -30,7 +30,7 @@ opencli plugin install github:aborruso/opencli          # every adapter in this 
 opencli list                                            # what you can now run
 ```
 
-That is enough for every command but two. Single-site install, the JSON output and the browser setup are under [Install](#install).
+Some commands require browser setup; Raindrop requires `RAINDROP_TOKEN` (optionally supplied by dotenvx). Single-site install, the JSON output and the browser setup are under [Install](#install).
 
 Each adapter has its own README with its commands, its examples and the traps of that particular source. Start from the table below.
 
@@ -40,6 +40,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 |---|---|---|
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `transposition`, `sparql` |
+| [Raindrop](https://raindrop.io/) — your saved bookmarks (requires `RAINDROP_TOKEN`) | — | [`plugins/raindrop/`](plugins/raindrop/) — `search`, `get`, `collections`, `tags`; [search cookbook](plugins/raindrop/README.md#search-cookbook) |
 | [OpenTender](https://opentender.eu/) — European public procurement, 24.5 million tenders | — | [`plugins/opentender/`](plugins/opentender/) — `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
 | [ASTER](https://aster.istat.it/) — the ISTAT Statistical Atlas of the Territory | — | [`plugins/aster/`](plugins/aster/) — `atlases`, `datasets`, `dataset`, `values`, `data` |
@@ -52,6 +53,8 @@ Each adapter has its own README with its commands, its examples and the traps of
 The first two are complementary and cross-reference each other: law-tracker follows the legislative process and only searches procedure titles; EUR-Lex holds the acts and searches their full text.
 
 **aster has no sitemap either.** The adapter covers the path through the pages that leads to a figure - atlas, dataset, dimensions, codes, data - through the hub the pages call. Maps, news and indicators are not wrapped.
+
+**raindrop has no sitemap.** Its adapter uses the official API, with `RAINDROP_TOKEN` from the invoking environment. Dotenvx is optional: it injects that variable into the individual command. Read the [Raindrop README](plugins/raindrop/README.md) for setup, saved-date versus publication-date semantics, domain filtering and native search examples.
 
 **opentender has no sitemap either.** The portal is behind a Cloudflare challenge; the adapter reads the data server the portal is built on, which answers without a key. Read its README before counting: one company has many records, amounts are partial and sometimes repeated.
 
@@ -67,7 +70,7 @@ The first two are complementary and cross-reference each other: law-tracker foll
 
 **istatdata has no sitemap on purpose.** Its public API covers exactly what the web form does, so an agent holding the adapter has no reason to open the Data Browser, and a navigation graph would describe a path nobody walks. One gets written the day something worth reaching is only reachable through the pages — the data preview beside a result, for instance, which is not wrapped.
 
-Commands talk to a public API through OpenCLI's local daemon and need **no browser**. The single exception is `eur-lex search`: EUR-Lex full-text search exists nowhere but on the site itself, which sits behind an AWS WAF, so that one command drives a real Chrome through the **Browser Bridge** extension.
+Most commands call APIs or fetch pages without a browser; Raindrop calls its authenticated API with the invoking process's environment. `eur-lex search` and `registroimprese search` need a real Chrome through the **Browser Bridge** extension.
 
 ## What is in this repository
 
@@ -107,6 +110,7 @@ opencli plugin install "file://$PWD/plugins/eur-lex"
 opencli plugin install "file://$PWD/plugins/istatdata"
 opencli plugin install "file://$PWD/plugins/aster"
 opencli plugin install "file://$PWD/plugins/opentender"
+opencli plugin install "file://$PWD/plugins/raindrop"
 opencli plugin install "file://$PWD/plugins/koboyo"
 opencli plugin install "file://$PWD/plugins/eu-funding"
 opencli plugin install "file://$PWD/plugins/albo-palermo"
