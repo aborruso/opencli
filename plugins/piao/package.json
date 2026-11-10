@@ -1,0 +1,12 @@
+{
+  "name": "opencli-plugin-piao",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Portale PIAO (piao.dfp.gov.it) - PIAO plans of Italian public administrations, no browser",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "peerDependencies": {
+    "@jackwener/opencli": ">=2.0.0"
+  }
+}

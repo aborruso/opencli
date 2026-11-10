@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10
+
+- **New site: `piao`** (`plugins/piao/`, 5 commands: `search`, `recent`, `enti`, `ente`, `docs`), the PIAO plans of Italian public administrations, about 40,000 records. Read-only over `/api/piao` and `/api/administrations`, found in the portal's React bundle; no browser, no key. No archive dump, by decision: one command reads at most 200 pages of 6 records and fails rather than returning a partial list.
+- `ipaCode` is a case-sensitive substring on the server, so `ente` and `docs` keep the exact code locally. No server triennium filter: `--anno` is local. `recent` follows the portal order, which is not by approval date despite the portal's title. `n_dipendenti` passed through raw: the portal does not label it.
+- The portal page reads no URL parameters, so a link cannot open it on one administration; the API sends no CORS headers.
+- Verified: 16 tests pass, `adapter check` clean on 5 commands; Palermo `ente` 6 rows = raw API total 6; real `docs --download` of 3 PDFs, repeat run skips all 3.
+
 ## 2026-11-08
 
 - **Raindrop adapter** (`plugins/raindrop/`): four read-only commands, `search`, `get`, `collections`, `tags`, over the official API. Standard `RAINDROP_TOKEN` environment authentication; optional external dotenvx invocation verified on OpenCLI 2.0.2 without daemon restart. No key-file access in the adapter.

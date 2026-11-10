@@ -1,0 +1,6 @@
+{
+  "name": "piao",
+  "version": "0.1.0",
+  "description": "Portale PIAO (piao.dfp.gov.it) - the Integrated Activity and Organisation Plans of Italian public administrations: search, history of one administration, document links and download; no browser, no key",
+  "opencli": ">=2.0.0"
+}

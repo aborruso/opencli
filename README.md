@@ -2,7 +2,7 @@
 
 [OpenCLI](https://github.com/jackwener/OpenCLI) turns a website into terminal commands. This repository is a set of those commands for ten public sources and a personal bookmark archive — EU legislative procedures, the text of EU law, EU funding calls and projects, European public procurement, Italian official statistics and the ISTAT statistical atlas of the territory, the Italian business register, the official register of the city of Palermo and its permanent archive of deliberations and ordinances, and a library of hand-drawn icons — written so that a person or an agent can query them without opening a browser and without reading an API doc first.
 
-Ten public sources; nine of them have a command like these, which needs neither a browser nor an API key. An eleventh adapter, Raindrop, searches personal bookmarks with a token:
+Eleven public sources; ten of them have a command like these, which needs neither a browser nor an API key. A twelfth adapter, Raindrop, searches personal bookmarks with a token:
 
 ```bash
 opencli law-tracker timeline 2021_106       # the stages the AI Act went through
@@ -14,6 +14,7 @@ opencli aster data "IT1,26_29,1.0" --filter "SEX=9 DATA_TYPE=LIFEEXP0" --last 3 
 opencli albo-palermo list "Avviso Pubblico"   # the latest public notices of Palermo
 opencli palermo-delibere search DGC --text "stadio"   # every Giunta deliberation that names the stadium, years back
 opencli koboyo search "shopping cart"       # a free hand-drawn SVG icon
+opencli piao ente c_g273 --latest           # the PIAO plans of Palermo, by IPA code
 ```
 
 Every command returns rows, in `table`, `json`, `csv`, `yaml` or plain text, so the output pipes into `jq`, into a spreadsheet or into the next command. The URLs in those rows are ones you can follow: a document to download, a dataset to read, a page to open.
@@ -42,6 +43,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `transposition`, `sparql` |
 | [Raindrop](https://raindrop.io/) — your saved bookmarks (requires `RAINDROP_TOKEN`) | — | [`plugins/raindrop/`](plugins/raindrop/) — `search`, `get`, `collections`, `tags`; [search cookbook](plugins/raindrop/README.md#search-cookbook) |
 | [OpenTender](https://opentender.eu/) — European public procurement, 24.5 million tenders | — | [`plugins/opentender/`](plugins/opentender/) — `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority` |
+| [Portale PIAO](https://piao.dfp.gov.it/piao) — the PIAO plans of Italian public administrations, about 40,000 records | — | [`plugins/piao/`](plugins/piao/) — `search`, `recent`, `enti`, `ente`, `docs` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |
 | [ASTER](https://aster.istat.it/) — the ISTAT Statistical Atlas of the Territory | — | [`plugins/aster/`](plugins/aster/) — `atlases`, `datasets`, `dataset`, `values`, `data` |
 | [Koboyo Icons](https://koboyo.com/icons) — 261,740 free hand-drawn SVG icons | — | [`plugins/koboyo/`](plugins/koboyo/) — `search`, `get`, `groups` |
@@ -57,6 +59,8 @@ The first two are complementary and cross-reference each other: law-tracker foll
 **raindrop has no sitemap.** Its adapter uses the official API, with `RAINDROP_TOKEN` from the invoking environment. Dotenvx is optional: it injects that variable into the individual command. Read the [Raindrop README](plugins/raindrop/README.md) for setup, saved-date versus publication-date semantics, domain filtering and native search examples.
 
 **opentender has no sitemap either.** The portal is behind a Cloudflare challenge; the adapter reads the data server the portal is built on, which answers without a key. Read its README before counting: one company has many records, amounts are partial and sometimes repeated.
+
+**piao has no sitemap either.** The portal has one searchable page and the adapter reads the same public JSON it does. Read its README before counting: one row is one version of a plan.
 
 **koboyo has no sitemap either**, for the same reason and more so: its search page is the only page worth driving, and the adapter reproduces it exactly, ranking included.
 
@@ -112,6 +116,7 @@ opencli plugin install "file://$PWD/plugins/aster"
 opencli plugin install "file://$PWD/plugins/opentender"
 opencli plugin install "file://$PWD/plugins/raindrop"
 opencli plugin install "file://$PWD/plugins/koboyo"
+opencli plugin install "file://$PWD/plugins/piao"
 opencli plugin install "file://$PWD/plugins/eu-funding"
 opencli plugin install "file://$PWD/plugins/albo-palermo"
 ```

@@ -47,6 +47,10 @@
     "opentender": {
       "path": "plugins/opentender",
       "description": "OpenTender - European public procurement: tenders, suppliers and contracting authorities of 35 countries and the EU institutions, from the portal's data server"
+    },
+    "piao": {
+      "path": "plugins/piao",
+      "description": "Portale PIAO - the Integrated Activity and Organisation Plans of Italian public administrations: search, one administration's history, document links and download"
     }
   }
 }
