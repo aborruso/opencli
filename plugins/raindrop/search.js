@@ -4,10 +4,18 @@ import { BOOKMARK_COLUMNS, SORTS, searchBookmarks, requireRows } from './shared.
 cli({
     site: 'raindrop', name: 'search', access: 'read', browser: false,
     domain: 'api.raindrop.io', strategy: Strategy.PUBLIC,
-    description: 'Search your Raindrop bookmarks using RAINDROP_TOKEN; optional saved-date and exact-domain filters (no browser)',
-    example: 'opencli raindrop search --from 2026-01-01 --to 2026-12-31 --domain x.com,twitter.com --limit 0',
+    description: 'Search your Raindrop bookmarks using RAINDROP_TOKEN; optional saved-date and exact-domain filters (no browser). Discover operators and combinations with: opencli raindrop syntax (offline, no token; -f json for agents)',
+    example: [
+        "opencli raindrop search 'cli agents'  # both words",
+        'opencli raindrop search \'"Building CLIs for agents"\'  # exact phrase',
+        "opencli raindrop search '#cli #reference'  # both tags",
+        "opencli raindrop search '#cli #mcp match:OR'  # either tag",
+        "opencli raindrop search '#cli -#obsolete'  # exclude a tag",
+        "opencli raindrop search '#cli' --from 2026-01-01 --domain x.com,twitter.com  # native query AND local filters",
+        'opencli raindrop syntax -f json  # full query reference; no token required',
+    ].join('\n'),
     args: [
-        { name: 'query', type: 'string', positional: true, help: 'Native Raindrop search, including #tags, quoted phrases and link:; omit to browse' },
+        { name: 'query', type: 'string', positional: true, help: 'Native query; quote the whole argument. Words and #tags default to AND; use match:OR for alternatives, -word/-#tag for exclusion, "phrase" for exact phrases. Fields: title:, excerpt:, note:, link:, info:, type:. Omit to browse. See opencli raindrop syntax for combinations, examples and caveats' },
         { name: 'collection', type: 'int', default: 0, help: 'Collection id; 0 = all except Trash, -1 = Unsorted, -99 = Trash; see collections' },
         { name: 'nested', type: 'boolean', default: false, help: 'Include nested collections when searching one collection' },
         { name: 'from', type: 'string', help: 'First bookmark save date, inclusive UTC YYYY-MM-DD; not the linked page publication date' },

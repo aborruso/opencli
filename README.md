@@ -41,7 +41,7 @@ Each adapter has its own README with its commands, its examples and the traps of
 |---|---|---|
 | [EU Law Tracker](https://law-tracker.europa.eu) — the EU legislative process | [`sitemaps/law-tracker/`](sitemaps/law-tracker/README.md) | [`plugins/law-tracker/`](plugins/law-tracker/) — `proposals`, `events`, `search`, `timeline`, `topics` |
 | [EUR-Lex](https://eur-lex.europa.eu) — the text of EU law | [`sitemaps/eur-lex/`](sitemaps/eur-lex/README.md) | [`plugins/eur-lex/`](plugins/eur-lex/) — `search`, `get`, `meta`, `transposition`, `sparql` |
-| [Raindrop](https://raindrop.io/) — your saved bookmarks (requires `RAINDROP_TOKEN`) | — | [`plugins/raindrop/`](plugins/raindrop/) — `search`, `get`, `collections`, `tags`; [search cookbook](plugins/raindrop/README.md#search-cookbook) |
+| [Raindrop](https://raindrop.io/) — your saved bookmarks (requires `RAINDROP_TOKEN`) | — | [`plugins/raindrop/`](plugins/raindrop/) — `search`, `get`, `collections`, `tags`, `syntax` (offline reference); [search cookbook](plugins/raindrop/README.md#search-cookbook) |
 | [OpenTender](https://opentender.eu/) — European public procurement, 24.5 million tenders | — | [`plugins/opentender/`](plugins/opentender/) — `stats`, `sectors`, `tenders`, `tender`, `companies`, `company`, `authorities`, `authority` |
 | [Portale PIAO](https://piao.dfp.gov.it/piao) — the PIAO plans of Italian public administrations, about 40,000 records | — | [`plugins/piao/`](plugins/piao/) — `search`, `recent`, `enti`, `ente`, `docs` |
 | [IstatData](https://esploradati.istat.it/databrowser/) — Italian official statistics | — | [`plugins/istatdata/`](plugins/istatdata/) — `ask`, `dataset` |

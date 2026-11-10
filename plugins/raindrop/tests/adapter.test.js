@@ -6,6 +6,7 @@ import '../search.js';
 import '../get.js';
 import '../collections.js';
 import '../tags.js';
+import '../syntax.js';
 
 const originalFetch = globalThis.fetch;
 const originalToken = process.env.RAINDROP_TOKEN;
@@ -33,6 +34,37 @@ const ok = (body) => new Response(JSON.stringify(body), { status: 200 });
 const command = (name) => getRegistry().get('raindrop/' + name);
 const execute = (name, args = {}) => command(name).func(args);
 
+test('syntax is token-free, offline, structured and covers the search language', async () => {
+    delete process.env.RAINDROP_TOKEN;
+    globalThis.fetch = () => assert.fail('syntax must not make API calls');
+    const rows = await execute('syntax');
+    const syntax = command('syntax');
+    assert.ok(rows.length >= 20);
+    for (const row of rows) {
+        assert.deepEqual(Object.keys(row), syntax.columns);
+        for (const value of Object.values(row)) assert.equal(typeof value, 'string');
+        assert.ok(row.example.startsWith('opencli raindrop '));
+        assert.ok(row.source.startsWith('https://'));
+    }
+    for (const category of ['text', 'tags', 'fields', 'attributes', 'dates', 'local', 'workflow']) {
+        assert.ok(rows.some(row => row.category === category), category);
+    }
+    for (const text of ['#cli #reference', '#cli #mcp match:OR', '#cli -#obsolete', '#"machine learning"',
+        'note:review', 'type:video', '--from', '--domain', '--nested', 'syntax -f json']) {
+        assert.ok(rows.some(row => row.example.includes(text)), text);
+    }
+    assert.ok(rows.some(row => row.notes.includes('publication')));
+    assert.ok(rows.some(row => row.notes.includes('precedence')));
+});
+test('human and JSON search help can discover syntax and essential combinations', () => {
+    const search = command('search');
+    assert.ok(search.description.includes('syntax'));
+    const queryHelp = search.args.find(arg => arg.name === 'query').help;
+    for (const value of ['#tag', 'match:OR', 'title:', 'note:', 'type:']) assert.ok(queryHelp.includes(value));
+    for (const value of ['#cli #reference', '#cli #mcp match:OR', '--domain', 'syntax -f json']) {
+        assert.ok(search.example.includes(value), value);
+    }
+});
 test('missing token fails without a request', async () => {
     delete process.env.RAINDROP_TOKEN;
     globalThis.fetch = () => assert.fail('must not fetch');
@@ -142,8 +174,8 @@ test('get and collection discovery reject missing records and genuine empty resu
     mock(() => ok({ result: true, items: [{}] }));
     await assert.rejects(execute('collections'), { code: 'COMMAND_EXEC' });
 });
-test('all four commands declare read-only Node execution and matching columns', async () => {
-    for (const name of ['search', 'get', 'collections', 'tags']) {
+test('all commands declare read-only Node execution and matching columns', async () => {
+    for (const name of ['search', 'get', 'collections', 'tags', 'syntax']) {
         const cmd = command(name);
         assert.ok(cmd);
         assert.equal(cmd.access, 'read');

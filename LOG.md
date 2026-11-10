@@ -9,6 +9,9 @@
 
 ## 2026-11-08
 
+- **Agent discoverability rule** in `AGENTS.md`: human and structured help must expose syntax, combinations, defaults, examples, limitations and discovery paths; a README alone is insufficient.
+- **Raindrop `syntax`**: offline, token-free query reference with 30 structured entries (operators, tags, fields, attributes, dates, local filters, workflow), examples, caveats and source URLs. `search --help` now includes core grammar, AND/OR/exclusion examples and the reference discovery path, also visible in JSON help. Search execution is unchanged; 17 tests and five-command adapter check pass.
+
 - **Raindrop adapter** (`plugins/raindrop/`): four read-only commands, `search`, `get`, `collections`, `tags`, over the official API. Standard `RAINDROP_TOKEN` environment authentication; optional external dotenvx invocation verified on OpenCLI 2.0.2 without daemon restart. No key-file access in the adapter.
 - Search combines unchanged native queries with locally verified inclusive UTC save-date ranges and exact-host/subdomain filters; limit applies after filtering, serial pages of 50, no silent cap or partial success. Collections deduplicate ids because the live child endpoint repeated a root record.
 - Live regression: 2026 Twitter/X search returned 16 bookmarks, matching an independent scan; exact-phrase CLI article search and `get` agree. Tags, collection discovery, native tag/title/OR queries and one-day date boundaries exercised. Missing token exits 77; unmatched search exits 66. Synthetic tests cover auth, paging, filtering, payload errors and output shapes; adapter check passes on all four commands.

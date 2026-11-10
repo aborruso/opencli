@@ -48,6 +48,16 @@ Search an authenticated user's Raindrop bookmarks through OpenCLI, without a bro
 - [x] Update root README and AGENTS discovery guidance; distinguish authenticated personal bookmarks from public sources. Update `LOG.md` and this checklist.
 - [x] Update the external wiki `C:\varie\msi\wsl\segreti.md` only with verified adapter usage, not credentials.
 
+## Phase 4 — discoverable search language
+
+Approved scope: enrich `search --help` with core syntax/examples and add `syntax`, an offline, token-free command returning documented operators, combinations, examples, caveats and source URLs in the usual output formats. Keep search execution unchanged.
+
+- [x] Add production-path tests for token-free syntax, stable columns, examples and help discovery.
+- [x] Implement `syntax.js` and enrich human/JSON search help.
+- [x] Update discovery docs and run tests, adapter check, human help and JSON syntax through the installed CLI. Recorded the project-wide agent-discoverability rule in AGENTS.md; no audit or changes to unrelated adapters.
+
+Unresolved questions: none.
+
 ## Review
 
 - [x] All emitted keys match declared columns; snake_case columns, read access, no clamped input, silent empty fallback or sentinel row.
@@ -56,4 +66,4 @@ Search an authenticated user's Raindrop bookmarks through OpenCLI, without a bro
 
 ## Unresolved questions
 
-None. Plan approved; implementation, runtime token inheritance, API shapes and manual convention review completed. All four commands verified live; 15 synthetic tests pass. Dotenvx is an optional external launcher, not an automatic adapter fallback. Commit and push requested after successful local use.
+None. Plan approved; implementation, runtime token inheritance, API shapes and manual convention review completed. Original four API commands verified live; offline syntax and human/JSON help verified through the installed CLI; 17 synthetic tests pass. Dotenvx is an optional external launcher, not an automatic adapter fallback. Commit and push requested after successful local use.

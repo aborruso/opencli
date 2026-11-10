@@ -19,6 +19,16 @@ The plugin install clones this repo to `~/.opencli/monorepos/opencli/` and symli
 
 **JSON output is wrapped** in OpenCLI 2: `-f json`, and the default output when no `-f` is given, print `{"ok": true, "data": [...]}`. Read the rows with `jq '.data[]'`. A failure prints `{"ok": false, "error": {...}}`, with a non-zero exit code.
 
+## Agent discoverability
+
+Every tool must be easy for an agent to discover and orchestrate from the CLI itself. Treat help as part of the command's public interface, not a list of flag names.
+
+- Site help must make available capabilities discoverable; command help must explain inputs, defaults, output fields and the next useful command.
+- Explain query languages and meaningful combinations: operators, AND/OR/exclusion behavior, quoting, identifiers and how to discover valid values. Include runnable examples and distinguish native service filters from local adapter filters.
+- State important limitations, authentication requirements, date semantics, pagination/completeness behavior and actionable failure hints. Clearly identify offline commands that need no credentials.
+- Keep essential guidance in `--help`, available in structured help too. For a larger query language, expose a discoverable read-only reference command such as `syntax`, with JSON output. A README alone is not enough.
+- After a command change, inspect human and JSON help and test that the discovery path reaches the necessary syntax without reading source code or guessing. Never include credentials or private inventories in examples.
+
 ## Read this before using the commands
 
 Each site has a `README.md` with example commands and their real output, and a `SITE.md` that opens with the rule of engagement for that site. Read the `SITE.md` first — for EUR-Lex in particular it tells you which half of the work you are in, and getting that wrong wastes the whole session.
@@ -31,7 +41,7 @@ Each site has a `README.md` with example commands and their real output, and a `
 | aster.istat.it | [`plugins/aster/README.md`](plugins/aster/README.md) — no sitemap | `opencli aster atlases\|datasets\|dataset\|values\|data` (no browser) |
 | opentender.eu | [`plugins/opentender/README.md`](plugins/opentender/README.md) — no sitemap | `opencli opentender stats\|sectors\|tenders\|tender\|companies\|company\|authorities\|authority` (no browser) |
 | piao.dfp.gov.it | [`plugins/piao/README.md`](plugins/piao/README.md) — no sitemap | `opencli piao search\|recent\|enti\|ente\|docs` (no browser) |
-| raindrop.io | [`plugins/raindrop/README.md`](plugins/raindrop/README.md) — setup and search cookbook | `opencli raindrop search\|get\|collections\|tags` (no browser; `RAINDROP_TOKEN` required) |
+| raindrop.io | [`plugins/raindrop/README.md`](plugins/raindrop/README.md) — setup and search cookbook | `opencli raindrop search\|get\|collections\|tags\|syntax` (no browser; `syntax` is offline, other commands require `RAINDROP_TOKEN`) |
 | koboyo.com | [`plugins/koboyo/README.md`](plugins/koboyo/README.md) — no sitemap | `opencli koboyo search\|get\|groups` (no browser) |
 | ec.europa.eu/info/funding-tenders | [`plugins/eu-funding/README.md`](plugins/eu-funding/README.md) — no sitemap | `opencli eu-funding calls\|topic\|updates\|faqs\|faq\|org\|partners\|projects\|codes` (no browser) |
 
@@ -58,7 +68,7 @@ A sitemap is a hint. **Live browser state is the truth.** When they disagree, tr
 
 **eu-funding** is the EU Funding & Tenders Portal: calls for proposals and tenders, their updates and FAQs, participant organisations, partner searches and funded projects, through the portal's public APIs. The APIs speak in codes; the commands take names and label the codes, and `codes` is the dictionary for anything you write into `--query`. Three things to hold: `--status open` is not what the doc page's "open" sample returns (that one includes forthcoming); a status can be stale, so use `--deadline-after` when "still open" matters; and a range filter written with a bare date does not compare (it only keeps records that have the field, so the count drops and looks right) - write `2026-09-21T00:00:00.000+0000`.
 
-**raindrop** searches the authenticated user's bookmarks, not public web results. Read its README for search syntax, date/domain filters and dotenvx invocation. It reads `RAINDROP_TOKEN` from the environment; dotenvx is optional and external, not an automatic fallback. `--from`/`--to` refer to inclusive UTC save dates, not publication dates; `--domain x.com,twitter.com` matches exact hosts/subdomains, and `--limit 0` exhausts pages. Native search and local filters are distinct; saved metadata does not prove the full content of a linked thread. Do not publish private inventories or credentials.
+**raindrop** searches the authenticated user's bookmarks, not public web results. Start with `opencli raindrop syntax -f json` for offline operators, combinations and examples; `search --help` includes essential grammar. Read its README for extended examples and dotenvx invocation. It reads `RAINDROP_TOKEN` from the environment; dotenvx is optional and external, not an automatic fallback. `--from`/`--to` refer to inclusive UTC save dates, not publication dates; `--domain x.com,twitter.com` matches exact hosts/subdomains, and `--limit 0` exhausts pages. Native search and local filters are distinct; saved metadata does not prove the full content of a linked thread. Do not publish private inventories or credentials.
 
 Neither EU-law source carries the other's identifier: bridging a procedure to its act means matching on the title or the act number, and that link is inferred, not asserted by either source. Say so when you report it.
 

@@ -1,6 +1,6 @@
 # raindrop — OpenCLI adapter
 
-Four read-only commands over the [official Raindrop API](https://developer.raindrop.io/). Search your own saved bookmarks, inspect one bookmark, and discover collections and tags. No browser, synchronization, local index, or writes to Raindrop.
+Four read-only commands over the [official Raindrop API](https://developer.raindrop.io/), plus the offline `syntax` reference. Search your own saved bookmarks, inspect one bookmark, and discover collections and tags. No browser, synchronization, local index, or writes to Raindrop.
 
 ## Install and authenticate
 
@@ -62,8 +62,24 @@ If `RAINDROP_TOKEN` is already exposed by another mechanism, use `opencli raindr
 | `get <id>` | One bookmark's title, URL, description, note, tags and metadata |
 | `collections` | Root and nested collections, parent ids and bookmark counts; repeated ids are deduplicated |
 | `tags` | Tag names and counts; `--collection` and case-insensitive substring `--grep` |
+| `syntax` | Offline reference: 30 entries with operators, combinations, examples, caveats and source links; no token or network |
 
 Bookmark columns: `id`, `title`, `url`, `excerpt`, `note`, `tags`, `collection_id`, `created`, `updated`, `type`, `important`. Tags stay arrays in JSON. Saved metadata is not a live read of the linked page or its thread.
+
+## Discover search syntax from the CLI
+
+An agent needs no prior knowledge of Raindrop operators or this README:
+
+```bash
+opencli raindrop --help -f json            # discover commands and arguments
+opencli raindrop search --help            # essential syntax, combinations and examples
+opencli raindrop syntax -f json            # complete offline reference
+opencli raindrop syntax -f json | jq '.data[] | select(.category == "tags")'
+```
+
+`syntax` returns `category`, `syntax`, `description`, `example`, `notes`, `source`. It is read-only, makes no request, and does not require `RAINDROP_TOKEN`. An external dotenvx wrapper may still load credentials before starting OpenCLI; invoke `opencli raindrop syntax` directly to avoid that. The personal `rdrop` shortcut forwards the same subcommand and format options.
+
+For tag searches, discover tag names with `tags --grep`, then construct `#tag` queries using the combinations in `syntax`. For collections, discover ids with `collections` before using `--collection`. JSON help exposes the same essential grammar and examples as human help.
 
 ## Search cookbook
 
