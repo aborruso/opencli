@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-11-21
+
+- **`albo-palermo` and `palermo-delibere` `attachments`: HTML attachments no longer fail the whole command.** Any `text/html` answer was taken as the "Sessione scaduta" page, so an act with an attachment that is itself an HTML page (act 1818277546, idx 8, `Appalti_e_Affidamenti_....html`, 77 KB) failed and returned none of its 17 files. Now an HTML answer is an error only without a file name in `content-disposition`, which the expired-session page never has. Output format unchanged. Tested on both portals: 17 files, rerun gives 17 `exists`.
+
 ## 2026-11-10
 
 - **New site: `piao`** (`plugins/piao/`, 5 commands: `search`, `recent`, `enti`, `ente`, `docs`), the PIAO plans of Italian public administrations, about 40,000 records. Read-only over `/api/piao` and `/api/administrations`, found in the portal's React bundle; no browser, no key. No archive dump, by decision: one command reads at most 200 pages of 6 records and fails rather than returning a partial list.

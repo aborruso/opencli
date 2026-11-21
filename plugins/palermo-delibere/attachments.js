@@ -72,7 +72,9 @@ cli({
         for (const a of links) {
             const resp = await session.send(`${BASE}/viewDocument?col=ALLEGATI&idx=${a.idx}`);
             const type = resp.headers.get('content-type') ?? '';
-            if (type.startsWith('text/html')) {
+            // Some attachments are HTML pages themselves: those come with a
+            // file name. The "Sessione scaduta" page comes without one.
+            if (type.startsWith('text/html') && !/filename/i.test(resp.headers.get('content-disposition') ?? '')) {
                 const body = await resp.text();
                 const reason = /Sessione scaduta/.test(body) ? 'session expired' : 'an HTML page instead of a file';
                 throw new CommandExecutionError(`palermo-delibere: attachment ${a.idx} came back as ${reason}`);
